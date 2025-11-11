@@ -46,9 +46,16 @@ npm install
 
 3. **Setup API Key**
    - Dapatkan API Key gratis di: https://aistudio.google.com/app/apikey
-   - Buka file `src/App.jsx`
-   - Cari komponen `ChatPanel`
-   - Isi variabel `apiKey`:
+   - Copy file `.env.example` menjadi `.env`:
+   ```bash
+   cp .env.example .env
+   ```
+   - Edit file `.env` dan isi dengan API key Anda:
+   ```
+   VITE_GEMINI_API_KEY=your_actual_api_key_here
+   ```
+
+4. **Run development server**
    ```javascript
    const apiKey = 'YOUR_API_KEY_HERE';
    ```

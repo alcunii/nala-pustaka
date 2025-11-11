@@ -178,7 +178,8 @@ function ChatPanel({ manuscript }) {
   const messagesEndRef = useRef(null);
   
   // TODO: Isi dengan API Key Anda dari https://aistudio.google.com/app/apikey
-  const apiKey = 'AIzaSyDXBrD8jTS4zfekoaaQ5c44sJvmAsqgm_w';
+  // JANGAN commit API key ke GitHub! Gunakan environment variable
+  const apiKey = import.meta.env.VITE_GEMINI_API_KEY || '';
 
   // Auto-scroll ke bawah saat ada pesan baru
   const scrollToBottom = () => {
