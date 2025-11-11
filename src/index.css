@@ -1,0 +1,40 @@
+@import "tailwindcss";
+
+/* Tailwind v4.x Custom Theme - Modern Golden Brown */
+@theme {
+  /* Primary Golden Brown Palette */
+  --color-primary-50: #FAF8F4;
+  --color-primary-100: #F5F0E8;
+  --color-primary-200: #E8DBC8;
+  --color-primary-300: #DBC6A8;
+  --color-primary-400: #C9A87B;
+  --color-primary-500: #B7966B;
+  --color-primary-600: #A1835C;
+  --color-primary-700: #8A704D;
+  --color-primary-800: #6F5A3E;
+  --color-primary-900: #5A4833;
+  
+  /* Warm Accent Gold */
+  --color-accent-50: #FFF9E6;
+  --color-accent-100: #FFF3CC;
+  --color-accent-200: #FFE699;
+  --color-accent-300: #FFD966;
+  --color-accent-400: #FFCC33;
+  --color-accent-500: #E6B800;
+  --color-accent-600: #CC9900;
+  --color-accent-700: #B38600;
+  --color-accent-800: #997300;
+  --color-accent-900: #806000;
+  
+  /* Rich Brown */
+  --color-brown-50: #F7F5F3;
+  --color-brown-100: #EBE6E0;
+  --color-brown-200: #D4C8BB;
+  --color-brown-300: #BCA996;
+  --color-brown-400: #8D7A66;
+  --color-brown-500: #6B5744;
+  --color-brown-600: #5D4C3A;
+  --color-brown-700: #4A3D2F;
+  --color-brown-800: #362E23;
+  --color-brown-900: #241F18;
+}
