@@ -1,62 +1,9 @@
 import { useState, useEffect, useRef } from 'react';
 import * as d3 from 'd3';
+import { MANUSCRIPT_DATA, KNOWLEDGE_GRAPH_DATA } from './data/manuscripts';
 
-// Data Mockup Naskah
-const MANUSCRIPT_DATA = {
-  'wulangreh': {
-    id: 'wulangreh',
-    title: 'Serat Wulangreh',
-    author: 'Pakubuwana IV',
-    description: 'Ajaran moral dan etika kepemimpinan Jawa.',
-    fullText: `PUPUH I: DHANDHANGGULA
-
-1. Pamedhare wasitaning ati, lumantarèna ing paSmon sinom, mring putrâ-sun kang anom, lanang wadon kang padha nèng kene, rasanen rèh kang kocap, mrih bisaa anganggo, ing wêkasan dadi uwong.
-
-2. Aja nganti kabanjur ing lair, rèhning kabeh iku nora langgeng, pasthi bakal ilang kabèh, kang tinemu mung gawe bae, gawe becik lawan ala, kang ala den owal, kang becik den anggoa.
-
-3. Wong urip iku kudu eling lan waspada, aja nganti keblinger lan kesasar, lakune kudu diawasi, supaya aja salah dalan, nuju marang kautaman, marga kang bener, mrih antuk kasampurnan.
-
-4. Samubarang kang tinemu, aja sanalika dipercaya, dipikir dhisik kanthi tenang, dirumangsaa ing batin, sabab akeh perkara, kang nyleneh saka, kang sejatine iku.
-
-5. Manungsa iku kudu tansah ngudi kamulyan, kanthi tatakrama kang becik, sopan santun kang lumrah, tindak tanduke kudu dijaga, supaya ketaman ing nugraha, saka Gusti Ingkang Maha Kuwaos.`
-  },
-  'centhini': {
-    id: 'centhini',
-    title: 'Serat Centhini',
-    author: 'Tim Penulis Istana',
-    description: 'Ensiklopedia kebudayaan Jawa yang komprehensif.',
-    fullText: `SERAT CENTHINI - Perjalanan Sèh Amongraga
-
-Kacarita ing nagari Giri, wonten santri prigel lan wicaksana, asmane Sèh Amongraga. Piyambakipun putra dalem kanjeng susuhunan ing Giri. Sareng sampun dewasa, Sèh Amongraga lumampah sowan dhateng para wali lan ulama ing tanah Jawi, kanthi maksud ngudi ngelmu tuwin kawruh.
-
-Ing salebeting lampah, panjenenganipun tepang kaliyan santri-santri sanes, inggih punika Sèh Amongrasa lan Nyi Tembangraras. Sedaya mau lajeng nglampahi lelana sesarengan, ngudi kasampurnan ngelmu.
-
-Sadangunipun lelana, Sèh Amongraga maringi piwulang bab macem-macem kawruh: babagan tembang lan karawitan, babagan tetanen lan pranatan alam, babagan tata upacara adat Jawi, babagan kasusastran lan filsafat, ugi babagan keprigelan lan kasantenan.
-
-Serat punika ngandhut kathah sanget kawruh bab kabudayan Jawi ingkang sampun kadadosan ing jaman rumiyin. Dados tiyang saged sinau saking serat punika bab adat istiadat, tata upacara, panggenan-panggenan ingkang kramat, lan sapanunggalanipun.
-
-Kabudayan Jawi ingkang kacritakaken ing Serat Centhini punika nyakup sanget wiyar, saking urusan padintenan ngantos bab kebatinan ingkang jero. Mila serat punika dipun wastani minangka ensiklopedia kabudayan Jawi.`
-  },
-  'kalatidha': {
-    id: 'kalatidha',
-    title: 'Serat Kalatidha',
-    author: 'Ranggawarsita',
-    description: 'Refleksi atas zaman yang penuh ketidakpastian.',
-    fullText: `SERAT KALATIDHA - Ranggawarsita
-
-PUPUH SINOM
-
-Mangkya darajating praja, kawuryan wus sunyaruri, rurah pangrehing ukara, karana tanpa palupi, atilar silastuti, sujana sarjana kelu, kalulun kalatidha, tidhem tandhaning dumadi, ardayengrat dening karoban rubeda.
-
-Ratune ratu utama, patihe patih linuwih, pra nayaka tyas raharja, panekare becik-becik, parandene tan dadi, paliyasing kalabendu, malah sangsayeng ndadra, rubeda kang ngreribedi, luwih-luwih para kawula alit.
-
-Pedah apa aneng ngayun, sumelang ing karsa Allah, mugiya pinaringana, pra samya wilujeng sami, padhang ayuning bawana, tegese golong gilig, ginelung aeng-aeng ngumbara, temah lali ring ngaurip, eling-eling kang yekti lamun den eling.
-
-Amenangi jaman edan, ewuh aya ing pambudi, melu edan nora tahan, yen tan melu anglakoni, boya kena kadumuk, kaliren wekasanipun, dilalah kerenane, beda lamun nora nglakoni, uger-uger kang dadi panggegepira.
-
-Wong anom anggone kelakon, angayuh kasektene, ing wekasan samya kesed, sarehne tanpa pambiyantu, saking kadang lan mitra, temah pra anom saiki, padha kemba kasepen.`
-  }
-};
+// Data naskah sekarang di-import dari file terpisah
+// Edit src/data/manuscripts.js untuk menambah naskah baru
 
 // Komponen Header
 function Header() {
@@ -413,65 +360,9 @@ function KnowledgeGraphPanel({ manuscript }) {
   const svgRef = useRef();
   const [dimensions, setDimensions] = useState({ width: 800, height: 600 });
 
-  // Data Knowledge Graph berdasarkan naskah
+  // Data Knowledge Graph diambil dari file manuscripts.js
   const getKnowledgeGraphData = (manuscriptId) => {
-    const graphData = {
-      'wulangreh': {
-        nodes: [
-          { id: 'wulangreh', label: 'Serat Wulangreh', type: 'Karya' },
-          { id: 'pb4', label: 'Pakubuwana IV', type: 'Tokoh' },
-          { id: 'ajaran_moral', label: 'Ajaran Moral', type: 'Konsep' },
-          { id: 'kepemimpinan', label: 'Kepemimpinan', type: 'Konsep' },
-          { id: 'dhandhanggula', label: 'Pupuh Dhandhanggula', type: 'Struktur' },
-          { id: 'etika', label: 'Etika', type: 'Konsep' },
-          { id: 'kebijaksanaan', label: 'Kebijaksanaan', type: 'Konsep' }
-        ],
-        links: [
-          { source: 'pb4', target: 'wulangreh', label: 'Pengarang' },
-          { source: 'wulangreh', target: 'ajaran_moral', label: 'Berisi' },
-          { source: 'wulangreh', target: 'kepemimpinan', label: 'Membahas' },
-          { source: 'wulangreh', target: 'dhandhanggula', label: 'Dimulai dengan' },
-          { source: 'ajaran_moral', target: 'etika', label: 'Terkait' },
-          { source: 'kepemimpinan', target: 'kebijaksanaan', label: 'Memerlukan' }
-        ]
-      },
-      'centhini': {
-        nodes: [
-          { id: 'centhini', label: 'Serat Centhini', type: 'Karya' },
-          { id: 'tim_penulis', label: 'Tim Penulis Istana', type: 'Tokoh' },
-          { id: 'amongraga', label: 'Sèh Amongraga', type: 'Tokoh' },
-          { id: 'kabudayan', label: 'Kebudayaan Jawa', type: 'Konsep' },
-          { id: 'lelana', label: 'Perjalanan', type: 'Konsep' },
-          { id: 'ngelmu', label: 'Ilmu Pengetahuan', type: 'Konsep' }
-        ],
-        links: [
-          { source: 'tim_penulis', target: 'centhini', label: 'Penulis' },
-          { source: 'centhini', target: 'amongraga', label: 'Tokoh Utama' },
-          { source: 'centhini', target: 'kabudayan', label: 'Ensiklopedia' },
-          { source: 'amongraga', target: 'lelana', label: 'Menjalani' },
-          { source: 'lelana', target: 'ngelmu', label: 'Mencari' }
-        ]
-      },
-      'kalatidha': {
-        nodes: [
-          { id: 'kalatidha', label: 'Serat Kalatidha', type: 'Karya' },
-          { id: 'ranggawarsita', label: 'Ranggawarsita', type: 'Tokoh' },
-          { id: 'jaman_edan', label: 'Jaman Edan', type: 'Konsep' },
-          { id: 'kalabendu', label: 'Kalabendu', type: 'Konsep' },
-          { id: 'refleksi', label: 'Refleksi', type: 'Konsep' },
-          { id: 'sinom', label: 'Pupuh Sinom', type: 'Struktur' }
-        ],
-        links: [
-          { source: 'ranggawarsita', target: 'kalatidha', label: 'Pengarang' },
-          { source: 'kalatidha', target: 'jaman_edan', label: 'Membahas' },
-          { source: 'kalatidha', target: 'refleksi', label: 'Berisi' },
-          { source: 'jaman_edan', target: 'kalabendu', label: 'Akibat' },
-          { source: 'kalatidha', target: 'sinom', label: 'Menggunakan' }
-        ]
-      }
-    };
-
-    return graphData[manuscriptId] || graphData['wulangreh'];
+    return KNOWLEDGE_GRAPH_DATA[manuscriptId] || KNOWLEDGE_GRAPH_DATA['wulangreh'];
   };
 
   useEffect(() => {

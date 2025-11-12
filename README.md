@@ -10,8 +10,9 @@ Aplikasi web interaktif yang menggunakan AI (Google Gemini) dengan metodologi RA
 
 ### 1. **Pustaka Digital**
 - Koleksi naskah kuno Jawa yang terdigitalisasi
-- Naskah tersedia: Serat Wulangreh, Serat Centhini, Serat Kalatidha
+- Naskah tersedia: Serat Wulangreh, Serat Centhini, Serat Kalatidha, Serat Wedhatama
 - Interface card yang intuitif dan responsif
+- **Mudah ditambahkan**: Lihat [QUICKSTART_ADD_MANUSCRIPT.md](QUICKSTART_ADD_MANUSCRIPT.md) untuk menambah naskah baru (5 menit!)
 
 ### 2. **Pustakawan AI (RAG Chatbot)**
 - Chat interaktif dengan AI yang ahli filologi Jawa
@@ -191,12 +192,23 @@ const apiKey = import.meta.env.VITE_GEMINI_API_KEY || '';
 - [x] Implementasi RAG methodology
 - [x] Chat interface dengan auto-scroll
 - [x] Error handling
-- [ ] Knowledge Graph visualization
-- [ ] Multi-language support (Jawa, Indonesia, English)
+- [x] Knowledge Graph visualization
+- [x] Mobile responsive design
+- [x] Modular data structure (easy to add manuscripts)
+- [ ] Database integration (PostgreSQL/Supabase)
+- [ ] Upload naskah via form
 - [ ] Vector database untuk RAG lebih advanced
+- [ ] Multi-language support (Jawa, Indonesia, English)
 - [ ] Export chat history
 - [ ] Share conversation
-- [ ] More manuscripts
+- [ ] Admin dashboard
+
+## 📖 Dokumentasi Lengkap
+
+- **[QUICKSTART_ADD_MANUSCRIPT.md](QUICKSTART_ADD_MANUSCRIPT.md)** - Cara cepat menambah naskah baru (5 menit)
+- **[PANDUAN_DATASET.md](PANDUAN_DATASET.md)** - Panduan lengkap dataset & workflow (Manual, JSON, Database)
+- **[TECHNICAL_DOC.md](TECHNICAL_DOC.md)** - Dokumentasi teknis arsitektur
+- **[USER_GUIDE.md](USER_GUIDE.md)** - Panduan untuk pengguna akhir
 
 ## 🤝 Contributing
 
