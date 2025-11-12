@@ -1,9 +1,18 @@
 import { useState, useEffect, useRef } from 'react';
 import * as d3 from 'd3';
+import { marked } from 'marked';
 import { MANUSCRIPT_DATA, KNOWLEDGE_GRAPH_DATA } from './data/manuscripts';
+import { manuscriptService } from './lib/supabase';
 
-// Data naskah sekarang di-import dari file terpisah
-// Edit src/data/manuscripts.js untuk menambah naskah baru
+// Configure marked for better Markdown rendering
+marked.setOptions({
+  breaks: true,  // Support line breaks
+  gfm: true,     // GitHub Flavored Markdown
+});
+
+// Data naskah sekarang di-fetch dari Supabase (database)
+// Gunakan admin panel di /admin untuk menambah naskah baru
+// Fallback ke data hardcoded jika Supabase gagal
 
 // Komponen Header
 function Header() {
@@ -162,10 +171,13 @@ Semua jawaban harus dalam Bahasa Indonesia.
 Anda HARUS memberi sitasi (menyebutkan bagian) dari mana Anda mengambil jawaban jika memungkinkan.`;
 
     // Konstruksi query dengan konteks (RAG)
+    // Support both fullText (hardcoded) and full_text (from database)
+    const manuscriptText = manuscriptData.full_text || manuscriptData.fullText || '';
+    
     const combinedUserQuery = `
 KONTEKS NASKAH (${manuscriptData.title}):
 """
-${manuscriptData.fullText}
+${manuscriptText}
 """
 
 PERTANYAAN PENGGUNA:
@@ -308,7 +320,28 @@ INSTRUKSI: Jawab pertanyaan pengguna HANYA berdasarkan KONTEKS NASKAH di atas.`;
                   <span className="font-semibold text-sm text-primary-700">Assistant</span>
                 </div>
               )}
-              <p className="text-sm leading-relaxed whitespace-pre-wrap">{message.text}</p>
+              
+              {/* Render Markdown untuk AI, plain text untuk user */}
+              {message.sender === 'ai' ? (
+                <div 
+                  className="prose prose-sm max-w-none
+                    prose-headings:text-primary-900 prose-headings:font-bold
+                    prose-p:text-gray-800 prose-p:leading-relaxed prose-p:my-2
+                    prose-strong:text-primary-800 prose-strong:font-bold
+                    prose-em:text-primary-700 prose-em:italic
+                    prose-ul:list-disc prose-ul:pl-5 prose-ul:my-2 prose-ul:space-y-1
+                    prose-ol:list-decimal prose-ol:pl-5 prose-ol:my-2 prose-ol:space-y-1
+                    prose-li:text-gray-800 prose-li:leading-relaxed
+                    prose-code:bg-primary-100 prose-code:text-primary-900 prose-code:px-1.5 prose-code:py-0.5 prose-code:rounded prose-code:text-sm
+                    prose-pre:bg-primary-50 prose-pre:border-2 prose-pre:border-primary-300 prose-pre:rounded-lg prose-pre:p-3
+                    prose-blockquote:border-l-4 prose-blockquote:border-accent-500 prose-blockquote:pl-4 prose-blockquote:italic prose-blockquote:text-gray-700
+                    prose-a:text-accent-600 prose-a:underline prose-a:font-medium
+                  "
+                  dangerouslySetInnerHTML={{ __html: marked(message.text) }}
+                />
+              ) : (
+                <p className="text-sm leading-relaxed whitespace-pre-wrap">{message.text}</p>
+              )}
             </div>
           </div>
         ))}
@@ -360,16 +393,22 @@ function KnowledgeGraphPanel({ manuscript }) {
   const svgRef = useRef();
   const [dimensions, setDimensions] = useState({ width: 800, height: 600 });
 
-  // Data Knowledge Graph diambil dari file manuscripts.js
-  const getKnowledgeGraphData = (manuscriptId) => {
-    return KNOWLEDGE_GRAPH_DATA[manuscriptId] || KNOWLEDGE_GRAPH_DATA['wulangreh'];
+  // Data Knowledge Graph diambil dari manuscript object atau fallback ke hardcoded
+  const getKnowledgeGraphData = (manuscriptObj) => {
+    // Priority: database > hardcoded
+    if (manuscriptObj.knowledge_graph && manuscriptObj.knowledge_graph.nodes) {
+      return manuscriptObj.knowledge_graph;
+    }
+    
+    // Fallback ke hardcoded data
+    return KNOWLEDGE_GRAPH_DATA[manuscriptObj.id] || KNOWLEDGE_GRAPH_DATA['wulangreh'];
   };
 
   useEffect(() => {
     const svg = d3.select(svgRef.current);
     svg.selectAll('*').remove(); // Clear previous graph
 
-    const kgData = getKnowledgeGraphData(manuscript.id);
+    const kgData = getKnowledgeGraphData(manuscript);
 
     // Setup dimensions
     const containerWidth = svgRef.current?.parentElement?.clientWidth || 800;
@@ -592,7 +631,7 @@ function KnowledgeGraphPanel({ manuscript }) {
 
 // Komponen Left Panel (Daftar Naskah)
 // Komponen Left Panel - Modern Golden Sidebar
-function LeftPanel({ selectedManuscript, onSelectManuscript }) {
+function LeftPanel({ selectedManuscript, onSelectManuscript, manuscripts }) {
   return (
     <div className="bg-gradient-to-b from-primary-50 to-white p-6 overflow-y-auto border-r-2 border-primary-300">
       <div className="mb-6">
@@ -601,7 +640,7 @@ function LeftPanel({ selectedManuscript, onSelectManuscript }) {
       </div>
       
       <div>
-        {Object.values(MANUSCRIPT_DATA).map((manuscript) => (
+        {manuscripts.map((manuscript) => (
           <ManuscriptCard
             key={manuscript.id}
             manuscript={manuscript}
@@ -621,7 +660,7 @@ function LeftPanel({ selectedManuscript, onSelectManuscript }) {
 }
 
 // Komponen Mobile Selector - Horizontal scroll untuk layar kecil
-function MobileManuscriptSelector({ selectedManuscript, onSelectManuscript }) {
+function MobileManuscriptSelector({ selectedManuscript, onSelectManuscript, manuscripts }) {
   return (
     <div className="lg:hidden bg-gradient-to-br from-primary-50 via-amber-50 to-accent-50 px-4 py-5 border-b border-primary-200 shadow-inner">
       <div className="flex items-center justify-between mb-3">
@@ -634,7 +673,7 @@ function MobileManuscriptSelector({ selectedManuscript, onSelectManuscript }) {
         className="flex gap-3 overflow-x-auto pb-2 -mx-1 px-1"
         style={{ scrollbarWidth: 'none' }}
       >
-        {Object.values(MANUSCRIPT_DATA).map((manuscript) => {
+        {manuscripts.map((manuscript) => {
           const isActive = selectedManuscript?.id === manuscript.id;
           return (
             <button
@@ -716,11 +755,52 @@ function RightPanel({ selectedManuscript, viewMode, setViewMode }) {
 function App() {
   const [selectedManuscript, setSelectedManuscript] = useState(null);
   const [viewMode, setViewMode] = useState('welcome');
+  const [manuscripts, setManuscripts] = useState([]); // State untuk data dari Supabase
+  const [loading, setLoading] = useState(true);
+
+  // Fetch manuscripts dari Supabase saat component mount
+  useEffect(() => {
+    loadManuscripts();
+  }, []);
+
+  const loadManuscripts = async () => {
+    try {
+      // Coba fetch dari Supabase
+      const data = await manuscriptService.getAll();
+      
+      if (data && data.length > 0) {
+        // Jika ada data di Supabase, gunakan itu
+        setManuscripts(data);
+      } else {
+        // Jika database kosong, gunakan hardcoded data sebagai fallback
+        console.log('📚 Database kosong, menggunakan data hardcoded');
+        setManuscripts(Object.values(MANUSCRIPT_DATA));
+      }
+    } catch (error) {
+      // Jika Supabase error, fallback ke hardcoded data
+      console.warn('⚠️ Gagal fetch dari Supabase, menggunakan data hardcoded:', error);
+      setManuscripts(Object.values(MANUSCRIPT_DATA));
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const handleSelectManuscript = (manuscript) => {
     setSelectedManuscript(manuscript);
     setViewMode('chat');
   };
+
+  // Loading state
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-primary-50 flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-600 mx-auto mb-4"></div>
+          <p className="text-gray-600">Memuat naskah...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-primary-50 flex flex-col">
@@ -732,6 +812,7 @@ function App() {
           <MobileManuscriptSelector
             selectedManuscript={selectedManuscript}
             onSelectManuscript={handleSelectManuscript}
+            manuscripts={manuscripts}
           />
         </div>
         
@@ -740,6 +821,7 @@ function App() {
           <LeftPanel
             selectedManuscript={selectedManuscript}
             onSelectManuscript={handleSelectManuscript}
+            manuscripts={manuscripts}
           />
         </div>
         

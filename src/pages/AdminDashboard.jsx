@@ -2,6 +2,107 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { authService, manuscriptService } from '../lib/supabase';
 
+// Fungsi untuk auto-generate knowledge graph menggunakan Gemini API
+const generateKnowledgeGraph = async (title, author, fullText) => {
+  const apiKey = import.meta.env.VITE_GEMINI_API_KEY;
+  
+  if (!apiKey) {
+    console.warn('⚠️ Gemini API Key tidak ditemukan. Knowledge graph akan kosong.');
+    return { nodes: [], links: [] };
+  }
+
+  try {
+    const prompt = `Analisis naskah berikut dan ekstrak knowledge graph dalam format JSON.
+
+NASKAH:
+Judul: ${title}
+Pengarang: ${author}
+
+Teks (500 karakter pertama):
+${fullText.substring(0, 500)}...
+
+INSTRUKSI:
+1. Extract maksimal 8-10 nodes penting (tokoh, konsep, struktur)
+2. Buat links yang menghubungkan nodes
+3. Kategorikan nodes: "Karya", "Tokoh", "Konsep", "Struktur"
+
+FORMAT OUTPUT (JSON strict):
+{
+  "nodes": [
+    {"id": "id-unique", "label": "Nama Node", "type": "Karya|Tokoh|Konsep|Struktur"}
+  ],
+  "links": [
+    {"source": "id-source", "target": "id-target", "label": "Relasi"}
+  ]
+}
+
+CONTOH untuk Serat Wulangreh:
+{
+  "nodes": [
+    {"id": "wulangreh", "label": "Serat Wulangreh", "type": "Karya"},
+    {"id": "pakubuwana-iv", "label": "Pakubuwana IV", "type": "Tokoh"},
+    {"id": "ajaran-moral", "label": "Ajaran Moral", "type": "Konsep"}
+  ],
+  "links": [
+    {"source": "pakubuwana-iv", "target": "wulangreh", "label": "Menulis"},
+    {"source": "wulangreh", "target": "ajaran-moral", "label": "Membahas"}
+  ]
+}
+
+PENTING: Hanya output JSON, tidak ada teks lain!`;
+
+    const response = await fetch(
+      `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash-exp:generateContent?key=${apiKey}`,
+      {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          contents: [{ parts: [{ text: prompt }] }],
+          generationConfig: {
+            temperature: 0.4,
+            topP: 0.8,
+            maxOutputTokens: 1024,
+          }
+        })
+      }
+    );
+
+    if (!response.ok) {
+      throw new Error('Gagal generate knowledge graph');
+    }
+
+    const result = await response.json();
+    const aiText = result.candidates?.[0]?.content?.parts?.[0]?.text || '';
+    
+    // Extract JSON from response (handle markdown code blocks)
+    const jsonMatch = aiText.match(/\{[\s\S]*\}/);
+    if (!jsonMatch) {
+      throw new Error('AI tidak mengembalikan JSON valid');
+    }
+
+    const knowledgeGraph = JSON.parse(jsonMatch[0]);
+    
+    // Validate structure
+    if (!knowledgeGraph.nodes || !knowledgeGraph.links) {
+      throw new Error('Structure knowledge graph tidak valid');
+    }
+
+    return knowledgeGraph;
+  } catch (error) {
+    console.error('Error generating knowledge graph:', error);
+    // Fallback: Return minimal graph dengan info naskah
+    return {
+      nodes: [
+        { id: title.toLowerCase().replace(/\s+/g, '-'), label: title, type: 'Karya' },
+        { id: author.toLowerCase().replace(/\s+/g, '-'), label: author, type: 'Tokoh' }
+      ],
+      links: [
+        { source: author.toLowerCase().replace(/\s+/g, '-'), target: title.toLowerCase().replace(/\s+/g, '-'), label: 'Menulis' }
+      ]
+    };
+  }
+};
+
 export default function AdminDashboard() {
   const [user, setUser] = useState(null);
   const [manuscripts, setManuscripts] = useState([]);
@@ -95,9 +196,23 @@ export default function AdminDashboard() {
 
     try {
       // Auto-generate slug if empty
+      const slug = formData.slug || generateSlug(formData.title);
+      
+      // Auto-generate knowledge graph (only for new manuscripts)
+      let knowledgeGraph = null;
+      if (!editingId) {
+        setFormSuccess('🔄 Generating knowledge graph...');
+        knowledgeGraph = await generateKnowledgeGraph(
+          formData.title,
+          formData.author,
+          formData.full_text
+        );
+      }
+
       const dataToSubmit = {
         ...formData,
-        slug: formData.slug || generateSlug(formData.title),
+        slug,
+        ...(knowledgeGraph && { knowledge_graph: knowledgeGraph })
       };
 
       if (editingId) {
@@ -107,7 +222,7 @@ export default function AdminDashboard() {
       } else {
         // Create new
         await manuscriptService.create(dataToSubmit);
-        setFormSuccess('✅ Naskah berhasil ditambahkan!');
+        setFormSuccess('✅ Naskah berhasil ditambahkan dengan knowledge graph!');
       }
 
       // Reload list

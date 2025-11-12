@@ -1,29 +1,15 @@
 import { createClient } from '@supabase/supabase-js';
 
-const supabaseUrl = import.meta.env.VITE_SUPABASE_URL || '';
-const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY || '';
+const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
+const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
 
-// Create dummy client if credentials not found (allow app to run without Supabase)
-let supabase;
 if (!supabaseUrl || !supabaseAnonKey) {
-  console.warn('⚠️ Supabase credentials not found. Admin panel will not work.');
-  console.warn('Add VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY to .env file');
-  console.warn('Main website will work with hardcoded data.');
-  
-  // Create a dummy client that won't throw errors
-  supabase = {
-    from: () => ({ select: () => Promise.resolve({ data: [], error: null }) }),
-    auth: {
-      signInWithPassword: () => Promise.resolve({ data: null, error: new Error('Supabase not configured') }),
-      signOut: () => Promise.resolve({ error: null }),
-      getUser: () => Promise.resolve({ data: { user: null }, error: null }),
-    }
-  };
-} else {
-  supabase = createClient(supabaseUrl, supabaseAnonKey);
+  throw new Error(
+    'Missing Supabase environment variables. Please add VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY to your .env file'
+  );
 }
 
-export { supabase };
+export const supabase = createClient(supabaseUrl, supabaseAnonKey);
 
 // Helper functions untuk manuscripts
 export const manuscriptService = {
