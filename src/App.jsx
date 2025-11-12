@@ -62,7 +62,7 @@ Wong anom anggone kelakon, angayuh kasektene, ing wekasan samya kesed, sarehne t
 function Header() {
   return (
     <header className="bg-gradient-to-r from-primary-700 via-primary-600 to-accent-500 text-white shadow-lg">
-      <div className="max-w-7xl mx-auto px-6 py-6">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 py-4 sm:py-6">
         <div className="flex items-center gap-4">
           <div className="w-12 h-12 bg-white/20 backdrop-blur-sm rounded-xl flex items-center justify-center border border-white/30">
             <svg className="w-7 h-7 text-white" fill="currentColor" viewBox="0 0 20 20">
@@ -108,7 +108,7 @@ function ManuscriptCard({ manuscript, isSelected, onClick }) {
 function WelcomeScreen() {
   return (
     <div className="flex items-center justify-center h-full bg-gradient-to-br from-primary-50 via-amber-50 to-accent-50">
-      <div className="text-center max-w-3xl px-8">
+      <div className="text-center max-w-3xl px-6 sm:px-8 py-8">
         {/* Icon dengan gradien */}
         <div className="mb-8">
           <div className="inline-flex p-6 bg-gradient-to-br from-primary-500 to-accent-500 rounded-3xl shadow-xl">
@@ -119,18 +119,18 @@ function WelcomeScreen() {
         </div>
 
         {/* Heading dengan gradien text */}
-        <h2 className="text-5xl font-bold mb-4 bg-gradient-to-r from-primary-700 to-accent-600 bg-clip-text text-transparent">
+        <h2 className="text-3xl sm:text-5xl font-bold mb-4 bg-gradient-to-r from-primary-700 to-accent-600 bg-clip-text text-transparent">
           Selamat Datang di Nala Pustaka
         </h2>
         
         {/* Description */}
-        <p className="text-lg text-gray-700 mb-10 leading-relaxed">
+        <p className="text-base sm:text-lg text-gray-700 mb-10 leading-relaxed">
           Jelajahi naskah kuno Jawa dengan bantuan AI. Gunakan <strong className="text-primary-700">RAG (Retrieval-Augmented Generation)</strong> untuk memahami warisan budaya Nusantara.
         </p>
 
         {/* Features dengan background gradient */}
-        <div className="grid md:grid-cols-2 gap-6 mb-8">
-          <div className="bg-white rounded-2xl p-6 shadow-lg border-2 border-primary-200 hover:border-accent-400 hover:shadow-xl transition-all">
+        <div className="grid md:grid-cols-2 gap-4 sm:gap-6 mb-8 text-left">
+          <div className="bg-white rounded-2xl p-5 sm:p-6 shadow-lg border-2 border-primary-200 hover:border-accent-400 hover:shadow-xl transition-all">
             <div className="flex items-center gap-3 mb-4">
               <div className="w-12 h-12 bg-gradient-to-br from-primary-500 to-accent-500 rounded-xl flex items-center justify-center">
                 <svg className="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 20 20">
@@ -144,7 +144,7 @@ function WelcomeScreen() {
             </p>
           </div>
 
-          <div className="bg-white rounded-2xl p-6 shadow-lg border-2 border-primary-200 hover:border-accent-400 hover:shadow-xl transition-all">
+          <div className="bg-white rounded-2xl p-5 sm:p-6 shadow-lg border-2 border-primary-200 hover:border-accent-400 hover:shadow-xl transition-all">
             <div className="flex items-center gap-3 mb-4">
               <div className="w-12 h-12 bg-gradient-to-br from-accent-500 to-primary-600 rounded-xl flex items-center justify-center">
                 <svg className="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 20 20">
@@ -160,8 +160,8 @@ function WelcomeScreen() {
         </div>
 
         {/* CTA */}
-        <div className="bg-gradient-to-r from-primary-600 to-accent-500 rounded-2xl p-6 shadow-xl">
-          <p className="text-white font-semibold text-lg">
+        <div className="bg-gradient-to-r from-primary-600 to-accent-500 rounded-2xl p-5 sm:p-6 shadow-xl">
+          <p className="text-white font-semibold text-base sm:text-lg">
             👈 Pilih naskah di sebelah kiri untuk mulai menjelajah
           </p>
         </div>
@@ -331,23 +331,23 @@ INSTRUKSI: Jawab pertanyaan pengguna HANYA berdasarkan KONTEKS NASKAH di atas.`;
   return (
     <div className="flex flex-col h-full">
       {/* Header Chat - Golden Theme */}
-      <div className="px-6 py-4 bg-gradient-to-r from-primary-100 to-accent-100 border-b-2 border-primary-300">
-        <h3 className="text-xl font-bold text-primary-900 flex items-center gap-2">
-          <span className="text-2xl">🤖</span>
+      <div className="px-4 sm:px-6 py-3 sm:py-4 bg-gradient-to-r from-primary-100 to-accent-100 border-b-2 border-primary-300">
+        <h3 className="text-lg sm:text-xl font-bold text-primary-900 flex items-center gap-2">
+          <span className="text-xl sm:text-2xl">🤖</span>
           Chat dengan AI
         </h3>
         <p className="text-sm text-primary-700">Tentang {manuscript.title}</p>
       </div>
 
       {/* Messages Container - Colorful */}
-      <div className="flex-1 overflow-y-auto p-6 bg-gradient-to-br from-amber-50 to-orange-50 space-y-4">
+      <div className="flex-1 overflow-y-auto p-4 sm:p-6 bg-gradient-to-br from-amber-50 to-orange-50 space-y-4">
         {messages.map((message) => (
           <div
             key={message.id}
             className={`flex ${message.sender === 'user' ? 'justify-end' : 'justify-start'}`}
           >
             <div
-              className={`max-w-[70%] rounded-2xl px-5 py-4 shadow-md ${
+              className={`max-w-full sm:max-w-[70%] rounded-2xl px-4 sm:px-5 py-3 sm:py-4 shadow-md ${
                 message.sender === 'user'
                   ? 'bg-gradient-to-br from-primary-600 to-accent-500 text-white'
                   : 'bg-white border-2 border-primary-200 text-gray-900'
@@ -385,19 +385,19 @@ INSTRUKSI: Jawab pertanyaan pengguna HANYA berdasarkan KONTEKS NASKAH di atas.`;
       </div>
 
       {/* Input Form - Golden Theme */}
-      <div className="border-t-2 border-primary-300 p-5 bg-gradient-to-r from-primary-50 to-accent-50">
-        <form onSubmit={handleSend} className="max-w-4xl mx-auto flex gap-3">
+      <div className="border-t-2 border-primary-300 p-4 sm:p-5 bg-gradient-to-r from-primary-50 to-accent-50">
+        <form onSubmit={handleSend} className="max-w-4xl mx-auto flex flex-col sm:flex-row gap-3">
           <input
             type="text"
             value={input}
             onChange={(e) => setInput(e.target.value)}
             placeholder="Tanyakan sesuatu tentang naskah ini..."
-            className="flex-1 px-5 py-3 rounded-xl border-2 border-primary-300 focus:outline-none focus:border-accent-500 focus:ring-4 focus:ring-accent-200 disabled:bg-gray-100 disabled:cursor-not-allowed text-gray-900 placeholder-gray-500"
+            className="flex-1 px-4 sm:px-5 py-3 rounded-xl border-2 border-primary-300 focus:outline-none focus:border-accent-500 focus:ring-4 focus:ring-accent-200 disabled:bg-gray-100 disabled:cursor-not-allowed text-gray-900 placeholder-gray-500"
             disabled={isLoading}
           />
           <button
             type="submit"
-            className="px-8 py-3 bg-gradient-to-r from-primary-600 to-accent-500 text-white rounded-xl font-semibold hover:from-primary-700 hover:to-accent-600 transition-all shadow-lg disabled:opacity-50 disabled:cursor-not-allowed"
+            className="w-full sm:w-auto px-6 sm:px-8 py-3 bg-gradient-to-r from-primary-600 to-accent-500 text-white rounded-xl font-semibold hover:from-primary-700 hover:to-accent-600 transition-all shadow-lg disabled:opacity-50 disabled:cursor-not-allowed"
             disabled={isLoading || !input.trim()}
           >
             {isLoading ? '⏳' : '📤'} {isLoading ? 'Mengirim...' : 'Kirim'}
@@ -479,11 +479,12 @@ function KnowledgeGraphPanel({ manuscript }) {
     svg.selectAll('*').remove(); // Clear previous graph
 
     const kgData = getKnowledgeGraphData(manuscript.id);
-    
+
     // Setup dimensions
     const containerWidth = svgRef.current?.parentElement?.clientWidth || 800;
+    const isSmallScreen = typeof window !== 'undefined' && window.matchMedia('(max-width: 768px)').matches;
     const width = containerWidth;
-    const height = 600;
+    const height = isSmallScreen ? 420 : 600;
     setDimensions({ width, height });
 
     // Color scale Golden/Brown - Modern & Vibrant
@@ -650,19 +651,19 @@ function KnowledgeGraphPanel({ manuscript }) {
   return (
     <div className="flex flex-col h-full bg-gradient-to-br from-primary-50 to-accent-50">
       {/* Header - Golden Theme */}
-      <div className="px-6 py-4 bg-gradient-to-r from-primary-100 to-accent-100 border-b-2 border-primary-300">
-        <h3 className="text-xl font-bold text-primary-900 flex items-center gap-2">
-          <span className="text-2xl">🔮</span>
+      <div className="px-4 sm:px-6 py-3 sm:py-4 bg-gradient-to-r from-primary-100 to-accent-100 border-b-2 border-primary-300">
+        <h3 className="text-lg sm:text-xl font-bold text-primary-900 flex items-center gap-2">
+          <span className="text-xl sm:text-2xl">🔮</span>
           Knowledge Graph
         </h3>
         <p className="text-sm text-primary-700">Visualisasi {manuscript.title}</p>
       </div>
 
       {/* Graph Container - Golden */}
-      <div className="flex-1 overflow-hidden p-6">
+      <div className="flex-1 overflow-hidden p-4 sm:p-6">
         <div className="bg-white rounded-2xl shadow-xl h-full flex flex-col border-2 border-primary-300">
           {/* Legend - Golden */}
-          <div className="p-5 border-b-2 border-primary-200 bg-gradient-to-r from-primary-50 to-accent-50 flex gap-6 flex-wrap">
+          <div className="p-4 sm:p-5 border-b-2 border-primary-200 bg-gradient-to-r from-primary-50 to-accent-50 flex gap-4 sm:gap-6 flex-wrap">
             <div className="flex items-center gap-2">
               <div className="w-5 h-5 rounded-full bg-[#B7966B] shadow-md"></div>
               <span className="text-sm font-semibold text-gray-700">Karya</span>
@@ -688,7 +689,7 @@ function KnowledgeGraphPanel({ manuscript }) {
 
           {/* Instructions - Golden */}
           <div className="p-4 border-t-2 border-primary-200 bg-gradient-to-r from-accent-50 to-primary-50">
-            <p className="text-sm text-gray-700 font-medium">
+            <p className="text-xs sm:text-sm text-gray-700 font-medium text-center sm:text-left">
               💡 <strong className="text-primary-800">Tips:</strong> Geser node • Scroll untuk zoom • Drag background untuk pan
             </p>
           </div>
@@ -728,22 +729,66 @@ function LeftPanel({ selectedManuscript, onSelectManuscript }) {
   );
 }
 
+// Komponen Mobile Selector - Horizontal scroll untuk layar kecil
+function MobileManuscriptSelector({ selectedManuscript, onSelectManuscript }) {
+  return (
+    <div className="lg:hidden bg-gradient-to-br from-primary-50 via-amber-50 to-accent-50 px-4 py-5 border-b border-primary-200 shadow-inner">
+      <div className="flex items-center justify-between mb-3">
+        <div>
+          <p className="text-xs uppercase tracking-wide text-primary-600 font-semibold">Pilih Naskah</p>
+          <h2 className="text-lg font-bold text-primary-900">Eksplorasi Koleksi</h2>
+        </div>
+      </div>
+      <div
+        className="flex gap-3 overflow-x-auto pb-2 -mx-1 px-1"
+        style={{ scrollbarWidth: 'none' }}
+      >
+        {Object.values(MANUSCRIPT_DATA).map((manuscript) => {
+          const isActive = selectedManuscript?.id === manuscript.id;
+          return (
+            <button
+              key={manuscript.id}
+              type="button"
+              onClick={() => onSelectManuscript(manuscript)}
+              className={`min-w-[220px] rounded-2xl border-2 px-4 py-4 text-left transition-all duration-200 shadow-sm ${
+                isActive
+                  ? 'bg-gradient-to-br from-primary-500 to-accent-500 text-white border-white/40 shadow-lg scale-[1.02]'
+                  : 'bg-white/90 border-primary-200 text-gray-900 hover:border-primary-400 hover:shadow-md'
+              }`}
+            >
+              <p className="text-xs font-semibold uppercase tracking-wide text-white/80">
+                {manuscript.author}
+              </p>
+              <h3 className="text-lg font-bold leading-snug mt-1 mb-2">
+                {manuscript.title}
+              </h3>
+              <p className={`text-xs leading-relaxed ${isActive ? 'text-white/80' : 'text-gray-600'}`}>
+                {manuscript.description}
+              </p>
+            </button>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
 // Komponen Right Panel - Modern Golden Theme
 function RightPanel({ selectedManuscript, viewMode, setViewMode }) {
   return (
     <div className="bg-white flex flex-col h-full">
       {selectedManuscript && (
-        <div className="bg-gradient-to-r from-primary-100 via-accent-50 to-primary-100 px-6 py-5 border-b-2 border-primary-300 flex justify-between items-center">
-          <div>
-            <h2 className="text-2xl font-bold text-primary-900">{selectedManuscript.title}</h2>
+        <div className="bg-gradient-to-r from-primary-100 via-accent-50 to-primary-100 px-4 sm:px-6 py-4 sm:py-5 border-b-2 border-primary-300 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+          <div className="space-y-1">
+            <h2 className="text-xl sm:text-2xl font-bold text-primary-900">{selectedManuscript.title}</h2>
             <p className="text-sm text-primary-700 font-medium">{selectedManuscript.author}</p>
           </div>
-          <div className="flex gap-3">
+          <div className="flex flex-col sm:flex-row gap-2 sm:gap-3 w-full sm:w-auto">
             <button
               onClick={() => setViewMode('chat')}
-              className={`px-5 py-2.5 rounded-xl font-semibold transition-all duration-200 ${
+              className={`px-4 py-2.5 sm:px-5 rounded-xl font-semibold transition-all duration-200 ${
                 viewMode === 'chat'
-                  ? 'bg-gradient-to-r from-primary-600 to-accent-500 text-white shadow-lg scale-105'
+                  ? 'bg-gradient-to-r from-primary-600 to-accent-500 text-white shadow-lg sm:scale-105'
                   : 'bg-white text-gray-700 border-2 border-primary-300 hover:border-accent-400 hover:shadow-md'
               }`}
             >
@@ -751,9 +796,9 @@ function RightPanel({ selectedManuscript, viewMode, setViewMode }) {
             </button>
             <button
               onClick={() => setViewMode('kg')}
-              className={`px-5 py-2.5 rounded-xl font-semibold transition-all duration-200 ${
+              className={`px-4 py-2.5 sm:px-5 rounded-xl font-semibold transition-all duration-200 ${
                 viewMode === 'kg'
-                  ? 'bg-gradient-to-r from-primary-600 to-accent-500 text-white shadow-lg scale-105'
+                  ? 'bg-gradient-to-r from-primary-600 to-accent-500 text-white shadow-lg sm:scale-105'
                   : 'bg-white text-gray-700 border-2 border-primary-300 hover:border-accent-400 hover:shadow-md'
               }`}
             >
@@ -762,7 +807,7 @@ function RightPanel({ selectedManuscript, viewMode, setViewMode }) {
           </div>
         </div>
       )}
-      
+
       <div className="flex-1 overflow-hidden">
         {viewMode === 'welcome' && <WelcomeScreen />}
         {viewMode === 'chat' && selectedManuscript && (
@@ -787,17 +832,26 @@ function App() {
   };
 
   return (
-    <div className="min-h-screen bg-cream-100 flex flex-col">
+    <div className="min-h-screen bg-primary-50 flex flex-col">
       <Header />
       
       <main className="flex-1 flex flex-col lg:flex-row overflow-hidden">
-        {/* Left Panel - Manuscript List */}
-        <div className="w-full lg:w-1/3 h-64 lg:h-auto">
+        {/* Mobile Selector */}
+        <div className="lg:hidden">
+          <MobileManuscriptSelector
+            selectedManuscript={selectedManuscript}
+            onSelectManuscript={handleSelectManuscript}
+          />
+        </div>
+        
+        {/* Left Panel - Manuscript List (Desktop) */}
+        <div className="hidden lg:block w-full lg:w-1/3 h-full max-h-full">
           <LeftPanel
             selectedManuscript={selectedManuscript}
             onSelectManuscript={handleSelectManuscript}
           />
         </div>
+        
         
         {/* Right Panel - Content */}
         <div className="flex-1 h-full">
