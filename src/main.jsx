@@ -6,8 +6,9 @@ import App from './App.jsx'
 import AdminLogin from './pages/AdminLogin.jsx'
 import AdminDashboard from './pages/AdminDashboard.jsx'
 
-createRoot(document.getElementById('root')).render(
-  <StrictMode>
+// Wrapper component untuk handle routing
+function AppRouter() {
+  return (
     <BrowserRouter>
       <Routes>
         <Route path="/" element={<App />} />
@@ -15,5 +16,11 @@ createRoot(document.getElementById('root')).render(
         <Route path="/admin/dashboard" element={<AdminDashboard />} />
       </Routes>
     </BrowserRouter>
+  );
+}
+
+createRoot(document.getElementById('root')).render(
+  <StrictMode>
+    <AppRouter />
   </StrictMode>,
 )
