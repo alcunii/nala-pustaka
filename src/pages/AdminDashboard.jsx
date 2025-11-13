@@ -424,6 +424,21 @@ export default function AdminDashboard() {
     }
   };
 
+  // NEW: Pin/Unpin handler
+  const handleTogglePin = async (id, currentPinStatus, title) => {
+    try {
+      await manuscriptService.togglePin(id);
+      const action = currentPinStatus ? 'diunpin' : 'dipin';
+      setFormSuccess(`✅ "${title}" berhasil ${action}!`);
+      await loadManuscripts();
+      setTimeout(() => setFormSuccess(''), 3000);
+    } catch (error) {
+      console.error('Pin toggle error:', error);
+      setFormError(error.message || 'Gagal mengubah status pin');
+      setTimeout(() => setFormError(''), 5000);
+    }
+  };
+
   if (loading) {
     return (
       <div className="min-h-screen bg-primary-50 flex items-center justify-center">
@@ -912,8 +927,13 @@ export default function AdminDashboard() {
                     </div>
 
                     <div className="flex-1">
-                      <h3 className="text-lg font-bold text-gray-900 mb-1">
+                      <h3 className="text-lg font-bold text-gray-900 mb-1 flex items-center gap-2">
                         {manuscript.title}
+                        {manuscript.is_pinned && (
+                          <span className="inline-flex items-center px-2 py-1 rounded-lg bg-gradient-to-r from-yellow-100 to-amber-100 border-2 border-yellow-400 text-xs font-bold text-yellow-700">
+                            📌 Pinned
+                          </span>
+                        )}
                       </h3>
                       <p className="text-sm text-primary-600 font-medium mb-2">
                         {manuscript.author}
@@ -939,6 +959,17 @@ export default function AdminDashboard() {
                       </div>
                     </div>
                     <div className="flex gap-2">
+                      <button
+                        onClick={() => handleTogglePin(manuscript.id, manuscript.is_pinned, manuscript.title)}
+                        className={`px-3 py-2 rounded-lg font-semibold text-sm transition-all ${
+                          manuscript.is_pinned
+                            ? 'bg-gradient-to-r from-yellow-100 to-amber-100 text-yellow-700 border-2 border-yellow-400 hover:from-yellow-200 hover:to-amber-200'
+                            : 'bg-gray-100 text-gray-600 border-2 border-gray-300 hover:bg-gray-200'
+                        }`}
+                        title={manuscript.is_pinned ? 'Unpin dari halaman utama' : 'Pin ke halaman utama (max 5)'}
+                      >
+                        {manuscript.is_pinned ? '📌 Unpin' : '📍 Pin'}
+                      </button>
                       <button
                         onClick={() => handleEdit(manuscript)}
                         className="px-3 py-2 bg-blue-100 text-blue-600 rounded-lg hover:bg-blue-200 font-semibold text-sm"

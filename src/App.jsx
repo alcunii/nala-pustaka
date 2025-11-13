@@ -49,8 +49,13 @@ function ManuscriptCard({ manuscript, isSelected, onClick }) {
       <div className="flex items-start gap-3">
         <div className={`w-1 h-16 rounded-full ${isSelected ? 'bg-gradient-to-b from-accent-500 to-primary-600' : 'bg-primary-300'}`}></div>
         <div className="flex-1">
-          <h3 className={`font-bold text-lg mb-1 ${isSelected ? 'text-primary-800' : 'text-gray-900'}`}>
+          <h3 className={`font-bold text-lg mb-1 flex items-center gap-2 ${isSelected ? 'text-primary-800' : 'text-gray-900'}`}>
             {manuscript.title}
+            {manuscript.is_pinned && (
+              <span className="inline-flex items-center px-1.5 py-0.5 rounded text-xs font-bold bg-gradient-to-r from-yellow-200 to-amber-200 text-yellow-800 border border-yellow-400">
+                📌
+              </span>
+            )}
           </h3>
           <p className="text-sm text-primary-600 font-medium mb-2">{manuscript.author}</p>
           <p className="text-xs text-gray-600 line-clamp-2">{manuscript.description}</p>
@@ -816,11 +821,29 @@ function LeftPanel({ selectedManuscript, onSelectManuscript, manuscripts }) {
     );
   });
 
-  // NEW: Pagination logic
-  const totalPages = Math.ceil(filteredManuscripts.length / itemsPerPage);
-  const startIndex = (currentPage - 1) * itemsPerPage;
-  const endIndex = startIndex + itemsPerPage;
-  const paginatedManuscripts = filteredManuscripts.slice(startIndex, endIndex);
+  // NEW: Separate pinned and non-pinned manuscripts
+  const pinnedManuscripts = filteredManuscripts.filter(m => m.is_pinned === true);
+  const nonPinnedManuscripts = filteredManuscripts.filter(m => m.is_pinned !== true);
+
+  // NEW: Pin Feature Logic - Page 1 shows pinned, Page 2+ shows non-pinned
+  let displayManuscripts = [];
+  let totalPages = 1;
+  let pageInfo = '';
+
+  if (currentPage === 1) {
+    // Page 1: Show pinned manuscripts (up to 5)
+    displayManuscripts = pinnedManuscripts.slice(0, itemsPerPage);
+    totalPages = Math.ceil(nonPinnedManuscripts.length / itemsPerPage) + 1; // +1 for pinned page
+    pageInfo = `Halaman 1 (Naskah Unggulan) - ${displayManuscripts.length} dari ${pinnedManuscripts.length} pinned`;
+  } else {
+    // Page 2+: Show non-pinned manuscripts with pagination
+    const nonPinnedPage = currentPage - 1; // Adjust page number for non-pinned
+    const startIndex = (nonPinnedPage - 1) * itemsPerPage;
+    const endIndex = startIndex + itemsPerPage;
+    displayManuscripts = nonPinnedManuscripts.slice(startIndex, endIndex);
+    totalPages = Math.ceil(nonPinnedManuscripts.length / itemsPerPage) + 1; // +1 for pinned page
+    pageInfo = `Halaman ${currentPage} - ${displayManuscripts.length} naskah`;
+  }
 
   // NEW: Reset to page 1 when search changes
   useEffect(() => {
@@ -874,8 +897,8 @@ function LeftPanel({ selectedManuscript, onSelectManuscript, manuscripts }) {
       </div>
       
       <div>
-        {paginatedManuscripts.length > 0 ? (
-          paginatedManuscripts.map((manuscript) => (
+        {displayManuscripts.length > 0 ? (
+          displayManuscripts.map((manuscript) => (
             <ManuscriptCard
               key={manuscript.id}
               manuscript={manuscript}
@@ -885,7 +908,11 @@ function LeftPanel({ selectedManuscript, onSelectManuscript, manuscripts }) {
           ))
         ) : (
           <div className="text-center py-8">
-            <p className="text-gray-500 text-sm">Tidak ada naskah yang cocok</p>
+            <p className="text-gray-500 text-sm">
+              {currentPage === 1 && pinnedManuscripts.length === 0
+                ? 'Belum ada naskah unggulan. Admin bisa pin naskah di dashboard.'
+                : 'Tidak ada naskah yang cocok'}
+            </p>
             <button
               onClick={() => setSearchQuery('')}
               className="mt-2 text-xs text-primary-600 hover:underline"
@@ -896,15 +923,17 @@ function LeftPanel({ selectedManuscript, onSelectManuscript, manuscripts }) {
         )}
       </div>
 
-      {/* Pagination Controls (NEW) */}
+      {/* Pagination Controls */}
       {totalPages > 1 && (
         <div className="mt-6 flex flex-col gap-3">
           {/* Page Info */}
           <div className="text-center text-sm text-gray-600">
-            Halaman {currentPage} dari {totalPages} 
-            <span className="text-xs text-gray-500 ml-2">
-              ({startIndex + 1}-{Math.min(endIndex, filteredManuscripts.length)} dari {filteredManuscripts.length})
-            </span>
+            {pageInfo}
+            {currentPage > 1 && (
+              <span className="block text-xs text-gray-500 mt-1">
+                Total {filteredManuscripts.length} naskah ({pinnedManuscripts.length} pinned, {nonPinnedManuscripts.length} lainnya)
+              </span>
+            )}
           </div>
 
           {/* Navigation Buttons */}

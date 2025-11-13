@@ -115,6 +115,56 @@ export const manuscriptService = {
 
     return { success: true };
   },
+
+  // Toggle pin status (NEW: Pin Feature)
+  async togglePin(manuscriptId) {
+    // First, check current pin status
+    const { data: manuscript, error: fetchError } = await supabase
+      .from('manuscripts')
+      .select('id, is_pinned')
+      .eq('id', manuscriptId)
+      .single();
+    
+    if (fetchError) throw fetchError;
+
+    const newPinStatus = !manuscript.is_pinned;
+
+    // If trying to pin, check if we already have 5 pinned manuscripts
+    if (newPinStatus) {
+      const { data: pinnedManuscripts, error: countError } = await supabase
+        .from('manuscripts')
+        .select('id')
+        .eq('is_pinned', true);
+      
+      if (countError) throw countError;
+
+      if (pinnedManuscripts && pinnedManuscripts.length >= 5) {
+        throw new Error('Maksimal 5 naskah dapat di-pin. Unpin naskah lain terlebih dahulu.');
+      }
+    }
+
+    // Toggle pin status
+    const { data, error } = await supabase
+      .from('manuscripts')
+      .update({ is_pinned: newPinStatus })
+      .eq('id', manuscriptId)
+      .select()
+      .single();
+    
+    if (error) throw error;
+    return data;
+  },
+
+  // Get pinned manuscripts count (NEW: Pin Feature)
+  async getPinnedCount() {
+    const { count, error } = await supabase
+      .from('manuscripts')
+      .select('id', { count: 'exact', head: true })
+      .eq('is_pinned', true);
+    
+    if (error) throw error;
+    return count || 0;
+  },
 };
 
 // Helper functions untuk auth
