@@ -77,6 +77,44 @@ export const manuscriptService = {
     
     if (error) throw error;
   },
+
+  // Reorder manuscripts (swap display_order) - Simple implementation without RPC
+  async reorder(manuscriptId1, manuscriptId2) {
+    // Get both manuscripts
+    const { data: manuscripts, error: fetchError } = await supabase
+      .from('manuscripts')
+      .select('id, display_order')
+      .in('id', [manuscriptId1, manuscriptId2]);
+    
+    if (fetchError) throw fetchError;
+    if (!manuscripts || manuscripts.length !== 2) {
+      throw new Error('Could not find both manuscripts');
+    }
+
+    const manuscript1 = manuscripts.find(m => m.id === manuscriptId1);
+    const manuscript2 = manuscripts.find(m => m.id === manuscriptId2);
+
+    // Swap display_order values
+    const order1 = manuscript1.display_order || 0;
+    const order2 = manuscript2.display_order || 0;
+
+    // Update both manuscripts
+    const { error: update1Error } = await supabase
+      .from('manuscripts')
+      .update({ display_order: order2 })
+      .eq('id', manuscriptId1);
+
+    if (update1Error) throw update1Error;
+
+    const { error: update2Error } = await supabase
+      .from('manuscripts')
+      .update({ display_order: order1 })
+      .eq('id', manuscriptId2);
+
+    if (update2Error) throw update2Error;
+
+    return { success: true };
+  },
 };
 
 // Helper functions untuk auth

@@ -131,11 +131,50 @@ function ChatPanel({ manuscript }) {
   const [messages, setMessages] = useState([]);
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [showHistoryModal, setShowHistoryModal] = useState(false); // NEW: History modal state
   const messagesEndRef = useRef(null);
   
   // TODO: Isi dengan API Key Anda dari https://aistudio.google.com/app/apikey
   // JANGAN commit API key ke GitHub! Gunakan environment variable
   const apiKey = import.meta.env.VITE_GEMINI_API_KEY || '';
+
+  // NEW: Chat History localStorage key
+  const getChatHistoryKey = (manuscriptId) => `nala-chat-history-${manuscriptId}`;
+
+  // NEW: Load chat history from localStorage
+  const loadChatHistory = (manuscriptId) => {
+    try {
+      const saved = localStorage.getItem(getChatHistoryKey(manuscriptId));
+      if (saved) {
+        return JSON.parse(saved);
+      }
+    } catch (error) {
+      console.error('Error loading chat history:', error);
+    }
+    return null;
+  };
+
+  // NEW: Save chat history to localStorage
+  const saveChatHistory = (manuscriptId, messages) => {
+    try {
+      localStorage.setItem(getChatHistoryKey(manuscriptId), JSON.stringify(messages));
+    } catch (error) {
+      console.error('Error saving chat history:', error);
+    }
+  };
+
+  // NEW: Clear chat history
+  const clearChatHistory = () => {
+    if (confirm('Yakin ingin menghapus riwayat chat untuk naskah ini?')) {
+      localStorage.removeItem(getChatHistoryKey(manuscript.id));
+      const welcomeMessage = {
+        id: Date.now(),
+        sender: 'ai',
+        text: `Salam. Saya Pustakawan AI Nala Pustaka. Silakan ajukan pertanyaan Anda tentang ${manuscript.title}.`
+      };
+      setMessages([welcomeMessage]);
+    }
+  };
 
   // Auto-scroll ke bawah saat ada pesan baru
   const scrollToBottom = () => {
@@ -146,18 +185,33 @@ function ChatPanel({ manuscript }) {
     scrollToBottom();
   }, [messages]);
 
-  // Pesan sambutan pertama kali
+  // NEW: Save messages to localStorage whenever they change
   useEffect(() => {
-    const welcomeMessage = {
-      id: Date.now(),
-      sender: 'ai',
-      text: `Salam. Saya Pustakawan AI Nala Pustaka. Silakan ajukan pertanyaan Anda tentang ${manuscript.title}.`
-    };
-    setMessages([welcomeMessage]);
+    if (messages.length > 0) {
+      saveChatHistory(manuscript.id, messages);
+    }
+  }, [messages, manuscript.id]);
+
+  // Pesan sambutan pertama kali (atau load dari localStorage)
+  useEffect(() => {
+    // Try to load existing chat history
+    const savedHistory = loadChatHistory(manuscript.id);
+    
+    if (savedHistory && savedHistory.length > 0) {
+      setMessages(savedHistory);
+    } else {
+      // No history, show welcome message
+      const welcomeMessage = {
+        id: Date.now(),
+        sender: 'ai',
+        text: `Salam. Saya Pustakawan AI Nala Pustaka. Silakan ajukan pertanyaan Anda tentang ${manuscript.title}.`
+      };
+      setMessages([welcomeMessage]);
+    }
   }, [manuscript.id]);
 
-  // Fungsi RAG: Memanggil Gemini API dengan grounded context
-  const getGroundedAiResponse = async (userQuery, manuscriptData) => {
+  // Fungsi RAG: Memanggil Gemini API dengan grounded context + conversational history
+  const getGroundedAiResponse = async (userQuery, manuscriptData, conversationHistory = []) => {
     if (!apiKey) {
       throw new Error('API Key belum diisi. Silakan isi apiKey di komponen ChatPanel.');
     }
@@ -168,14 +222,30 @@ Tugas Anda adalah menjawab pertanyaan pengguna HANYA berdasarkan konteks naskah 
 JANGAN PERNAH berhalusinasi atau mengarang informasi di luar konteks.
 Jika jawaban tidak ada dalam konteks, katakan dengan sopan bahwa informasi tersebut tidak ditemukan dalam naskah ini.
 Semua jawaban harus dalam Bahasa Indonesia.
-Anda HARUS memberi sitasi (menyebutkan bagian) dari mana Anda mengambil jawaban jika memungkinkan.`;
+Anda HARUS memberi sitasi (menyebutkan bagian) dari mana Anda mengambil jawaban jika memungkinkan.
+Anda dapat merujuk ke pertanyaan sebelumnya jika relevan untuk memberikan jawaban yang koheren.`;
 
-    // Konstruksi query dengan konteks (RAG)
     // Support both fullText (hardcoded) and full_text (from database)
     const manuscriptText = manuscriptData.full_text || manuscriptData.fullText || '';
     
-    const combinedUserQuery = `
-KONTEKS NASKAH (${manuscriptData.title}):
+    // NEW: Build conversation context (last 5 messages, excluding welcome)
+    const contextMessages = conversationHistory
+      .filter(msg => msg.text !== `Salam. Saya Pustakawan AI Nala Pustaka. Silakan ajukan pertanyaan Anda tentang ${manuscriptData.title}.`)
+      .slice(-5); // Last 5 messages only
+    
+    let conversationContext = '';
+    if (contextMessages.length > 0) {
+      conversationContext = '\n\nRIWAYAT PERCAKAPAN SEBELUMNYA:\n';
+      contextMessages.forEach(msg => {
+        conversationContext += `${msg.sender === 'user' ? 'USER' : 'AI'}: ${msg.text}\n`;
+      });
+    }
+
+    // Include manuscript text only if this is first real query (no conversation history yet)
+    const isFirstQuery = contextMessages.length === 0;
+    
+    const combinedUserQuery = isFirstQuery 
+      ? `KONTEKS NASKAH (${manuscriptData.title}):
 """
 ${manuscriptText}
 """
@@ -185,7 +255,15 @@ PERTANYAAN PENGGUNA:
 ${userQuery}
 """
 
-INSTRUKSI: Jawab pertanyaan pengguna HANYA berdasarkan KONTEKS NASKAH di atas.`;
+INSTRUKSI: Jawab pertanyaan pengguna HANYA berdasarkan KONTEKS NASKAH di atas.`
+      : `${conversationContext}
+
+PERTANYAAN PENGGUNA TERBARU:
+"""
+${userQuery}
+"""
+
+INSTRUKSI: Jawab pertanyaan pengguna berdasarkan konteks naskah yang sudah Anda ketahui dari percakapan sebelumnya. Anda dapat merujuk ke jawaban sebelumnya jika relevan.`;
 
     // Payload untuk Gemini API
     const payload = {
@@ -238,7 +316,7 @@ INSTRUKSI: Jawab pertanyaan pengguna HANYA berdasarkan KONTEKS NASKAH di atas.`;
     return aiText;
   };
 
-  // Fungsi untuk mengirim pesan dengan RAG
+  // Fungsi untuk mengirim pesan dengan RAG + conversational context
   const handleSend = async (e) => {
     e.preventDefault();
     
@@ -258,8 +336,8 @@ INSTRUKSI: Jawab pertanyaan pengguna HANYA berdasarkan KONTEKS NASKAH di atas.`;
     setIsLoading(true);
 
     try {
-      // Panggil Gemini API dengan RAG
-      const aiText = await getGroundedAiResponse(userQuery, manuscript);
+      // NEW: Pass conversation history for context
+      const aiText = await getGroundedAiResponse(userQuery, manuscript, messages);
       
       // Tambahkan respons AI
       const aiMessage = {
@@ -289,13 +367,35 @@ INSTRUKSI: Jawab pertanyaan pengguna HANYA berdasarkan KONTEKS NASKAH di atas.`;
 
   return (
     <div className="flex flex-col h-full">
-      {/* Header Chat - Golden Theme */}
+      {/* Header Chat - Golden Theme with History Button */}
       <div className="px-4 sm:px-6 py-3 sm:py-4 bg-gradient-to-r from-primary-100 to-accent-100 border-b-2 border-primary-300">
-        <h3 className="text-lg sm:text-xl font-bold text-primary-900 flex items-center gap-2">
-          <span className="text-xl sm:text-2xl">🤖</span>
-          Chat dengan AI
-        </h3>
-        <p className="text-sm text-primary-700">Tentang {manuscript.title}</p>
+        <div className="flex justify-between items-center">
+          <div>
+            <h3 className="text-lg sm:text-xl font-bold text-primary-900 flex items-center gap-2">
+              <span className="text-xl sm:text-2xl">🤖</span>
+              Chat dengan AI
+            </h3>
+            <p className="text-sm text-primary-700">Tentang {manuscript.title}</p>
+          </div>
+          
+          {/* History & Clear Buttons */}
+          <div className="flex gap-2">
+            <button
+              onClick={() => setShowHistoryModal(true)}
+              className="px-3 py-2 bg-white text-primary-600 rounded-lg hover:bg-primary-50 border-2 border-primary-300 font-semibold text-xs sm:text-sm transition-all"
+              title="Lihat Riwayat Chat"
+            >
+              📜 Riwayat
+            </button>
+            <button
+              onClick={clearChatHistory}
+              className="px-3 py-2 bg-red-100 text-red-600 rounded-lg hover:bg-red-200 border-2 border-red-300 font-semibold text-xs sm:text-sm transition-all"
+              title="Hapus Riwayat Chat"
+            >
+              🗑️
+            </button>
+          </div>
+        </div>
       </div>
 
       {/* Messages Container - Colorful */}
@@ -332,10 +432,16 @@ INSTRUKSI: Jawab pertanyaan pengguna HANYA berdasarkan KONTEKS NASKAH di atas.`;
                     prose-ul:list-disc prose-ul:pl-5 prose-ul:my-2 prose-ul:space-y-1
                     prose-ol:list-decimal prose-ol:pl-5 prose-ol:my-2 prose-ol:space-y-1
                     prose-li:text-gray-800 prose-li:leading-relaxed
-                    prose-code:bg-primary-100 prose-code:text-primary-900 prose-code:px-1.5 prose-code:py-0.5 prose-code:rounded prose-code:text-sm
-                    prose-pre:bg-primary-50 prose-pre:border-2 prose-pre:border-primary-300 prose-pre:rounded-lg prose-pre:p-3
-                    prose-blockquote:border-l-4 prose-blockquote:border-accent-500 prose-blockquote:pl-4 prose-blockquote:italic prose-blockquote:text-gray-700
-                    prose-a:text-accent-600 prose-a:underline prose-a:font-medium
+                    prose-code:bg-primary-100 prose-code:text-primary-900 prose-code:px-1.5 prose-code:py-0.5 prose-code:rounded prose-code:text-sm prose-code:font-mono
+                    prose-pre:bg-gray-900 prose-pre:text-gray-100 prose-pre:border-2 prose-pre:border-primary-300 prose-pre:rounded-lg prose-pre:p-4 prose-pre:overflow-x-auto
+                    prose-pre>code:bg-transparent prose-pre>code:text-gray-100 prose-pre>code:p-0
+                    prose-blockquote:border-l-4 prose-blockquote:border-accent-500 prose-blockquote:pl-4 prose-blockquote:italic prose-blockquote:text-gray-700 prose-blockquote:bg-accent-50 prose-blockquote:py-2 prose-blockquote:rounded-r
+                    prose-a:text-accent-600 prose-a:underline prose-a:font-medium hover:prose-a:text-accent-700
+                    prose-table:border-2 prose-table:border-primary-300 prose-table:rounded-lg prose-table:overflow-hidden
+                    prose-thead:bg-primary-100 prose-thead:text-primary-900 prose-thead:font-bold
+                    prose-th:border prose-th:border-primary-300 prose-th:p-2 prose-th:text-left
+                    prose-td:border prose-td:border-primary-200 prose-td:p-2
+                    prose-tr:even:bg-primary-50
                   "
                   dangerouslySetInnerHTML={{ __html: marked(message.text) }}
                 />
@@ -356,6 +462,7 @@ INSTRUKSI: Jawab pertanyaan pengguna HANYA berdasarkan KONTEKS NASKAH di atas.`;
                   <div className="w-2.5 h-2.5 bg-accent-500 rounded-full animate-bounce" style={{ animationDelay: '150ms' }}></div>
                   <div className="w-2.5 h-2.5 bg-primary-600 rounded-full animate-bounce" style={{ animationDelay: '300ms' }}></div>
                 </div>
+                <span className="text-sm text-gray-600 font-medium">AI sedang berpikir...</span>
               </div>
             </div>
           </div>
@@ -384,6 +491,84 @@ INSTRUKSI: Jawab pertanyaan pengguna HANYA berdasarkan KONTEKS NASKAH di atas.`;
           </button>
         </form>
       </div>
+
+      {/* History Modal (NEW) */}
+      {showHistoryModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
+          <div className="bg-white rounded-2xl shadow-2xl max-w-2xl w-full max-h-[80vh] overflow-hidden">
+            {/* Modal Header */}
+            <div className="bg-gradient-to-r from-primary-600 to-accent-500 px-6 py-4 flex justify-between items-center">
+              <h3 className="text-xl font-bold text-white flex items-center gap-2">
+                📜 Riwayat Chat
+              </h3>
+              <button
+                onClick={() => setShowHistoryModal(false)}
+                className="text-white hover:text-gray-200 text-2xl font-bold"
+              >
+                ✕
+              </button>
+            </div>
+
+            {/* Modal Body */}
+            <div className="p-6 overflow-y-auto max-h-[60vh]">
+              <div className="mb-4">
+                <p className="text-sm text-gray-600">
+                  Naskah: <strong className="text-primary-700">{manuscript.title}</strong>
+                </p>
+                <p className="text-xs text-gray-500">
+                  Total pesan: {messages.length}
+                </p>
+              </div>
+
+              {messages.length === 0 ? (
+                <div className="text-center py-8 text-gray-500">
+                  Belum ada riwayat chat
+                </div>
+              ) : (
+                <div className="space-y-3">
+                  {messages.map((message) => (
+                    <div
+                      key={message.id}
+                      className={`p-3 rounded-lg ${
+                        message.sender === 'user'
+                          ? 'bg-primary-50 border-l-4 border-primary-500'
+                          : 'bg-gray-50 border-l-4 border-accent-500'
+                      }`}
+                    >
+                      <div className="flex items-center gap-2 mb-1">
+                        <span className="text-xs font-bold text-gray-700">
+                          {message.sender === 'user' ? '👤 User' : '🤖 AI'}
+                        </span>
+                      </div>
+                      <p className="text-sm text-gray-800 whitespace-pre-wrap break-words">
+                        {message.text.length > 300
+                          ? message.text.substring(0, 300) + '...'
+                          : message.text}
+                      </p>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+
+            {/* Modal Footer */}
+            <div className="bg-gray-50 px-6 py-4 flex justify-end gap-3 border-t">
+              <button
+                onClick={clearChatHistory}
+                className="px-4 py-2 bg-red-100 text-red-600 rounded-lg hover:bg-red-200 font-semibold text-sm"
+              >
+                🗑️ Hapus Riwayat
+              </button>
+              <button
+                onClick={() => setShowHistoryModal(false)}
+                className="px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 font-semibold text-sm"
+              >
+                Tutup
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
@@ -631,24 +816,158 @@ function KnowledgeGraphPanel({ manuscript }) {
 
 // Komponen Left Panel (Daftar Naskah)
 // Komponen Left Panel - Modern Golden Sidebar
+// Komponen Left Panel - Manuscript List (Desktop)
 function LeftPanel({ selectedManuscript, onSelectManuscript, manuscripts }) {
+  const [searchQuery, setSearchQuery] = useState('');
+  const [currentPage, setCurrentPage] = useState(1); // NEW: Pagination state
+  const itemsPerPage = 5; // NEW: 5 naskah per page
+
+  // Filter manuscripts based on search query
+  const filteredManuscripts = manuscripts.filter((manuscript) => {
+    const query = searchQuery.toLowerCase();
+    return (
+      manuscript.title.toLowerCase().includes(query) ||
+      manuscript.author.toLowerCase().includes(query) ||
+      (manuscript.description && manuscript.description.toLowerCase().includes(query))
+    );
+  });
+
+  // NEW: Pagination logic
+  const totalPages = Math.ceil(filteredManuscripts.length / itemsPerPage);
+  const startIndex = (currentPage - 1) * itemsPerPage;
+  const endIndex = startIndex + itemsPerPage;
+  const paginatedManuscripts = filteredManuscripts.slice(startIndex, endIndex);
+
+  // NEW: Reset to page 1 when search changes
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [searchQuery]);
+
   return (
     <div className="bg-gradient-to-b from-primary-50 to-white p-6 overflow-y-auto border-r-2 border-primary-300">
       <div className="mb-6">
         <h2 className="text-xl font-bold text-primary-800 mb-2">Daftar Naskah</h2>
         <div className="h-1 w-16 bg-gradient-to-r from-accent-500 to-primary-600 rounded-full"></div>
       </div>
+
+      {/* Search Bar */}
+      <div className="mb-4">
+        <div className="relative">
+          <input
+            type="text"
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            placeholder="Cari naskah..."
+            className="w-full px-4 py-3 pl-11 rounded-xl border-2 border-primary-300 focus:outline-none focus:border-accent-500 focus:ring-4 focus:ring-accent-200 bg-white"
+          />
+          <svg
+            className="absolute left-3 top-3.5 w-5 h-5 text-gray-400"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={2}
+              d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
+            />
+          </svg>
+          {searchQuery && (
+            <button
+              onClick={() => setSearchQuery('')}
+              className="absolute right-3 top-3 text-gray-400 hover:text-gray-600"
+            >
+              ✕
+            </button>
+          )}
+        </div>
+        {searchQuery && (
+          <p className="text-xs text-gray-500 mt-2">
+            {filteredManuscripts.length} naskah ditemukan
+          </p>
+        )}
+      </div>
       
       <div>
-        {manuscripts.map((manuscript) => (
-          <ManuscriptCard
-            key={manuscript.id}
-            manuscript={manuscript}
-            isSelected={selectedManuscript?.id === manuscript.id}
-            onClick={() => onSelectManuscript(manuscript)}
-          />
-        ))}
+        {paginatedManuscripts.length > 0 ? (
+          paginatedManuscripts.map((manuscript) => (
+            <ManuscriptCard
+              key={manuscript.id}
+              manuscript={manuscript}
+              isSelected={selectedManuscript?.id === manuscript.id}
+              onClick={() => onSelectManuscript(manuscript)}
+            />
+          ))
+        ) : (
+          <div className="text-center py-8">
+            <p className="text-gray-500 text-sm">Tidak ada naskah yang cocok</p>
+            <button
+              onClick={() => setSearchQuery('')}
+              className="mt-2 text-xs text-primary-600 hover:underline"
+            >
+              Hapus pencarian
+            </button>
+          </div>
+        )}
       </div>
+
+      {/* Pagination Controls (NEW) */}
+      {totalPages > 1 && (
+        <div className="mt-6 flex flex-col gap-3">
+          {/* Page Info */}
+          <div className="text-center text-sm text-gray-600">
+            Halaman {currentPage} dari {totalPages} 
+            <span className="text-xs text-gray-500 ml-2">
+              ({startIndex + 1}-{Math.min(endIndex, filteredManuscripts.length)} dari {filteredManuscripts.length})
+            </span>
+          </div>
+
+          {/* Navigation Buttons */}
+          <div className="flex justify-center gap-2">
+            <button
+              onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
+              disabled={currentPage === 1}
+              className={`px-4 py-2 rounded-lg font-semibold text-sm transition-all ${
+                currentPage === 1
+                  ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
+                  : 'bg-primary-100 text-primary-600 hover:bg-primary-200'
+              }`}
+            >
+              ◀ Prev
+            </button>
+
+            {/* Page Numbers */}
+            <div className="flex gap-1">
+              {Array.from({ length: totalPages }, (_, i) => i + 1).map(pageNum => (
+                <button
+                  key={pageNum}
+                  onClick={() => setCurrentPage(pageNum)}
+                  className={`w-10 h-10 rounded-lg font-semibold text-sm transition-all ${
+                    currentPage === pageNum
+                      ? 'bg-gradient-to-r from-primary-600 to-accent-500 text-white shadow-md'
+                      : 'bg-white text-gray-700 border-2 border-primary-300 hover:border-accent-400'
+                  }`}
+                >
+                  {pageNum}
+                </button>
+              ))}
+            </div>
+
+            <button
+              onClick={() => setCurrentPage(prev => Math.min(totalPages, prev + 1))}
+              disabled={currentPage === totalPages}
+              className={`px-4 py-2 rounded-lg font-semibold text-sm transition-all ${
+                currentPage === totalPages
+                  ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
+                  : 'bg-primary-100 text-primary-600 hover:bg-primary-200'
+              }`}
+            >
+              Next ▶
+            </button>
+          </div>
+        </div>
+      )}
       
       <div className="mt-6 p-4 bg-gradient-to-br from-accent-50 to-primary-50 rounded-xl border-2 border-accent-200">
         <p className="text-xs text-gray-700 leading-relaxed">
@@ -714,6 +1033,14 @@ function RightPanel({ selectedManuscript, viewMode, setViewMode }) {
             <p className="text-sm text-primary-700 font-medium">{selectedManuscript.author}</p>
           </div>
           <div className="flex flex-col sm:flex-row gap-2 sm:gap-3 w-full sm:w-auto">
+            {selectedManuscript.source_url && (
+              <button
+                onClick={() => window.open(selectedManuscript.source_url, '_blank')}
+                className="px-4 py-2.5 sm:px-5 rounded-xl font-semibold transition-all duration-200 bg-white text-blue-600 border-2 border-blue-300 hover:border-blue-400 hover:shadow-md"
+              >
+                🔗 Sumber
+              </button>
+            )}
             <button
               onClick={() => setViewMode('chat')}
               className={`px-4 py-2.5 sm:px-5 rounded-xl font-semibold transition-all duration-200 ${

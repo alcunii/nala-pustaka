@@ -123,13 +123,22 @@ export default function AdminDashboard() {
   const [editingId, setEditingId] = useState(null);
   const navigate = useNavigate();
 
+  // Sort & Filter state (NEW)
+  const [sortBy, setSortBy] = useState('display_order'); // 'display_order', 'created_at', 'title', 'author'
+  const [sortOrder, setSortOrder] = useState('desc'); // 'asc', 'desc'
+  const [filterAuthorType, setFilterAuthorType] = useState('all'); // 'all', 'custom', 'unknown', 'multiple'
+  const [filterSource, setFilterSource] = useState('all'); // 'all', 'with_source', 'no_source'
+  const [searchQuery, setSearchQuery] = useState('');
+
   // Form state
   const [formData, setFormData] = useState({
     slug: '',
     title: '',
     author: '',
+    authorType: 'custom', // 'custom', 'unknown', 'multiple'
     description: '',
     full_text: '',
+    source_url: '', // NEW: Source link feature
   });
   const [formError, setFormError] = useState('');
   const [formSuccess, setFormSuccess] = useState('');
@@ -166,6 +175,113 @@ export default function AdminDashboard() {
     }
   };
 
+  // Sort, Filter, and Search logic (NEW)
+  const getFilteredAndSortedManuscripts = () => {
+    let filtered = [...manuscripts];
+
+    // 1. Apply Search Filter
+    if (searchQuery.trim()) {
+      const query = searchQuery.toLowerCase();
+      filtered = filtered.filter((m) => {
+        return (
+          m.title.toLowerCase().includes(query) ||
+          m.author.toLowerCase().includes(query) ||
+          (m.description && m.description.toLowerCase().includes(query)) ||
+          m.slug.toLowerCase().includes(query)
+        );
+      });
+    }
+
+    // 2. Apply Author Type Filter
+    if (filterAuthorType !== 'all') {
+      filtered = filtered.filter((m) => {
+        if (filterAuthorType === 'unknown') {
+          return m.author === 'Tidak Diketahui';
+        } else if (filterAuthorType === 'multiple') {
+          return m.author === 'Banyak Penulis';
+        } else if (filterAuthorType === 'custom') {
+          return m.author !== 'Tidak Diketahui' && m.author !== 'Banyak Penulis';
+        }
+        return true;
+      });
+    }
+
+    // 3. Apply Source Filter
+    if (filterSource !== 'all') {
+      filtered = filtered.filter((m) => {
+        if (filterSource === 'with_source') {
+          return m.source_url && m.source_url.trim() !== '';
+        } else if (filterSource === 'no_source') {
+          return !m.source_url || m.source_url.trim() === '';
+        }
+        return true;
+      });
+    }
+
+    // 4. Apply Sorting
+    filtered.sort((a, b) => {
+      let compareA, compareB;
+
+      switch (sortBy) {
+        case 'title':
+          compareA = a.title.toLowerCase();
+          compareB = b.title.toLowerCase();
+          break;
+        case 'author':
+          compareA = a.author.toLowerCase();
+          compareB = b.author.toLowerCase();
+          break;
+        case 'created_at':
+          compareA = new Date(a.created_at);
+          compareB = new Date(b.created_at);
+          break;
+        case 'display_order':
+        default:
+          compareA = a.display_order || 0;
+          compareB = b.display_order || 0;
+          break;
+      }
+
+      if (sortOrder === 'asc') {
+        return compareA > compareB ? 1 : compareA < compareB ? -1 : 0;
+      } else {
+        return compareA < compareB ? 1 : compareA > compareB ? -1 : 0;
+      }
+    });
+
+    return filtered;
+  };
+
+  const filteredManuscripts = getFilteredAndSortedManuscripts();
+
+  const handleReorder = async (index, direction) => {
+    if (direction === 'up' && index === 0) return;
+    if (direction === 'down' && index === filteredManuscripts.length - 1) return;
+
+    try {
+      // Use filtered list for UI index, but get actual manuscript IDs
+      const currentManuscript = filteredManuscripts[index];
+      const targetIndex = direction === 'up' ? index - 1 : index + 1;
+      const targetManuscript = filteredManuscripts[targetIndex];
+
+      await manuscriptService.reorder(currentManuscript.id, targetManuscript.id);
+      await loadManuscripts();
+      setFormSuccess('✅ Urutan naskah berhasil diubah!');
+      setTimeout(() => setFormSuccess(''), 3000);
+    } catch (error) {
+      console.error('Reorder error:', error);
+      
+      // Check if error is about missing column
+      if (error.message && error.message.includes('display_order')) {
+        setFormError('⚠️ Database belum diupdate! Jalankan SQL migration di guide/PHASE1_DATABASE_MIGRATION.sql terlebih dahulu.');
+      } else {
+        setFormError(error.message || 'Gagal mengubah urutan');
+      }
+      
+      setTimeout(() => setFormError(''), 5000);
+    }
+  };
+
   const handleLogout = async () => {
     try {
       await authService.signOut();
@@ -192,8 +308,10 @@ export default function AdminDashboard() {
       slug: '',
       title: '',
       author: '',
+      authorType: 'custom',
       description: '',
       full_text: '',
+      source_url: '',
     });
     setEditingId(null);
     setFormError('');
@@ -210,20 +328,33 @@ export default function AdminDashboard() {
       // Auto-generate slug if empty
       const slug = formData.slug || generateSlug(formData.title);
       
+      // Determine final author based on authorType
+      let finalAuthor = formData.author;
+      if (formData.authorType === 'unknown') {
+        finalAuthor = 'Tidak Diketahui';
+      } else if (formData.authorType === 'multiple') {
+        finalAuthor = 'Banyak Penulis';
+      }
+      
       // Auto-generate knowledge graph (only for new manuscripts)
       let knowledgeGraph = null;
       if (!editingId) {
         setFormSuccess('🔄 Generating knowledge graph...');
         knowledgeGraph = await generateKnowledgeGraph(
           formData.title,
-          formData.author,
+          finalAuthor,
           formData.full_text
         );
       }
 
+      // Prepare data to submit (exclude authorType - it's UI only)
       const dataToSubmit = {
-        ...formData,
         slug,
+        title: formData.title,
+        author: finalAuthor,
+        description: formData.description,
+        full_text: formData.full_text,
+        source_url: formData.source_url,
         ...(knowledgeGraph && { knowledge_graph: knowledgeGraph })
       };
 
@@ -254,12 +385,26 @@ export default function AdminDashboard() {
   };
 
   const handleEdit = (manuscript) => {
+    // Determine authorType from existing author value
+    let authorType = 'custom';
+    let authorValue = manuscript.author;
+    
+    if (manuscript.author === 'Tidak Diketahui') {
+      authorType = 'unknown';
+      authorValue = '';
+    } else if (manuscript.author === 'Banyak Penulis') {
+      authorType = 'multiple';
+      authorValue = '';
+    }
+    
     setFormData({
       slug: manuscript.slug,
       title: manuscript.title,
-      author: manuscript.author,
+      author: authorValue,
+      authorType: authorType,
       description: manuscript.description || '',
       full_text: manuscript.full_text,
+      source_url: manuscript.source_url || '',
     });
     setEditingId(manuscript.id);
     setShowForm(true);
@@ -421,15 +566,43 @@ export default function AdminDashboard() {
                 <label className="block text-sm font-semibold text-gray-700 mb-2">
                   Pengarang <span className="text-red-500">*</span>
                 </label>
-                <input
-                  type="text"
-                  name="author"
-                  value={formData.author}
+                
+                {/* Author Type Dropdown */}
+                <select
+                  name="authorType"
+                  value={formData.authorType}
                   onChange={handleFormChange}
-                  placeholder="Ranggawarsita"
-                  required
-                  className="w-full px-4 py-3 rounded-xl border-2 border-primary-300 focus:outline-none focus:border-accent-500 focus:ring-4 focus:ring-accent-200"
-                />
+                  className="w-full px-4 py-3 rounded-xl border-2 border-primary-300 focus:outline-none focus:border-accent-500 focus:ring-4 focus:ring-accent-200 mb-3"
+                >
+                  <option value="custom">✏️ Custom (Tulis Nama)</option>
+                  <option value="unknown">❓ Tidak Diketahui</option>
+                  <option value="multiple">👥 Banyak Penulis</option>
+                </select>
+
+                {/* Custom Author Input (only show if custom selected) */}
+                {formData.authorType === 'custom' && (
+                  <input
+                    type="text"
+                    name="author"
+                    value={formData.author}
+                    onChange={handleFormChange}
+                    placeholder="Ranggawarsita"
+                    required
+                    className="w-full px-4 py-3 rounded-xl border-2 border-primary-300 focus:outline-none focus:border-accent-500 focus:ring-4 focus:ring-accent-200"
+                  />
+                )}
+                
+                {formData.authorType === 'unknown' && (
+                  <div className="px-4 py-3 bg-gray-100 rounded-xl border-2 border-gray-300 text-gray-600">
+                    Pengarang: <strong>Tidak Diketahui</strong>
+                  </div>
+                )}
+                
+                {formData.authorType === 'multiple' && (
+                  <div className="px-4 py-3 bg-gray-100 rounded-xl border-2 border-gray-300 text-gray-600">
+                    Pengarang: <strong>Banyak Penulis</strong>
+                  </div>
+                )}
               </div>
 
               {/* Description */}
@@ -445,6 +618,24 @@ export default function AdminDashboard() {
                   rows="2"
                   className="w-full px-4 py-3 rounded-xl border-2 border-primary-300 focus:outline-none focus:border-accent-500 focus:ring-4 focus:ring-accent-200"
                 />
+              </div>
+
+              {/* Source URL (NEW) */}
+              <div>
+                <label className="block text-sm font-semibold text-gray-700 mb-2">
+                  Sumber (Link) <span className="text-gray-500 text-xs">(Opsional)</span>
+                </label>
+                <input
+                  type="url"
+                  name="source_url"
+                  value={formData.source_url}
+                  onChange={handleFormChange}
+                  placeholder="https://example.com/naskah-original"
+                  className="w-full px-4 py-3 rounded-xl border-2 border-primary-300 focus:outline-none focus:border-accent-500 focus:ring-4 focus:ring-accent-200"
+                />
+                <p className="text-xs text-gray-500 mt-1">
+                  Link ke sumber naskah (website, perpustakaan digital, dll). User akan melihat tombol "Sumber" jika diisi.
+                </p>
               </div>
 
               {/* Full Text */}
@@ -497,31 +688,229 @@ export default function AdminDashboard() {
 
         {/* Manuscripts List */}
         <div className="bg-white rounded-2xl shadow-xl border-2 border-primary-300 p-6">
-          <h2 className="text-2xl font-bold text-gray-900 mb-6">
-            📚 Daftar Naskah ({manuscripts.length})
-          </h2>
+          <div className="flex justify-between items-center mb-6">
+            <h2 className="text-2xl font-bold text-gray-900">
+              📚 Daftar Naskah ({filteredManuscripts.length}/{manuscripts.length})
+            </h2>
+          </div>
 
-          {manuscripts.length === 0 ? (
-            <div className="text-center py-12">
-              <p className="text-gray-500 mb-4">Belum ada naskah. Tambahkan yang pertama!</p>
-              <button
-                onClick={() => {
-                  resetForm();
-                  setShowForm(true);
-                }}
-                className="px-6 py-3 bg-gradient-to-r from-primary-600 to-accent-500 text-white rounded-xl font-semibold hover:from-primary-700 hover:to-accent-600 transition-all shadow-lg"
+          {/* Sort & Filter Controls (NEW) */}
+          <div className="mb-6 space-y-4">
+            {/* Search Bar */}
+            <div className="relative">
+              <input
+                type="text"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                placeholder="🔍 Cari naskah (judul, pengarang, deskripsi, slug)..."
+                className="w-full px-4 py-3 pl-12 rounded-xl border-2 border-primary-300 focus:outline-none focus:border-accent-500 focus:ring-4 focus:ring-accent-200 bg-white"
+              />
+              <svg
+                className="absolute left-4 top-3.5 w-5 h-5 text-gray-400"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
               >
-                ➕ Tambah Naskah
-              </button>
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
+                />
+              </svg>
+              {searchQuery && (
+                <button
+                  onClick={() => setSearchQuery('')}
+                  className="absolute right-4 top-3 text-gray-400 hover:text-gray-600 text-xl"
+                >
+                  ✕
+                </button>
+              )}
+            </div>
+
+            {/* Sort & Filter Row */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+              {/* Sort By */}
+              <div>
+                <label className="block text-xs font-semibold text-gray-700 mb-1">
+                  � Urutkan Berdasarkan
+                </label>
+                <select
+                  value={sortBy}
+                  onChange={(e) => setSortBy(e.target.value)}
+                  className="w-full px-3 py-2 rounded-lg border-2 border-primary-300 focus:outline-none focus:border-accent-500 text-sm"
+                >
+                  <option value="display_order">🔢 Urutan Display</option>
+                  <option value="created_at">📅 Tanggal Dibuat</option>
+                  <option value="title">🔤 Judul</option>
+                  <option value="author">✍️ Pengarang</option>
+                </select>
+              </div>
+
+              {/* Sort Order */}
+              <div>
+                <label className="block text-xs font-semibold text-gray-700 mb-1">
+                  ⬆️⬇️ Urutan
+                </label>
+                <select
+                  value={sortOrder}
+                  onChange={(e) => setSortOrder(e.target.value)}
+                  className="w-full px-3 py-2 rounded-lg border-2 border-primary-300 focus:outline-none focus:border-accent-500 text-sm"
+                >
+                  <option value="desc">
+                    {sortBy === 'title' || sortBy === 'author' ? 'Z → A' : 'Tertinggi → Terendah'}
+                  </option>
+                  <option value="asc">
+                    {sortBy === 'title' || sortBy === 'author' ? 'A → Z' : 'Terendah → Tertinggi'}
+                  </option>
+                </select>
+              </div>
+
+              {/* Filter Author Type */}
+              <div>
+                <label className="block text-xs font-semibold text-gray-700 mb-1">
+                  👤 Tipe Pengarang
+                </label>
+                <select
+                  value={filterAuthorType}
+                  onChange={(e) => setFilterAuthorType(e.target.value)}
+                  className="w-full px-3 py-2 rounded-lg border-2 border-primary-300 focus:outline-none focus:border-accent-500 text-sm"
+                >
+                  <option value="all">📖 Semua Tipe</option>
+                  <option value="custom">✏️ Custom (Nama Penulis)</option>
+                  <option value="unknown">❓ Tidak Diketahui</option>
+                  <option value="multiple">👥 Banyak Penulis</option>
+                </select>
+              </div>
+            </div>
+
+            {/* Filter Source (Secondary Row) */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+              <div>
+                <label className="block text-xs font-semibold text-gray-700 mb-1">
+                  🔗 Sumber
+                </label>
+                <select
+                  value={filterSource}
+                  onChange={(e) => setFilterSource(e.target.value)}
+                  className="w-full px-3 py-2 rounded-lg border-2 border-primary-300 focus:outline-none focus:border-accent-500 text-sm"
+                >
+                  <option value="all">🌐 Semua</option>
+                  <option value="with_source">✅ Ada Sumber</option>
+                  <option value="no_source">❌ Tanpa Sumber</option>
+                </select>
+              </div>
+
+              {/* Reset Filters Button */}
+              <div className="flex items-end">
+                <button
+                  onClick={() => {
+                    setSortBy('display_order');
+                    setSortOrder('desc');
+                    setFilterAuthorType('all');
+                    setFilterSource('all');
+                    setSearchQuery('');
+                  }}
+                  className="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 font-semibold text-sm transition-all"
+                >
+                  🔄 Reset Filter
+                </button>
+              </div>
+            </div>
+
+            {/* Active Filters Summary */}
+            {(searchQuery || filterAuthorType !== 'all' || filterSource !== 'all') && (
+              <div className="flex items-center gap-2 flex-wrap p-3 bg-accent-50 rounded-lg border border-accent-200">
+                <span className="text-xs font-semibold text-gray-700">Filter Aktif:</span>
+                {searchQuery && (
+                  <span className="px-2 py-1 bg-white rounded-md text-xs border border-primary-300">
+                    🔍 "{searchQuery}"
+                  </span>
+                )}
+                {filterAuthorType !== 'all' && (
+                  <span className="px-2 py-1 bg-white rounded-md text-xs border border-primary-300">
+                    👤 {filterAuthorType === 'custom' ? 'Custom' : filterAuthorType === 'unknown' ? 'Tidak Diketahui' : 'Banyak Penulis'}
+                  </span>
+                )}
+                {filterSource !== 'all' && (
+                  <span className="px-2 py-1 bg-white rounded-md text-xs border border-primary-300">
+                    🔗 {filterSource === 'with_source' ? 'Ada Sumber' : 'Tanpa Sumber'}
+                  </span>
+                )}
+              </div>
+            )}
+          </div>
+
+          {/* Manuscripts List */}
+          {filteredManuscripts.length === 0 ? (
+            <div className="text-center py-12">
+              {manuscripts.length === 0 ? (
+                <>
+                  <p className="text-gray-500 mb-4">Belum ada naskah. Tambahkan yang pertama!</p>
+                  <button
+                    onClick={() => {
+                      resetForm();
+                      setShowForm(true);
+                    }}
+                    className="px-6 py-3 bg-gradient-to-r from-primary-600 to-accent-500 text-white rounded-xl font-semibold hover:from-primary-700 hover:to-accent-600 transition-all shadow-lg"
+                  >
+                    ➕ Tambah Naskah
+                  </button>
+                </>
+              ) : (
+                <>
+                  <p className="text-gray-500 mb-4">Tidak ada naskah yang cocok dengan filter.</p>
+                  <button
+                    onClick={() => {
+                      setSortBy('display_order');
+                      setSortOrder('desc');
+                      setFilterAuthorType('all');
+                      setFilterSource('all');
+                      setSearchQuery('');
+                    }}
+                    className="px-4 py-2 bg-primary-100 text-primary-600 rounded-lg hover:bg-primary-200 font-semibold text-sm"
+                  >
+                    🔄 Reset Filter
+                  </button>
+                </>
+              )}
             </div>
           ) : (
             <div className="space-y-4">
-              {manuscripts.map((manuscript) => (
+              {filteredManuscripts.map((manuscript, index) => (
                 <div
                   key={manuscript.id}
                   className="border-2 border-primary-200 rounded-xl p-4 hover:border-accent-400 hover:shadow-md transition-all"
                 >
-                  <div className="flex justify-between items-start">
+                  <div className="flex justify-between items-start gap-4">
+                    {/* Ordering Buttons */}
+                    <div className="flex flex-col gap-1">
+                      <button
+                        onClick={() => handleReorder(index, 'up')}
+                        disabled={index === 0}
+                        className={`px-2 py-1 rounded-lg text-xs font-bold ${
+                          index === 0
+                            ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
+                            : 'bg-primary-100 text-primary-600 hover:bg-primary-200'
+                        }`}
+                        title="Naikkan urutan"
+                      >
+                        ▲
+                      </button>
+                      <button
+                        onClick={() => handleReorder(index, 'down')}
+                        disabled={index === manuscripts.length - 1}
+                        className={`px-2 py-1 rounded-lg text-xs font-bold ${
+                          index === manuscripts.length - 1
+                            ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
+                            : 'bg-primary-100 text-primary-600 hover:bg-primary-200'
+                        }`}
+                        title="Turunkan urutan"
+                      >
+                        ▼
+                      </button>
+                    </div>
+
                     <div className="flex-1">
                       <h3 className="text-lg font-bold text-gray-900 mb-1">
                         {manuscript.title}
@@ -534,7 +923,7 @@ export default function AdminDashboard() {
                           {manuscript.description}
                         </p>
                       )}
-                      <div className="flex gap-4 text-xs text-gray-500">
+                      <div className="flex gap-4 text-xs text-gray-500 flex-wrap">
                         <span>ID: {manuscript.slug}</span>
                         <span>
                           {new Date(manuscript.created_at).toLocaleDateString('id-ID')}
@@ -542,9 +931,14 @@ export default function AdminDashboard() {
                         <span>
                           {manuscript.full_text.length} karakter
                         </span>
+                        {manuscript.source_url && (
+                          <span className="text-blue-600">
+                            🔗 Ada sumber
+                          </span>
+                        )}
                       </div>
                     </div>
-                    <div className="flex gap-2 ml-4">
+                    <div className="flex gap-2">
                       <button
                         onClick={() => handleEdit(manuscript)}
                         className="px-3 py-2 bg-blue-100 text-blue-600 rounded-lg hover:bg-blue-200 font-semibold text-sm"
