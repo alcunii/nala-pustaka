@@ -254,17 +254,24 @@ export default function AdminDashboard() {
 
   const filteredManuscripts = getFilteredAndSortedManuscripts();
 
+  // IMPROVED: Reorder with proper display_order update
   const handleReorder = async (index, direction) => {
     if (direction === 'up' && index === 0) return;
     if (direction === 'down' && index === filteredManuscripts.length - 1) return;
 
     try {
-      // Use filtered list for UI index, but get actual manuscript IDs
       const currentManuscript = filteredManuscripts[index];
       const targetIndex = direction === 'up' ? index - 1 : index + 1;
       const targetManuscript = filteredManuscripts[targetIndex];
 
-      await manuscriptService.reorder(currentManuscript.id, targetManuscript.id);
+      // Get current display_order values
+      const currentOrder = currentManuscript.display_order || 0;
+      const targetOrder = targetManuscript.display_order || 0;
+
+      // Swap display_order values directly
+      await manuscriptService.update(currentManuscript.id, { display_order: targetOrder });
+      await manuscriptService.update(targetManuscript.id, { display_order: currentOrder });
+
       await loadManuscripts();
       setFormSuccess('✅ Urutan naskah berhasil diubah!');
       setTimeout(() => setFormSuccess(''), 3000);
@@ -708,6 +715,25 @@ export default function AdminDashboard() {
               📚 Daftar Naskah ({filteredManuscripts.length}/{manuscripts.length})
             </h2>
           </div>
+
+          {/* Reorder Instruction for Pinned Manuscripts */}
+          {filteredManuscripts.some(m => m.is_pinned) && (
+            <div className="mb-6 p-4 bg-gradient-to-r from-yellow-50 to-amber-50 border-2 border-yellow-300 rounded-xl">
+              <div className="flex items-start gap-3">
+                <span className="text-2xl">💡</span>
+                <div>
+                  <p className="text-sm font-bold text-gray-900 mb-1">
+                    Tips Mengatur Urutan Naskah Pinned:
+                  </p>
+                  <p className="text-xs text-gray-700 leading-relaxed">
+                    1. Pastikan <strong>Sort By = "Display Order"</strong> dan <strong>Sort Order = "Desc"</strong><br/>
+                    2. Gunakan tombol <strong>▲▼</strong> untuk menggeser urutan<br/>
+                    3. Urutan di halaman ini = urutan di homepage halaman 1
+                  </p>
+                </div>
+              </div>
+            </div>
+          )}
 
           {/* Sort & Filter Controls (NEW) */}
           <div className="mb-6 space-y-4">
