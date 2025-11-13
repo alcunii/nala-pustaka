@@ -192,22 +192,16 @@ function ChatPanel({ manuscript }) {
     }
   }, [messages, manuscript.id]);
 
-  // Pesan sambutan pertama kali (atau load dari localStorage)
+  // FIXED: Reset chat when switching manuscripts (session management)
   useEffect(() => {
-    // Try to load existing chat history
-    const savedHistory = loadChatHistory(manuscript.id);
-    
-    if (savedHistory && savedHistory.length > 0) {
-      setMessages(savedHistory);
-    } else {
-      // No history, show welcome message
-      const welcomeMessage = {
-        id: Date.now(),
-        sender: 'ai',
-        text: `Salam. Saya Pustakawan AI Nala Pustaka. Silakan ajukan pertanyaan Anda tentang ${manuscript.title}.`
-      };
-      setMessages([welcomeMessage]);
-    }
+    // Always start fresh session when switching manuscripts
+    // Chat history is still preserved in localStorage (accessible via History button)
+    const welcomeMessage = {
+      id: Date.now(),
+      sender: 'ai',
+      text: `Salam. Saya Pustakawan AI Nala Pustaka. Silakan ajukan pertanyaan Anda tentang ${manuscript.title}.`
+    };
+    setMessages([welcomeMessage]);
   }, [manuscript.id]);
 
   // Fungsi RAG: Memanggil Gemini API dengan grounded context + conversational history
@@ -241,29 +235,19 @@ Anda dapat merujuk ke pertanyaan sebelumnya jika relevan untuk memberikan jawaba
       });
     }
 
-    // Include manuscript text only if this is first real query (no conversation history yet)
-    const isFirstQuery = contextMessages.length === 0;
-    
-    const combinedUserQuery = isFirstQuery 
-      ? `KONTEKS NASKAH (${manuscriptData.title}):
+    // FIXED: ALWAYS include manuscript text in EVERY query
+    const combinedUserQuery = `KONTEKS NASKAH (${manuscriptData.title}):
 """
 ${manuscriptText}
 """
+${conversationContext}
 
-PERTANYAAN PENGGUNA:
+PERTANYAAN PENGGUNA ${contextMessages.length > 0 ? 'TERBARU' : ''}:
 """
 ${userQuery}
 """
 
-INSTRUKSI: Jawab pertanyaan pengguna HANYA berdasarkan KONTEKS NASKAH di atas.`
-      : `${conversationContext}
-
-PERTANYAAN PENGGUNA TERBARU:
-"""
-${userQuery}
-"""
-
-INSTRUKSI: Jawab pertanyaan pengguna berdasarkan konteks naskah yang sudah Anda ketahui dari percakapan sebelumnya. Anda dapat merujuk ke jawaban sebelumnya jika relevan.`;
+INSTRUKSI: Jawab pertanyaan pengguna HANYA berdasarkan KONTEKS NASKAH di atas.${contextMessages.length > 0 ? ' Anda dapat merujuk ke jawaban sebelumnya jika relevan untuk memberikan jawaban yang koheren.' : ''}`;
 
     // Payload untuk Gemini API
     const payload = {
