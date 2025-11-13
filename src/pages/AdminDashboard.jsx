@@ -12,24 +12,31 @@ const generateKnowledgeGraph = async (title, author, fullText) => {
   }
 
   try {
+    // Smart chunking: Use first 5000 characters for analysis
+    // This balances accuracy with token limits
+    const textSample = fullText.length > 5000 
+      ? fullText.substring(0, 5000) + '\n\n[... naskah dilanjutkan ...]'
+      : fullText;
+    
     const prompt = `Analisis naskah berikut dan ekstrak knowledge graph dalam format JSON.
 
 NASKAH:
 Judul: ${title}
 Pengarang: ${author}
 
-Teks (500 karakter pertama):
-${fullText.substring(0, 500)}...
+Teks Lengkap:
+${textSample}
 
 INSTRUKSI:
-1. Extract maksimal 8-10 nodes penting (tokoh, konsep, struktur)
-2. Buat links yang menghubungkan nodes
+1. Extract maksimal 10-12 nodes penting dari SELURUH teks (tokoh, konsep, struktur, tema)
+2. Buat links yang menghubungkan nodes dengan relasi yang jelas
 3. Kategorikan nodes: "Karya", "Tokoh", "Konsep", "Struktur"
+4. Prioritaskan elemen yang muncul berulang atau penting dalam naskah
 
 FORMAT OUTPUT (JSON strict):
 {
   "nodes": [
-    {"id": "id-unique", "label": "Nama Node", "type": "Karya|Tokoh|Konsep|Struktur"}
+    {"id": "id-unique-lowercase", "label": "Nama Node", "type": "Karya|Tokoh|Konsep|Struktur"}
   ],
   "links": [
     {"source": "id-source", "target": "id-target", "label": "Relasi"}
@@ -41,18 +48,23 @@ CONTOH untuk Serat Wulangreh:
   "nodes": [
     {"id": "wulangreh", "label": "Serat Wulangreh", "type": "Karya"},
     {"id": "pakubuwana-iv", "label": "Pakubuwana IV", "type": "Tokoh"},
-    {"id": "ajaran-moral", "label": "Ajaran Moral", "type": "Konsep"}
+    {"id": "ajaran-moral", "label": "Ajaran Moral", "type": "Konsep"},
+    {"id": "kepemimpinan", "label": "Kepemimpinan", "type": "Konsep"}
   ],
   "links": [
     {"source": "pakubuwana-iv", "target": "wulangreh", "label": "Menulis"},
-    {"source": "wulangreh", "target": "ajaran-moral", "label": "Membahas"}
+    {"source": "wulangreh", "target": "ajaran-moral", "label": "Membahas"},
+    {"source": "ajaran-moral", "target": "kepemimpinan", "label": "Terkait"}
   ]
 }
 
-PENTING: Hanya output JSON, tidak ada teks lain!`;
+PENTING: 
+- Hanya output JSON, tidak ada teks lain!
+- ID harus lowercase, no space, gunakan dash (-)
+- Minimal 6 nodes, maksimal 12 nodes`;
 
     const response = await fetch(
-      `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash-thinking-exp-1219:generateContent?key=${apiKey}`,
+      `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash-exp:generateContent?key=${apiKey}`,
       {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
