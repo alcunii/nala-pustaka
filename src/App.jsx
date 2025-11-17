@@ -3,6 +3,9 @@ import * as d3 from 'd3';
 import { marked } from 'marked';
 import { MANUSCRIPT_DATA, KNOWLEDGE_GRAPH_DATA } from './data/manuscripts';
 import { manuscriptService } from './lib/supabase';
+import RagSearch from './components/RagSearch';
+import RagChatPanel from './components/RagChatPanel';
+import DeepChatModal from './components/DeepChatModal';
 
 // Configure marked for better Markdown rendering
 marked.setOptions({
@@ -15,20 +18,35 @@ marked.setOptions({
 // Fallback ke data hardcoded jika Supabase gagal
 
 // Komponen Header
-function Header() {
+function Header({ onOpenRagSearch }) {
   return (
     <header className="bg-gradient-to-r from-primary-700 via-primary-600 to-accent-500 text-white shadow-lg">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 py-4 sm:py-6">
-        <div className="flex items-center gap-4">
-          <div className="w-12 h-12 bg-white/20 backdrop-blur-sm rounded-xl flex items-center justify-center border border-white/30">
-            <svg className="w-7 h-7 text-white" fill="currentColor" viewBox="0 0 20 20">
-              <path d="M9 4.804A7.968 7.968 0 005.5 4c-1.255 0-2.443.29-3.5.804v10A7.969 7.969 0 015.5 14c1.669 0 3.218.51 4.5 1.385A7.962 7.962 0 0114.5 14c1.255 0 2.443.29 3.5.804v-10A7.968 7.968 0 0014.5 4c-1.255 0-2.443.29-3.5.804V12a1 1 0 11-2 0V4.804z" />
+        <div className="flex items-center justify-between gap-4">
+          <div className="flex items-center gap-4">
+            <div className="w-12 h-12 bg-white/20 backdrop-blur-sm rounded-xl flex items-center justify-center border border-white/30">
+              <svg className="w-7 h-7 text-white" fill="currentColor" viewBox="0 0 20 20">
+                <path d="M9 4.804A7.968 7.968 0 005.5 4c-1.255 0-2.443.29-3.5.804v10A7.969 7.969 0 015.5 14c1.669 0 3.218.51 4.5 1.385A7.962 7.962 0 0114.5 14c1.255 0 2.443.29 3.5.804v-10A7.968 7.968 0 0014.5 4c-1.255 0-2.443.29-3.5.804V12a1 1 0 11-2 0V4.804z" />
+              </svg>
+            </div>
+            <div>
+              <h1 className="text-3xl font-bold tracking-tight">Nala Pustaka</h1>
+              <p className="text-primary-100">AI untuk Digitalisasi Naskah Kuno Jawa</p>
+            </div>
+          </div>
+          
+          {/* RAG Search Button */}
+          <button
+            onClick={onOpenRagSearch}
+            className="flex items-center gap-2 px-4 sm:px-6 py-2.5 sm:py-3 bg-white/10 hover:bg-white/20 backdrop-blur-sm border-2 border-white/30 rounded-xl font-semibold transition-all hover:scale-105 shadow-lg"
+          >
+            <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+              <path d="M9 9a2 2 0 114 0 2 2 0 01-4 0z" />
+              <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-13a4 4 0 00-3.446 6.032l-2.261 2.26a1 1 0 101.414 1.415l2.261-2.261A4 4 0 1011 5z" clipRule="evenodd" />
             </svg>
-          </div>
-          <div>
-            <h1 className="text-3xl font-bold tracking-tight">Nala Pustaka</h1>
-            <p className="text-primary-100">AI untuk Digitalisasi Naskah Kuno Jawa</p>
-          </div>
+            <span className="hidden sm:inline">RAG Search</span>
+            <span className="sm:hidden">🔍</span>
+          </button>
         </div>
       </div>
     </header>
@@ -1065,6 +1083,17 @@ function RightPanel({ selectedManuscript, viewMode, setViewMode }) {
               💬 Chat
             </button>
             <button
+              onClick={() => setViewMode('ragchat')}
+              className={`px-4 py-2.5 sm:px-5 rounded-xl font-semibold transition-all duration-200 ${
+                viewMode === 'ragchat'
+                  ? 'bg-gradient-to-r from-accent-600 to-primary-500 text-white shadow-lg sm:scale-105'
+                  : 'bg-white text-gray-700 border-2 border-accent-300 hover:border-accent-400 hover:shadow-md'
+              }`}
+              title="RAG Chat - Tanya lintas semua naskah"
+            >
+              🔍 RAG Chat
+            </button>
+            <button
               onClick={() => setViewMode('kg')}
               className={`px-4 py-2.5 sm:px-5 rounded-xl font-semibold transition-all duration-200 ${
                 viewMode === 'kg'
@@ -1083,6 +1112,7 @@ function RightPanel({ selectedManuscript, viewMode, setViewMode }) {
         {viewMode === 'chat' && selectedManuscript && (
           <ChatPanel manuscript={selectedManuscript} />
         )}
+        {viewMode === 'ragchat' && <RagChatPanel />}
         {viewMode === 'kg' && selectedManuscript && (
           <KnowledgeGraphPanel manuscript={selectedManuscript} />
         )}
@@ -1097,6 +1127,10 @@ function App() {
   const [viewMode, setViewMode] = useState('welcome');
   const [manuscripts, setManuscripts] = useState([]); // State untuk data dari Supabase
   const [loading, setLoading] = useState(true);
+  const [ragSearchOpen, setRagSearchOpen] = useState(false); // State untuk RAG Search modal
+  const [deepChatOpen, setDeepChatOpen] = useState(false); // State untuk Deep Chat modal
+  const [deepChatManuscript, setDeepChatManuscript] = useState(null);
+  const [deepChatInitialQuery, setDeepChatInitialQuery] = useState('');
 
   // Fetch manuscripts dari Supabase saat component mount
   useEffect(() => {
@@ -1144,7 +1178,62 @@ function App() {
 
   return (
     <div className="min-h-screen bg-primary-50 flex flex-col">
-      <Header />
+      <Header onOpenRagSearch={() => setRagSearchOpen(true)} />
+      
+      {/* Deep Chat Modal */}
+      {deepChatOpen && deepChatManuscript && (
+        <DeepChatModal
+          manuscript={deepChatManuscript}
+          initialQuery={deepChatInitialQuery}
+          onClose={() => {
+            setDeepChatOpen(false);
+            setDeepChatManuscript(null);
+            setDeepChatInitialQuery('');
+          }}
+        />
+      )}
+      
+      {/* RAG Search Modal */}
+      {ragSearchOpen && (
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-start justify-center overflow-y-auto p-4">
+          <div className="bg-white rounded-2xl shadow-2xl w-full max-w-5xl my-8">
+            {/* Modal Header */}
+            <div className="bg-gradient-to-r from-primary-600 to-accent-500 px-6 py-4 rounded-t-2xl flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <svg className="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 20 20">
+                  <path d="M9 9a2 2 0 114 0 2 2 0 01-4 0z" />
+                  <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-13a4 4 0 00-3.446 6.032l-2.261 2.26a1 1 0 101.414 1.415l2.261-2.261A4 4 0 1011 5z" clipRule="evenodd" />
+                </svg>
+                <h2 className="text-xl font-bold text-white">RAG Semantic Search</h2>
+              </div>
+              <button
+                onClick={() => setRagSearchOpen(false)}
+                className="text-white hover:bg-white/20 rounded-lg p-2 transition-colors"
+              >
+                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+            </div>
+            
+            {/* Modal Body */}
+            <div className="p-6 max-h-[calc(100vh-200px)] overflow-y-auto">
+              <RagSearch 
+                onResultClick={(result) => {
+                  console.log('Selected result:', result);
+                  setRagSearchOpen(false);
+                }}
+                onDeepChatRequest={(manuscript) => {
+                  setDeepChatManuscript(manuscript);
+                  setDeepChatInitialQuery(manuscript.initialQuery);
+                  setDeepChatOpen(true);
+                  setRagSearchOpen(false); // Auto-close RAG Search modal
+                }}
+              />
+            </div>
+          </div>
+        </div>
+      )}
       
       <main className="flex-1 flex flex-col lg:flex-row overflow-hidden">
         {/* Mobile Selector */}

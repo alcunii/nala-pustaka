@@ -1,0 +1,12 @@
+     {
+       "custom_models": [
+         {
+           "model_display_name": "MegaLLM",
+           "model": "megallm-model",
+           "base_url": "https://api.megallm.io/v1",
+           "api_key": "sk-mega-80c5a8125dabc0d24c04931aadb64258b7ae7d213e8496a1b7e568e248c7d427",
+           "provider": "generic-chat-completion-api",
+           "max_tokens": 4096
+         }
+       ]
+     }
