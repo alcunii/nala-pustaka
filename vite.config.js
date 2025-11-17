@@ -24,6 +24,7 @@ export default defineConfig({
     outDir: 'dist',
     sourcemap: false,
     minify: 'terser',
-    target: 'ES2020',
+    target: 'es2015',
+    cssMinify: 'esbuild',
   },
 })
