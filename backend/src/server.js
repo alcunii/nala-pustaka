@@ -11,6 +11,8 @@ const vectorDB = require('./services/vectorDB');
 const embeddingService = require('./services/embedding');
 const ragChatService = require('./services/ragChat');
 const deepChatService = require('./services/deepChatService');
+const educationalAIService = require('./services/educationalAI');
+const knowledgeGraphService = require('./services/knowledgeGraph');
 
 const app = express();
 
@@ -20,7 +22,9 @@ app.use(cors({
   credentials: true,
 }));
 
-app.use(express.json());
+// Increase JSON payload limit for large manuscripts (default: 100kb)
+app.use(express.json({ limit: '10mb' }));
+app.use(express.urlencoded({ limit: '10mb', extended: true }));
 
 // Rate limiting
 const limiter = rateLimit({
@@ -189,6 +193,88 @@ app.post('/api/deep-chat', async (req, res) => {
     res.json(result);
   } catch (error) {
     logger.error('Deep chat error:', error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Educational AI endpoints
+// Generate educational content for a manuscript
+app.post('/api/educational/generate', async (req, res) => {
+  try {
+    const { manuscript } = req.body;
+    
+    if (!manuscript || !manuscript.id || !manuscript.title) {
+      return res.status(400).json({ error: 'Valid manuscript object required (id, title, full_text)' });
+    }
+    
+    logger.info(`Generate educational content request for: ${manuscript.title}`);
+    
+    const content = await educationalAIService.generateAllEducationalContent(manuscript);
+    
+    res.json({
+      manuscriptId: manuscript.id,
+      content,
+      cached: false, // Just generated
+      timestamp: new Date().toISOString()
+    });
+  } catch (error) {
+    logger.error('Educational content generation error:', error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Get educational content (cache or generate)
+app.get('/api/educational/:manuscriptId', async (req, res) => {
+  try {
+    const { manuscriptId } = req.params;
+    
+    logger.info(`Get educational content for: ${manuscriptId}`);
+    
+    // Try to get from cache
+    const cached = await educationalAIService.getCachedContent(manuscriptId);
+    
+    if (cached) {
+      return res.json({
+        manuscriptId,
+        content: cached,
+        cached: true,
+        timestamp: new Date().toISOString()
+      });
+    }
+    
+    // Not cached - need manuscript data to generate
+    res.status(404).json({ 
+      error: 'Content not cached. Use POST /api/educational/generate with full manuscript data to generate.'
+    });
+  } catch (error) {
+    logger.error('Get educational content error:', error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Knowledge Graph endpoint
+app.post('/api/knowledge-graph', async (req, res) => {
+  try {
+    const { manuscriptId, manuscriptData } = req.body;
+    
+    if (!manuscriptId) {
+      return res.status(400).json({ error: 'manuscriptId required' });
+    }
+    
+    logger.info(`Get knowledge graph for: ${manuscriptId}`);
+    
+    const relationships = await knowledgeGraphService.findRelatedManuscripts(
+      manuscriptId,
+      manuscriptData
+    );
+    
+    res.json({
+      manuscriptId,
+      relationships,
+      timestamp: new Date().toISOString()
+    });
+  } catch (error) {
+    logger.error('Knowledge graph error:', error);
     res.status(500).json({ error: error.message });
   }
 });

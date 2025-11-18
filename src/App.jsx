@@ -6,6 +6,8 @@ import { manuscriptService } from './lib/supabase';
 import RagSearch from './components/RagSearch';
 import RagChatPanel from './components/RagChatPanel';
 import DeepChatModal from './components/DeepChatModal';
+import EducationalPanel from './components/EducationalPanel';
+import EducationalKnowledgeGraph from './components/EducationalKnowledgeGraph';
 
 // Configure marked for better Markdown rendering
 marked.setOptions({
@@ -1103,6 +1105,16 @@ function RightPanel({ selectedManuscript, viewMode, setViewMode }) {
             >
               🔮 Graph
             </button>
+            <button
+              onClick={() => setViewMode('educational')}
+              className={`px-4 py-2.5 sm:px-5 rounded-xl font-semibold transition-all duration-200 ${
+                viewMode === 'educational'
+                  ? 'bg-gradient-to-r from-accent-600 to-yellow-500 text-white shadow-lg sm:scale-105'
+                  : 'bg-white text-gray-700 border-2 border-accent-300 hover:border-accent-400 hover:shadow-md'
+              }`}
+            >
+              🎓 Belajar
+            </button>
           </div>
         </div>
       )}
@@ -1115,6 +1127,14 @@ function RightPanel({ selectedManuscript, viewMode, setViewMode }) {
         {viewMode === 'ragchat' && <RagChatPanel />}
         {viewMode === 'kg' && selectedManuscript && (
           <KnowledgeGraphPanel manuscript={selectedManuscript} />
+        )}
+        {viewMode === 'educational' && selectedManuscript && (
+          <div className="h-full overflow-y-auto p-4 sm:p-6 bg-gradient-to-br from-amber-50 to-orange-50">
+            <EducationalPanel manuscript={selectedManuscript} />
+            <div className="mt-6">
+              <EducationalKnowledgeGraph manuscript={selectedManuscript} />
+            </div>
+          </div>
         )}
       </div>
     </div>
