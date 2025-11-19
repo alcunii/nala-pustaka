@@ -17,9 +17,12 @@ class EducationalAIService {
    * Generate all educational content in ONE API call (token-efficient)
    * Returns: { summary, wisdom, characters, significance, quiz }
    */
-  async generateAllEducationalContent(manuscript) {
+  async generateAllEducationalContent(manuscript, retryCount = 0) {
+    const MAX_RETRIES = 3;
+    const RETRY_DELAY = 2000; // 2 seconds
+
     try {
-      logger.info(`Generating educational content for: ${manuscript.title}`);
+      logger.info(`Generating educational content for: ${manuscript.title} (attempt ${retryCount + 1}/${MAX_RETRIES + 1})`);
 
       // Check cache first
       const cached = await this.getCachedContent(manuscript.id);
@@ -32,37 +35,11 @@ class EducationalAIService {
       const prompt = this.buildAllInOnePrompt(manuscript);
       const aiResponse = await this.callGemini(prompt);
 
-      // Parse JSON response
-      let contentData;
-      try {
-        // Extract JSON from markdown code block if present (handle various formats)
-        let jsonStr = aiResponse.trim();
-        
-        // Try multiple regex patterns to extract JSON
-        const patterns = [
-          /```json\s*([\s\S]*?)\s*```/,     // ```json ... ```
-          /```\s*([\s\S]*?)\s*```/,          // ``` ... ```
-          /^```json\s*([\s\S]*?)$/,          // ```json ... (no closing)
-          /^```\s*([\s\S]*?)$/,              // ``` ... (no closing)
-        ];
-        
-        for (const pattern of patterns) {
-          const match = jsonStr.match(pattern);
-          if (match && match[1]) {
-            jsonStr = match[1].trim();
-            break;
-          }
-        }
-        
-        // Remove any remaining markdown artifacts
-        jsonStr = jsonStr.replace(/^```json\s*/, '').replace(/^```\s*/, '').replace(/\s*```$/, '').trim();
-        
-        contentData = JSON.parse(jsonStr);
-      } catch (parseError) {
-        logger.error('Failed to parse AI response as JSON:', parseError.message);
-        logger.error('Response preview:', aiResponse.substring(0, 500));
-        throw new Error('AI returned invalid JSON format');
-      }
+      // Parse JSON response with advanced error handling
+      const contentData = await this.parseAIResponse(aiResponse, manuscript.title);
+
+      // Validate required fields
+      this.validateContentData(contentData);
 
       // Estimate tokens (rough calculation)
       const tokenCount = Math.ceil((prompt.length + aiResponse.length) / 4);
@@ -73,9 +50,192 @@ class EducationalAIService {
       logger.info(`Successfully generated and cached content for: ${manuscript.id} (${tokenCount} tokens)`);
       return contentData;
     } catch (error) {
-      logger.error('Educational AI generation error:', error);
-      throw error;
+      logger.error(`Educational AI generation error (attempt ${retryCount + 1}):`, error.message);
+
+      // Retry logic
+      if (retryCount < MAX_RETRIES) {
+        logger.info(`Retrying in ${RETRY_DELAY}ms...`);
+        await new Promise(resolve => setTimeout(resolve, RETRY_DELAY));
+        return this.generateAllEducationalContent(manuscript, retryCount + 1);
+      }
+
+      // After all retries failed, return fallback content
+      logger.warn(`All retries exhausted for ${manuscript.id}, returning fallback content`);
+      return this.generateFallbackContent(manuscript);
     }
+  }
+
+  /**
+   * Advanced JSON parsing with multiple strategies
+   */
+  async parseAIResponse(aiResponse, manuscriptTitle) {
+    if (!aiResponse || aiResponse.trim().length === 0) {
+      throw new Error('Empty AI response');
+    }
+
+    const strategies = [
+      // Strategy 1: Direct JSON parse
+      (str) => JSON.parse(str.trim()),
+
+      // Strategy 2: Extract from markdown code blocks
+      (str) => {
+        const patterns = [
+          /```json\s*([\s\S]*?)\s*```/,
+          /```\s*([\s\S]*?)\s*```/,
+          /^```json\s*([\s\S]*?)$/m,
+          /^```\s*([\s\S]*?)$/m,
+        ];
+
+        for (const pattern of patterns) {
+          const match = str.match(pattern);
+          if (match && match[1]) {
+            return JSON.parse(match[1].trim());
+          }
+        }
+        throw new Error('No JSON found in markdown blocks');
+      },
+
+      // Strategy 3: Find JSON object boundaries
+      (str) => {
+        const firstBrace = str.indexOf('{');
+        const lastBrace = str.lastIndexOf('}');
+        if (firstBrace !== -1 && lastBrace !== -1 && lastBrace > firstBrace) {
+          const jsonStr = str.substring(firstBrace, lastBrace + 1);
+          return JSON.parse(jsonStr);
+        }
+        throw new Error('No JSON boundaries found');
+      },
+
+      // Strategy 4: Clean and parse
+      (str) => {
+        let cleaned = str
+          .replace(/^```json\s*/gm, '')
+          .replace(/^```\s*/gm, '')
+          .replace(/\s*```$/gm, '')
+          .replace(/^\s*[\r\n]/gm, '')
+          .trim();
+        
+        // Remove any text before first { and after last }
+        const firstBrace = cleaned.indexOf('{');
+        const lastBrace = cleaned.lastIndexOf('}');
+        if (firstBrace !== -1 && lastBrace !== -1) {
+          cleaned = cleaned.substring(firstBrace, lastBrace + 1);
+        }
+        
+        return JSON.parse(cleaned);
+      },
+
+      // Strategy 5: Fix common JSON errors
+      (str) => {
+        let fixed = str
+          .replace(/[\u0000-\u001F\u007F-\u009F]/g, '') // Remove control characters
+          .replace(/,(\s*[}\]])/g, '$1') // Remove trailing commas
+          .replace(/([{,]\s*)(\w+):/g, '$1"$2":') // Quote unquoted keys
+          .trim();
+
+        const firstBrace = fixed.indexOf('{');
+        const lastBrace = fixed.lastIndexOf('}');
+        if (firstBrace !== -1 && lastBrace !== -1) {
+          fixed = fixed.substring(firstBrace, lastBrace + 1);
+        }
+
+        return JSON.parse(fixed);
+      }
+    ];
+
+    // Try each strategy
+    for (let i = 0; i < strategies.length; i++) {
+      try {
+        const result = strategies[i](aiResponse);
+        if (result && typeof result === 'object') {
+          logger.info(`Successfully parsed JSON using strategy ${i + 1}`);
+          return result;
+        }
+      } catch (err) {
+        logger.debug(`Strategy ${i + 1} failed: ${err.message}`);
+        continue;
+      }
+    }
+
+    // All strategies failed - log full response for debugging
+    logger.error('Failed to parse AI response with all strategies');
+    logger.error('Full response length:', aiResponse.length);
+    logger.error('Response preview (first 1000 chars):', aiResponse.substring(0, 1000));
+    logger.error('Response preview (last 1000 chars):', aiResponse.substring(Math.max(0, aiResponse.length - 1000)));
+    
+    throw new Error('AI returned invalid JSON format - all parsing strategies failed');
+  }
+
+  /**
+   * Validate that parsed content has required fields
+   */
+  validateContentData(data) {
+    const requiredFields = ['summary', 'wisdom', 'characters', 'significance', 'quiz'];
+    const missingFields = requiredFields.filter(field => !data.hasOwnProperty(field));
+
+    if (missingFields.length > 0) {
+      throw new Error(`Missing required fields: ${missingFields.join(', ')}`);
+    }
+
+    // Validate array fields
+    if (!Array.isArray(data.wisdom) || data.wisdom.length === 0) {
+      throw new Error('wisdom must be a non-empty array');
+    }
+    if (!Array.isArray(data.characters)) {
+      throw new Error('characters must be an array');
+    }
+    if (!Array.isArray(data.quiz) || data.quiz.length === 0) {
+      throw new Error('quiz must be a non-empty array');
+    }
+
+    // Validate string fields
+    if (typeof data.summary !== 'string' || data.summary.length < 100) {
+      throw new Error('summary must be a substantial string');
+    }
+    if (typeof data.significance !== 'string' || data.significance.length < 100) {
+      throw new Error('significance must be a substantial string');
+    }
+
+    logger.info('Content validation passed');
+  }
+
+  /**
+   * Generate fallback content when AI fails
+   */
+  generateFallbackContent(manuscript) {
+    logger.warn(`Generating fallback content for: ${manuscript.title}`);
+    
+    return {
+      summary: `**${manuscript.title}**\n\nNaskah ini adalah salah satu karya penting dalam khazanah sastra Nusantara. ${manuscript.description || 'Naskah ini memiliki nilai sejarah dan budaya yang tinggi.'}\n\n**Catatan:** Konten edukatif lengkap sedang dalam proses regenerasi. Silakan coba lagi nanti untuk mendapatkan analisis yang lebih mendalam.`,
+      
+      wisdom: [
+        {
+          nilai: 'Pelestarian Budaya',
+          quote: 'Setiap naskah adalah jendela ke masa lalu',
+          relevansi: `**Relevansi Modern:**\n\nNaskah "${manuscript.title}" mengingatkan kita akan pentingnya melestarikan warisan budaya. Di era digital ini, kita memiliki tanggung jawab untuk menjaga dan menyebarkan pengetahuan tentang karya-karya klasik Nusantara.\n\nPelestarian bukan hanya tentang menyimpan, tetapi juga memahami dan mengaplikasikan nilai-nilai luhur dalam kehidupan sehari-hari.`
+        }
+      ],
+      
+      characters: [],
+      
+      significance: `**## Nilai Historis**\n\nNaskah "${manuscript.title}" merupakan bagian penting dari sejarah literatur Nusantara. ${manuscript.year ? `Ditulis sekitar tahun ${manuscript.year}` : 'Naskah ini'} mencerminkan pemikiran dan nilai-nilai pada masanya.\n\n**## Urgensi Pelestarian**\n\nSetiap naskah kuno adalah warisan tak ternilai yang perlu dijaga. Dengan mempelajari dan memahami naskah-naskah seperti ini, kita dapat lebih menghargai kekayaan budaya Indonesia.\n\n**Catatan:** Analisis lengkap sedang dalam proses regenerasi.`,
+      
+      quiz: [
+        {
+          question: `Mengapa penting untuk melestarikan naskah seperti "${manuscript.title}"?`,
+          options: [
+            'Untuk menjaga warisan budaya dan pengetahuan leluhur',
+            'Hanya untuk keperluan museum',
+            'Untuk dijual ke kolektor',
+            'Tidak ada alasan khusus'
+          ],
+          correct: 0,
+          explanation: `**Penjelasan:**\n\nMelestarikan naskah kuno sangat penting untuk menjaga warisan budaya dan pengetahuan leluhur. Naskah-naskah ini mengandung nilai-nilai, sejarah, dan pemikiran yang dapat memberikan pembelajaran bagi generasi sekarang dan masa depan.\n\nPelestarian bukan sekadar penyimpanan fisik, tetapi juga pemahaman dan penyebaran ilmu yang terkandung di dalamnya.`
+        }
+      ],
+      
+      _fallback: true
+    };
   }
 
   /**
