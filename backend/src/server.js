@@ -448,6 +448,15 @@ app.use((err, req, res, next) => {
 // Start server
 async function startServer() {
   try {
+    // Test database connection
+    const db = require('./config/database');
+    const dbTest = await db.query('SELECT current_database() as db_name, current_user, version()');
+    logger.info(`Database connected: ${dbTest.rows[0].db_name} (user: ${dbTest.rows[0].current_user})`);
+    
+    // Count manuscripts
+    const countResult = await db.query('SELECT COUNT(*) as count FROM manuscripts');
+    logger.info(`Manuscripts in database: ${countResult.rows[0].count}`);
+    
     // Initialize vector DB connection
     await vectorDB.initialize();
     logger.info('Vector DB initialized');
