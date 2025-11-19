@@ -243,12 +243,11 @@ class EducationalAIService {
    */
   buildAllInOnePrompt(manuscript) {
     // Use full_text if available, fallback to excerpt
-    // INCREASED LIMIT: We now use up to 15,000 characters (~4000 tokens) to give more context to the AI
-    // for generating deeper, longer summaries.
+    // Limit to 10,000 characters to keep prompt reasonable
     const manuscriptText = manuscript.full_text || manuscript.fullText || manuscript.description || '';
-    const textExcerpt = manuscriptText.substring(0, 15000); 
+    const textExcerpt = manuscriptText.substring(0, 10000); 
 
-    return `Analisis naskah kuno Jawa berikut dan buat konten edukatif yang mendalam, panjang, dan terstruktur dengan baik.
+    return `Analisis naskah kuno Jawa berikut dan buat konten edukatif yang informatif dan terstruktur dengan baik.
 
 NASKAH: "${manuscript.title}"
 Penulis: ${manuscript.author || 'Tidak diketahui'}
@@ -262,104 +261,95 @@ ${textExcerpt}
 TUGAS: Buat konten edukatif dalam format JSON berikut. Gunakan Markdown untuk formatting dan struktur yang mudah dibaca.
 
 {
-  "summary": "**RINGKASAN NARATIF PANJANG (MINIMUM 12-15 PARAGRAF)**
+  "summary": "**RINGKASAN NARATIF (6-8 PARAGRAF)**
 
 Gunakan Markdown untuk struktur:
 - Gunakan **bold** untuk istilah penting
 - Gunakan _italic_ untuk emphasis
 - Pisahkan dengan paragraf yang jelas (dua line break)
 
-STRUKTUR WAJIB:
+STRUKTUR:
 
-**Paragraf 1-2 (Pembuka & Hook):**
-Mulai dengan opening yang menarik. Jelaskan dalam 2 paragraf mengapa naskah ini menarik untuk dibaca dan apa yang membuatnya istimewa. Berikan gambaran besar tentang tema utama.
+**Paragraf 1 (Pembuka):**
+Mulai dengan opening yang menarik. Jelaskan mengapa naskah ini menarik dan apa tema utamanya.
 
-**Paragraf 3-4 (Latar Belakang Historis):**
-Jelaskan konteks sejarah dan budaya pada masa naskah ini ditulis. Apa yang sedang terjadi di Jawa? Siapa penulisnya? Mengapa naskah ini ditulis? Berikan detail yang cukup agar pembaca bisa membayangkan suasana zamannya.
+**Paragraf 2 (Latar Belakang):**
+Jelaskan konteks sejarah dan budaya pada masa naskah ini ditulis.
 
-**Paragraf 5-10 (Isi Cerita Detail):**
-Ceritakan isi naskah secara kronologis dengan detail yang kaya:
-- Jelaskan setting, tokoh utama, dan konflik awal
-- Ceritakan perkembangan plot dengan detail penting
-- Jelaskan turning point dan klimaks cerita
-- Berikan dialog atau kutipan penting (jika ada)
-- Jelaskan resolusi atau akhir cerita
-- Setiap paragraf minimal 4-5 kalimat
+**Paragraf 3-5 (Isi Cerita):**
+Ceritakan isi naskah secara kronologis:
+- Setting dan tokoh utama
+- Perkembangan plot dan konflik
+- Klimaks dan resolusi
 
-**Paragraf 11-12 (Tema & Makna):**
-Analisis tema-tema utama dalam naskah. Apa pesan moral atau filosofis yang ingin disampaikan? Bagaimana tema ini tercermin dalam cerita?
+**Paragraf 6 (Tema):**
+Analisis tema utama dan pesan moral/filosofis.
 
-**Paragraf 13-15 (Penutup & Relevansi):**
-Rangkum keseluruhan cerita dan jelaskan mengapa naskah ini masih relevan hari ini. Apa yang bisa kita pelajari? Mengapa cerita ini perlu diingat?
+**Paragraf 7-8 (Penutup):**
+Rangkum dan jelaskan relevansi naskah untuk hari ini.
 
 PENTING: 
-- MINIMUM 12 paragraf, target 15 paragraf
-- Setiap paragraf minimal 4-5 kalimat
-- Total minimal 2500 kata
+- Target 6-8 paragraf (sekitar 800-1200 kata)
+- Setiap paragraf 3-4 kalimat
 - Gunakan bahasa yang mengalir dan enak dibaca
-- Buat seperti artikel feature magazine yang panjang dan detail",
+- Informatif tapi tidak bertele-tele",
 
   "wisdom": [
     {
-      "nilai": "Nama nilai atau pelajaran (contoh: 'Kepemimpinan Bijaksana', 'Kesetiaan dalam Persahabatan', 'Kebijaksanaan Menghadapi Konflik')",
-      "quote": "Kutipan langsung dari naskah (jika ada) atau parafrase penting",
-      "relevansi": "**Jelaskan relevansi dengan kehidupan modern (MINIMAL 4-6 KALIMAT):**\n\nParagraf 1: Jelaskan nilai ini dalam konteks naskah.\n\nParagraf 2: Bagaimana nilai ini masih relevan di kehidupan modern? Berikan contoh situasi konkret di era sekarang dimana nilai ini penting. Buat pembaca bisa relate dengan pengalaman mereka sendiri.\n\nGunakan markdown untuk struktur yang jelas."
+      "nilai": "Nama nilai atau pelajaran (contoh: 'Kepemimpinan Bijaksana', 'Kesetiaan', 'Kebijaksanaan')",
+      "quote": "Kutipan dari naskah (jika ada) atau parafrase",
+      "relevansi": "**Relevansi Modern:**\n\nJelaskan nilai ini dalam konteks naskah (2-3 kalimat). Kemudian bagaimana nilai ini relevan di kehidupan modern dengan contoh konkret (2-3 kalimat)."
     }
-    // WAJIB 6-8 items
+    // 4-5 items nilai penting
   ],
 
   "characters": [
     {
       "nama": "Nama lengkap tokoh",
-      "peran": "Role (Protagonist/Antagonist/Supporting Character/Mentor/etc)",
-      "deskripsi": "**DESKRIPSI KARAKTER DETAIL (MINIMAL 5-7 KALIMAT):**\n\n**Latar Belakang:** Jelaskan asal-usul dan latar belakang tokoh.\n\n**Karakteristik:** Apa ciri khas kepribadian tokoh ini? Apa kekuatan dan kelemahannya?\n\n**Motivasi:** Apa yang mendorong tokoh ini dalam cerita? Apa tujuan atau ambisinya?\n\n**Perkembangan:** Bagaimana tokoh ini berubah atau berkembang sepanjang cerita?\n\n**Peran:** Apa kontribusi tokoh ini terhadap keseluruhan plot?\n\nGunakan markdown untuk memudahkan pembacaan."
+      "peran": "Role (Protagonist/Antagonist/Supporting/Mentor)",
+      "deskripsi": "**Deskripsi Karakter:**\n\nJelaskan latar belakang, kepribadian, dan peran tokoh dalam cerita (4-6 kalimat). Sertakan motivasi dan karakteristik pentingnya."
     }
-    // 6-10 tokoh penting, atau [] jika naskah non-naratif
+    // 3-5 tokoh utama, atau [] jika naskah non-naratif
   ],
 
-  "significance": "**SIGNIFIKANSI NASKAH (MINIMUM 6-8 PARAGRAF)**
+  "significance": "**SIGNIFIKANSI NASKAH (4-5 PARAGRAF)**
 
 Gunakan struktur markdown dengan heading:
 
 **## Nilai Historis**
-(2 paragraf) Jelaskan kapan dan mengapa naskah ini ditulis. Apa konteks sejarah yang melatarbelakanginya? Bagaimana naskah ini menjadi saksi sejarah zamannya?
+Jelaskan konteks sejarah penulisan naskah dan bagaimana naskah ini menjadi saksi zamannya (2-3 kalimat).
 
-**## Keunikan & Inovasi**
-(2 paragraf) Apa yang membuat naskah ini berbeda dari karya lain pada masanya? Apa aspek unik dari gaya penulisan, tema, atau pendekatan yang digunakan?
+**## Keunikan**
+Apa yang membuat naskah ini berbeda dari karya lain? Aspek unik dari gaya, tema, atau pendekatannya (2-3 kalimat).
 
-**## Pengaruh & Legacy**
-(2 paragraf) Bagaimana naskah ini mempengaruhi karya-karya selanjutnya? Apa dampaknya terhadap sastra dan budaya Jawa? Siapa saja yang terinspirasi dari naskah ini?
+**## Pengaruh**
+Dampak naskah terhadap sastra dan budaya Jawa (2-3 kalimat).
 
 **## Urgensi Pelestarian**
-(2 paragraf) Mengapa naskah ini perlu dilestarikan? Apa yang akan hilang jika naskah ini tidak dijaga? Apa pesan atau nilai yang perlu diwariskan ke generasi mendatang?
+Mengapa naskah ini perlu dilestarikan dan nilai apa yang perlu diwariskan ke generasi mendatang (2-3 kalimat).
 
 PENTING:
-- MINIMUM 6 paragraf, target 8 paragraf
-- Setiap paragraf minimal 4-5 kalimat
-- Total minimal 1500 kata
-- Gunakan markdown heading dan formatting
-- Buat persuasif namun tetap faktual dan akademis",
+- Target 4-5 paragraf (sekitar 400-600 kata)
+- Setiap paragraf 2-3 kalimat
+- Faktual dan informatif",
 
   "quiz": [
     {
-      "question": "Pertanyaan yang menguji pemahaman mendalam (bukan hafalan fakta sederhana). Buat pertanyaan yang memerlukan analisis dan pemahaman konteks.",
-      "options": ["Opsi A (detailed)", "Opsi B (detailed)", "Opsi C (detailed)", "Opsi D (detailed)"],
+      "question": "Pertanyaan yang menguji pemahaman (bukan hafalan). Pertanyaan yang memerlukan analisis dan pemahaman konteks.",
+      "options": ["Opsi A", "Opsi B", "Opsi C", "Opsi D"],
       "correct": 0,
-      "explanation": "**PENJELASAN LENGKAP (MINIMAL 3-4 KALIMAT):**\n\nJelaskan mengapa jawaban yang benar adalah benar. Berikan konteks tambahan yang membantu pembaca memahami konsep lebih dalam. Jika ada jawaban yang salah, jelaskan mengapa opsi tersebut salah dan apa kesalahpahaman yang umum terjadi."
+      "explanation": "**Penjelasan:**\n\nJelaskan mengapa jawaban benar (2-3 kalimat). Berikan konteks yang membantu pemahaman."
     }
-    // WAJIB 7-10 questions dengan variasi tingkat kesulitan
+    // 5-7 questions dengan variasi tingkat kesulitan
   ]
 }
 
-PEDOMAN PENULISAN KETAT:
-1. **PANJANG WAJIB**: Summary minimal 2500 kata, Significance minimal 1500 kata
-2. **MARKDOWN**: Gunakan heading (##), bold (**text**), italic (_text_), dan paragraf terstruktur
-3. **DETAIL**: Setiap paragraf harus substantif dengan minimal 4-5 kalimat
-4. **GAYA**: Santai tapi berkelas, seperti artikel feature magazine berkualitas
-5. **NO FLUFF**: Setiap kalimat harus memberikan informasi atau insight baru
-6. **STRUKTUR**: Gunakan sub-heading dan formatting untuk memudahkan pembacaan
-7. **DEPTH**: Jangan permukaan, gali tema dan makna yang lebih dalam
-8. **CLARITY**: Meski panjang, tetap mudah dipahami dan tidak bertele-tele
+PEDOMAN PENULISAN:
+1. **PANJANG MODERAT**: Summary 800-1200 kata, Significance 400-600 kata, total ~2500-3000 kata
+2. **MARKDOWN**: Gunakan heading (##), bold (**text**), italic (_text_) untuk struktur
+3. **INFORMATIF**: Setiap kalimat harus memberikan informasi atau insight baru
+4. **CLARITY**: Mudah dipahami, tidak bertele-tele, tidak terlalu panjang
+5. **BALANCED**: Cukup detail tapi tetap ringkas dan fokus
 
 CRITICAL OUTPUT FORMAT:
 - Return PURE JSON only, starting with { and ending with }
@@ -367,6 +357,7 @@ CRITICAL OUTPUT FORMAT:
 - DO NOT add any text before or after the JSON
 - Properly escape special characters in strings (especially quotes and newlines)
 - Markdown formatting INSIDE the JSON strings is OK (use \\n for newlines)
+- Keep response under 5000 tokens to avoid truncation
 
 Response must start with { and end with }`;
   }
@@ -384,8 +375,8 @@ Response must start with { and end with }`;
     const payload = {
       contents: [{ parts: [{ text: prompt }] }],
       generationConfig: {
-        temperature: 0.4, // Slightly lower for more coherent long-form text
-        maxOutputTokens: 8192, // MAXED OUT for long content
+        temperature: 0.4,
+        maxOutputTokens: 5500, // Balanced for quality content without truncation
         topP: 0.95,
         topK: 40
       }
