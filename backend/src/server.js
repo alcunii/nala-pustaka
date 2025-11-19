@@ -12,6 +12,7 @@ const logger = require('./utils/logger');
 // const rateLimiter = require('./middleware/rateLimiter');
 
 const vectorDB = require('./services/vectorDB');
+// Use OpenAI embedding (matches Pinecone dimension 1536)
 const embeddingService = require('./services/embeddingOpenAI');
 const ragChatService = require('./services/ragChat');
 const deepChatService = require('./services/deepChatService');
@@ -22,6 +23,9 @@ const manuscriptService = require('./services/manuscriptService');
 const authService = require('./services/authService'); // Add Auth Service
 
 const app = express();
+
+// Trust proxy (for Railway, Heroku, etc)
+app.set('trust proxy', 1);
 
 // Middleware
 app.use(cors({

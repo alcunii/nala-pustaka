@@ -56,10 +56,11 @@ const config = {
   // Embedding Configuration
   huggingface: {
     apiKey: process.env.HF_API_KEY,
-    // OpenAI text-embedding-3-small: Fast, cheap ($0.02/1M tokens), excellent quality
+    // NOTE: Currently using OpenAI embedding (embeddingOpenAI.js) not HuggingFace
+    // because Pinecone index was created with OpenAI dimension (1536)
     model: 'text-embedding-3-small',
-    dimension: 1536, // OpenAI dimension
-    provider: 'openai', // Using OpenAI instead of HuggingFace
+    dimension: 1536,
+    provider: 'openai',
   },
 
   // Google Gemini LLM
