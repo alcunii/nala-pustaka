@@ -5,6 +5,9 @@
 
 // export const supabase = createClient(supabaseUrl, supabaseAnonKey);
 
+// --- BACKEND API URL ---
+const BACKEND_API_URL = import.meta.env.VITE_RAG_API_URL || 'http://localhost:3001';
+
 // --- LOCAL AUTH REPLACEMENT (Supabase Free) ---
 const MOCK_ADMIN = {
   id: '00000000-0000-0000-0000-000000000001', // Valid UUID format
@@ -16,7 +19,7 @@ const MOCK_ADMIN = {
 export const manuscriptService = {
   // Get semua naskah (public)
   async getAll() {
-    const response = await fetch('/api/manuscripts');
+    const response = await fetch(`${BACKEND_API_URL}/api/manuscripts`);
     if (!response.ok) {
       const error = await response.json();
       throw new Error(error.error || 'Failed to fetch manuscripts');
@@ -26,7 +29,7 @@ export const manuscriptService = {
 
   // Get satu naskah by slug
   async getBySlug(slug) {
-    const response = await fetch(`/api/manuscripts/${slug}`);
+    const response = await fetch(`${BACKEND_API_URL}/api/manuscripts/${slug}`);
     if (!response.ok) {
       const error = await response.json();
       throw new Error(error.error || 'Failed to fetch manuscript');
@@ -43,7 +46,7 @@ export const manuscriptService = {
       created_by: user?.id,
     };
 
-    const response = await fetch('/api/manuscripts', {
+    const response = await fetch(`${BACKEND_API_URL}/api/manuscripts`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(payload),
@@ -58,7 +61,7 @@ export const manuscriptService = {
 
   // Update naskah (require auth)
   async update(id, updates) {
-    const response = await fetch(`/api/manuscripts/${id}`, {
+    const response = await fetch(`${BACKEND_API_URL}/api/manuscripts/${id}`, {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(updates),
@@ -73,7 +76,7 @@ export const manuscriptService = {
 
   // Delete naskah (require auth)
   async delete(id) {
-    const response = await fetch(`/api/manuscripts/${id}`, {
+    const response = await fetch(`${BACKEND_API_URL}/api/manuscripts/${id}`, {
       method: 'DELETE',
     });
 
@@ -85,7 +88,7 @@ export const manuscriptService = {
 
   // Reorder manuscripts
   async reorder(manuscriptId1, manuscriptId2) {
-    const response = await fetch('/api/manuscripts/reorder', {
+    const response = await fetch(`${BACKEND_API_URL}/api/manuscripts/reorder`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ id1: manuscriptId1, id2: manuscriptId2 }),
@@ -100,7 +103,7 @@ export const manuscriptService = {
 
   // Toggle pin status
   async togglePin(manuscriptId) {
-    const response = await fetch(`/api/manuscripts/${manuscriptId}/toggle-pin`, {
+    const response = await fetch(`${BACKEND_API_URL}/api/manuscripts/${manuscriptId}/toggle-pin`, {
       method: 'POST',
     });
 
