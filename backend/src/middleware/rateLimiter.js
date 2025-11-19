@@ -1,4 +1,4 @@
-﻿/**
+/**
  * Rate Limiting Middleware
  * Prevents abuse and controls costs
  */
@@ -33,7 +33,7 @@ class RateLimiter {
     // Clean up old entries every hour
     setInterval(() => this.cleanup(), 3600000);
     
-    logger.info('"'🛡️  Rate Limiter initialized'"');
+    logger.info('"'  Rate Limiter initialized'"');
   }
 
   /**
@@ -122,7 +122,7 @@ class RateLimiter {
     }
     
     if (cleaned > 0) {
-      logger.debug(`🗑️  Cleaned ${cleaned} old rate limit entries`);
+      logger.debug(`  Cleaned ${cleaned} old rate limit entries`);
     }
   }
 
@@ -168,7 +168,7 @@ class RateLimiter {
       res.setHeader('"'X-RateLimit-Reset'"', result.resetAt);
       
       if (result.exceeded) {
-        logger.warn(`🛡️  Rate limit exceeded for ${userId} on ${endpointType}`);
+        logger.warn(`  Rate limit exceeded for ${userId} on ${endpointType}`);
         
         return res.status(429).json({
           error: '"'Rate limit exceeded'"',
@@ -180,7 +180,7 @@ class RateLimiter {
         });
       }
       
-      logger.debug(`🛡️  ${userId} - ${endpointType}: ${result.current}/${result.max}`);
+      logger.debug(`  ${userId} - ${endpointType}: ${result.current}/${result.max}`);
       next();
     };
   }

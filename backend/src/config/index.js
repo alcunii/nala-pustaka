@@ -21,14 +21,30 @@ const config = {
   },
 
   // PostgreSQL (Direct Connection)
-  postgres: {
-    user: process.env.DB_USER || 'postgres',
-    host: process.env.DB_HOST || 'localhost',
-    database: process.env.DB_NAME || 'nala_pustaka',
-    password: process.env.DB_PASSWORD || 'postgres',
-    port: parseInt(process.env.DB_PORT) || 5432,
-    ssl: process.env.DB_SSL === 'true' ? { rejectUnauthorized: false } : false,
-  },
+  // Supports both DATABASE_URL (Railway) and individual DB_* variables
+  postgres: (() => {
+    // If DATABASE_URL is provided (Railway, Heroku, etc)
+    if (process.env.DATABASE_URL) {
+      const url = new URL(process.env.DATABASE_URL);
+      return {
+        user: url.username,
+        host: url.hostname,
+        database: url.pathname.slice(1), // Remove leading slash
+        password: url.password,
+        port: parseInt(url.port) || 5432,
+        ssl: { rejectUnauthorized: false }, // Railway requires SSL
+      };
+    }
+    // Fallback to individual variables
+    return {
+      user: process.env.DB_USER || 'postgres',
+      host: process.env.DB_HOST || 'localhost',
+      database: process.env.DB_NAME || 'nala_pustaka',
+      password: process.env.DB_PASSWORD || 'postgres',
+      port: parseInt(process.env.DB_PORT) || 5432,
+      ssl: process.env.DB_SSL === 'true' ? { rejectUnauthorized: false } : false,
+    };
+  })(),
 
   // Pinecone Vector Database
   pinecone: {

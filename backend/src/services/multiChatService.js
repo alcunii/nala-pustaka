@@ -68,21 +68,21 @@ async function chatWithMultipleManuscripts(manuscripts, query, conversationHisto
     const topChunks = relevantChunks.sort((a, b) => b.score - a.score).slice(0, 8); // OPTIMIZED: Reduced from 9 to 8
     
     logger.debug('Using top ' + topChunks.length + ' chunks');
-    logger.info(`💰 Token optimization: Using ${topChunks.length} chunks (down from 30 retrieved)`);
+    logger.info(` Token optimization: Using ${topChunks.length} chunks (down from 30 retrieved)`);
     
     // Build context
     const contextByManuscript = manuscripts.map(ms => {
       const msChunks = topChunks.filter(c => c.manuscript.id === ms.id);
       
       if (msChunks.length === 0) {
-        return '=== 📜 ' + ms.title + ' (' + ms.author + ') ===\n[Tidak ditemukan informasi relevan]';
+        return '===  ' + ms.title + ' (' + ms.author + ') ===\n[Tidak ditemukan informasi relevan]';
       }
       
       const chunksText = msChunks.map((chunk, idx) => 
         '[CHUNK_' + idx + ']\n' + chunk.metadata.chunkText
       ).join('\n\n');
       
-      return '=== 📜 ' + ms.title + ' (' + ms.author + ') ===\n' + chunksText;
+      return '===  ' + ms.title + ' (' + ms.author + ') ===\n' + chunksText;
     }).join('\n\n---\n\n');
     
     const historyText = conversationHistory.slice(-4).map(h => (h.role === 'user' ? 'User' : 'Assistant') + ': ' + h.content).join('\n');
@@ -106,7 +106,7 @@ INSTRUKSI PENTING:
    - Gunakan *italic* untuk penekanan ringan
    - Gunakan ## untuk judul bagian
    - Gunakan ### untuk sub-judul
-   - Gunakan bullet points (-, •) atau numbered list untuk daftar
+   - Gunakan bullet points (-, ) atau numbered list untuk daftar
    - Gunakan > untuk quotes dari naskah
    - Gunakan paragraf terpisah dengan baris kosong
    - Gunakan --- untuk pemisah section jika perlu

@@ -169,7 +169,7 @@ class ManuscriptMerger {
    */
   processAllClusters(clusters, analyses) {
     logger.info('========================================');
-    logger.info('🔀 Merging manuscripts based on analysis...');
+    logger.info(' Merging manuscripts based on analysis...');
     logger.info(`   - Total clusters: ${analyses.length}`);
     logger.info('========================================');
 
@@ -215,15 +215,15 @@ class ManuscriptMerger {
     ).toFixed(1);
 
     logger.info('========================================');
-    logger.info('✅ Merging completed!');
+    logger.info(' Merging completed!');
     logger.info('========================================');
-    logger.info('📊 Merge Statistics:');
+    logger.info(' Merge Statistics:');
     logger.info(`   - Full merges: ${stats.full}`);
     logger.info(`   - Partial merges: ${stats.partial}`);
     logger.info(`   - Kept separate: ${stats.separate}`);
     logger.info(`   - Errors: ${stats.errors}`);
     logger.info('');
-    logger.info('📉 Reduction:');
+    logger.info(' Reduction:');
     logger.info(`   - Original manuscripts: ${originalCount}`);
     logger.info(`   - Final manuscripts: ${mergedManuscripts.length}`);
     logger.info(`   - Reduction: ${reductionPercent}%`);

@@ -19,7 +19,7 @@ class Chunker {
   splitIntoSentences(text) {
     // Split on common sentence endings for Indonesian/Javanese
     const sentences = text
-      .split(/(?<=[.!?।॥])\s+/)
+      .split(/(?<=[.!?])\s+/)
       .filter(s => s.trim().length > 0);
     return sentences;
   }

@@ -13,7 +13,7 @@ class TextProcessor {
    * Parse manuscript metadata from filename and content
    */
   parseMetadata(filename, content) {
-    // Extract from filename: "001_Babad Bêdhahipun ing Mangir, Sasrawinata, 1922, #930.txt"
+    // Extract from filename: "001_Babad Bdhahipun ing Mangir, Sasrawinata, 1922, #930.txt"
     const filenameMatch = filename.match(/^(\d+)_(.+)\.txt$/);
     if (!filenameMatch) {
       throw new Error(`Invalid filename format: ${filename}`);

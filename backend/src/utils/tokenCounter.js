@@ -1,6 +1,6 @@
 /**
  * Token counter utility
- * Simple approximation: 1 token ≈ 4 characters for Indonesian/Javanese text
+ * Simple approximation: 1 token  4 characters for Indonesian/Javanese text
  */
 
 function countTokens(text) {

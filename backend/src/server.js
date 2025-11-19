@@ -36,7 +36,7 @@ app.use(express.json({ limit: '10mb' }));
 // TEMPORARY DISABLED - Manual installation needed
 // app.use(usageTracker.middleware());
 // app.use(rateLimiter.middleware({ enabled: true }));
-logger.info('⚠️  Middleware temporarily disabled - Multi-Chat optimization active');
+logger.info('  Middleware temporarily disabled - Multi-Chat optimization active');
 
 app.use(express.urlencoded({ limit: '10mb', extended: true }));
 
@@ -434,10 +434,10 @@ async function startServer() {
 
     app.listen(config.port, () => {
       logger.info('========================================');
-      logger.info(`🚀 Nala Pustaka Backend Server`);
-      logger.info(`📡 Server running on port ${config.port}`);
-      logger.info(`🌍 Environment: ${config.nodeEnv}`);
-      logger.info(`🔗 Health check: http://localhost:${config.port}/health`);
+      logger.info(` Nala Pustaka Backend Server`);
+      logger.info(` Server running on port ${config.port}`);
+      logger.info(` Environment: ${config.nodeEnv}`);
+      logger.info(` Health check: http://localhost:${config.port}/health`);
       logger.info('========================================');
     });
   } catch (error) {

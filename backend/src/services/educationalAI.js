@@ -71,11 +71,11 @@ class EducationalAIService {
 
     return `Analisis naskah kuno Jawa berikut dan buat konten edukatif MENDALAM dengan gaya STORYTELLING yang seru untuk Gen-Z.
 
-📚 NASKAH: "${manuscript.title}"
+ NASKAH: "${manuscript.title}"
 Penulis: ${manuscript.author || 'Tidak diketahui'}
 ${manuscript.year ? `Tahun: ${manuscript.year}` : ''}
 
-📖 TEKS:
+ TEKS:
 """
 ${textExcerpt}
 """

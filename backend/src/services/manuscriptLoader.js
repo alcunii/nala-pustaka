@@ -159,7 +159,7 @@ class ManuscriptLoader {
    */
   loadAll(limit = null) {
     logger.info('========================================');
-    logger.info('📖 Loading manuscripts from file system...');
+    logger.info(' Loading manuscripts from file system...');
     logger.info(`Data directory: ${this.dataDir}`);
     logger.info('========================================');
 
@@ -172,7 +172,7 @@ class ManuscriptLoader {
     // Apply limit if specified (for testing)
     const result = limit ? manuscripts.slice(0, limit) : manuscripts;
 
-    logger.info(`✅ Loaded ${result.length} manuscripts`);
+    logger.info(` Loaded ${result.length} manuscripts`);
     
     // Log statistics
     const stats = {
@@ -183,7 +183,7 @@ class ManuscriptLoader {
       withYear: result.filter(m => m.year).length
     };
 
-    logger.info('📊 Statistics:');
+    logger.info(' Statistics:');
     logger.info(`   - Total manuscripts: ${stats.total}`);
     logger.info(`   - Categories: ${stats.categories}`);
     logger.info(`   - Average length: ${stats.avgLength} characters`);

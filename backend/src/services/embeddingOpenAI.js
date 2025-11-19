@@ -1,4 +1,4 @@
-﻿/**
+/**
  * OpenAI Embedding Service (FASTEST OPTION)
  * Cost: ~$0.20 for 48,226 chunks
  * Speed: 100+ embeddings/sec
@@ -13,7 +13,7 @@ class OpenAIEmbeddingService {
     this.dimension = 1536;
     this.endpoint = "https://api.openai.com/v1/embeddings";
     
-    logger.info(`🚀 OpenAI Embedding service initialized:`);
+    logger.info(` OpenAI Embedding service initialized:`);
     logger.info(`   Model: ${this.model}`);
     logger.info(`   Dimension: ${this.dimension}`);
     logger.info(`   Estimated cost for 48,226 chunks: ~$0.20`);
@@ -57,7 +57,7 @@ class OpenAIEmbeddingService {
     
     const avgTokens = 200;
     const estimatedCost = (texts.length * avgTokens / 1000000) * 0.02;
-    logger.info(`💰 Estimated cost: $${estimatedCost.toFixed(4)}`);
+    logger.info(` Estimated cost: $${estimatedCost.toFixed(4)}`);
     
     const embeddings = [];
     let processed = 0, totalCost = 0;
@@ -95,7 +95,7 @@ class OpenAIEmbeddingService {
         const rate = (processed / (Date.now() - startTime) * 1000).toFixed(1);
         
         if (processed % 500 === 0 || processed === texts.length) {
-          logger.info(`✅ ${processed}/${texts.length} (${progress}%) - ${elapsed}min - ${rate}/sec - $${totalCost.toFixed(4)}`);
+          logger.info(` ${processed}/${texts.length} (${progress}%) - ${elapsed}min - ${rate}/sec - $${totalCost.toFixed(4)}`);
         }
         
         await new Promise(r => setTimeout(r, 50));
@@ -106,7 +106,7 @@ class OpenAIEmbeddingService {
     }
 
     const duration = ((Date.now() - startTime) / 60000).toFixed(2);
-    logger.info(`✅ Done in ${duration}min - Total cost: $${totalCost.toFixed(4)}`);
+    logger.info(` Done in ${duration}min - Total cost: $${totalCost.toFixed(4)}`);
     
     return embeddings.filter(e => e !== null);
   }

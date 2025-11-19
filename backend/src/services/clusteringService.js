@@ -13,7 +13,7 @@ class ClusteringService {
    */
   async generateEmbeddings(manuscripts) {
     logger.info('========================================');
-    logger.info('🧠 Generating embeddings for manuscripts...');
+    logger.info(' Generating embeddings for manuscripts...');
     logger.info(`Total manuscripts: ${manuscripts.length}`);
     logger.info('========================================');
 
@@ -23,14 +23,14 @@ class ClusteringService {
       return `${m.title}. ${preview}`;
     });
 
-    logger.info('⏳ This may take 30-45 minutes...');
+    logger.info(' This may take 30-45 minutes...');
     
     const embeddings = await embeddingService.generateBatchEmbeddings(
       texts,
       10 // batch size
     );
 
-    logger.info('✅ Embeddings generated successfully!');
+    logger.info(' Embeddings generated successfully!');
     return embeddings;
   }
 
@@ -39,7 +39,7 @@ class ClusteringService {
    */
   performKMeans(embeddings, k = 500) {
     logger.info('========================================');
-    logger.info(`📊 Performing K-means clustering (k=${k})...`);
+    logger.info(` Performing K-means clustering (k=${k})...`);
     logger.info('========================================');
 
     const result = kmeans(embeddings, k, {
@@ -47,7 +47,7 @@ class ClusteringService {
       maxIterations: 100
     });
 
-    logger.info('✅ Clustering completed!');
+    logger.info(' Clustering completed!');
     logger.info(`   - Clusters: ${result.clusters.length}`);
     logger.info(`   - Iterations: ${result.iterations}`);
 
@@ -62,7 +62,7 @@ class ClusteringService {
    * Group manuscripts by cluster
    */
   groupByCluster(manuscripts, clusterIds) {
-    logger.info('📦 Grouping manuscripts by cluster...');
+    logger.info(' Grouping manuscripts by cluster...');
 
     const clusters = {};
 
@@ -85,7 +85,7 @@ class ClusteringService {
     const maxSize = Math.max(...clusterSizes);
     const minSize = Math.min(...clusterSizes);
 
-    logger.info('✅ Grouping completed!');
+    logger.info(' Grouping completed!');
     logger.info(`   - Total clusters: ${Object.keys(clusters).length}`);
     logger.info(`   - Average size: ${avgSize} manuscripts`);
     logger.info(`   - Size range: ${minSize} - ${maxSize}`);
@@ -153,7 +153,7 @@ class ClusteringService {
 
     try {
       logger.info('========================================');
-      logger.info('🚀 Starting clustering workflow...');
+      logger.info(' Starting clustering workflow...');
       logger.info(`   - Manuscripts: ${manuscripts.length}`);
       logger.info(`   - Target clusters: ${k}`);
       logger.info('========================================');
@@ -168,7 +168,7 @@ class ClusteringService {
       const clusters = this.groupByCluster(manuscripts, clusterIds);
 
       // Step 4: Select representatives for each cluster
-      logger.info('🎯 Selecting representative manuscripts...');
+      logger.info(' Selecting representative manuscripts...');
       const clustersWithReps = {};
 
       for (const [clusterId, clusterManuscripts] of Object.entries(clusters)) {
@@ -201,9 +201,9 @@ class ClusteringService {
         };
       }
 
-      logger.info('✅ Representatives selected!');
+      logger.info(' Representatives selected!');
       logger.info('========================================');
-      logger.info('✅ Clustering workflow completed!');
+      logger.info(' Clustering workflow completed!');
       logger.info('========================================');
 
       return {
@@ -214,7 +214,7 @@ class ClusteringService {
       };
 
     } catch (error) {
-      logger.error('❌ Error during clustering:', error);
+      logger.error(' Error during clustering:', error);
       throw error;
     }
   }

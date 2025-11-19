@@ -1,4 +1,4 @@
-﻿/**
+/**
  * Usage Tracking Middleware
  * Tracks API usage, token consumption, and costs per user/IP
  */
@@ -19,7 +19,7 @@ class UsageTracker {
     this.resetDailyStats();
     setInterval(() => this.resetDailyStats(), 86400000); // 24 hours
     
-    logger.info('"'📊 Usage Tracker initialized'"');
+    logger.info('"' Usage Tracker initialized'"');
   }
 
   /**
@@ -161,7 +161,7 @@ class UsageTracker {
     if (this.dailyStats.has(yesterday)) {
       const stats = this.dailyStats.get(yesterday);
       const cost = this.calculateCost(stats.totalInputTokens, stats.totalOutputTokens);
-      logger.info(`📊 Yesterday'"'s stats: ${stats.totalRequests} requests, $${cost.total.toFixed(2)} cost`);
+      logger.info(` Yesterday'"'s stats: ${stats.totalRequests} requests, $${cost.total.toFixed(2)} cost`);
     }
     
     // Keep only last 7 days
@@ -184,7 +184,7 @@ class UsageTracker {
       // Estimate tokens (rough estimation)
       const estimateTokens = (text) => {
         if (!text) return 0;
-        return Math.round(text.length / 4); // Rough: 1 token ≈ 4 chars
+        return Math.round(text.length / 4); // Rough: 1 token  4 chars
       };
       
       // Intercept response
@@ -207,7 +207,7 @@ class UsageTracker {
           cost: this.calculateCost(inputTokens, outputTokens)
         };
         
-        logger.debug(`📊 ${userId} - ${req.path}: ${inputTokens}in/${outputTokens}out tokens`);
+        logger.debug(` ${userId} - ${req.path}: ${inputTokens}in/${outputTokens}out tokens`);
         
         return originalJson(data);
       };

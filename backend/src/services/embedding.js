@@ -25,7 +25,7 @@ class EmbeddingService {
       this.endpoint = 'https://api-inference.huggingface.co/models/' + this.model;
     }
     
-    logger.info(`🚀 Embedding service initialized:`);
+    logger.info(` Embedding service initialized:`);
     logger.info(`   Model: ${this.model}`);
     logger.info(`   Provider: ${this.provider}`);
     logger.info(`   Dimension: ${this.dimension}`);
@@ -232,7 +232,7 @@ class EmbeddingService {
         const rate = (processed / (Date.now() - startTime) * 1000).toFixed(1);
         
         if (processed % 100 === 0 || processed === total) {
-          logger.info(`✅ Embedding progress: ${processed}/${total} (${progress}%) - ${elapsed}min elapsed - ${rate} embeddings/sec`);
+          logger.info(` Embedding progress: ${processed}/${total} (${progress}%) - ${elapsed}min elapsed - ${rate} embeddings/sec`);
         }
         
         // Small delay between batches (much shorter now!)
@@ -260,7 +260,7 @@ class EmbeddingService {
     const validEmbeddings = embeddings.filter(e => e !== null && e !== undefined);
 
     const duration = ((Date.now() - startTime) / 1000 / 60).toFixed(2);
-    logger.info(`✅ Completed in ${duration} minutes`);
+    logger.info(` Completed in ${duration} minutes`);
     logger.info(`Successfully generated ${validEmbeddings.length} embeddings (${errors} errors)`);
     
     return validEmbeddings;

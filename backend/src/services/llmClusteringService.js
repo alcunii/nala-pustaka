@@ -68,7 +68,7 @@ Berikan respons dalam format JSON:
     try {
       const { representatives } = clusterData;
 
-      logger.info(`🤖 Analyzing cluster ${clusterId} (${clusterData.size} manuscripts)...`);
+      logger.info(` Analyzing cluster ${clusterId} (${clusterData.size} manuscripts)...`);
 
       const prompt = this.buildClusterAnalysisPrompt(representatives);
       
@@ -97,7 +97,7 @@ Berikan respons dalam format JSON:
 
           const analysis = JSON.parse(jsonMatch[0]);
 
-          logger.info(`   ✅ Cluster ${clusterId}: ${analysis.mergeStrategy} - ${analysis.mergedTitle || 'No merge'}`);
+          logger.info(`    Cluster ${clusterId}: ${analysis.mergeStrategy} - ${analysis.mergedTitle || 'No merge'}`);
 
           return {
             clusterId,
@@ -109,7 +109,7 @@ Berikan respons dalam format JSON:
 
         } catch (err) {
           lastError = err;
-          logger.warn(`   ⚠️  Attempt ${attempt}/${retries} failed: ${err.message}`);
+          logger.warn(`     Attempt ${attempt}/${retries} failed: ${err.message}`);
           
           if (attempt < retries) {
             await new Promise(resolve => setTimeout(resolve, 2000 * attempt));
@@ -120,7 +120,7 @@ Berikan respons dalam format JSON:
       throw lastError;
 
     } catch (error) {
-      logger.error(`❌ Error analyzing cluster ${clusterId}:`, error.message);
+      logger.error(` Error analyzing cluster ${clusterId}:`, error.message);
       
       // Return safe default
       return {
@@ -150,7 +150,7 @@ Berikan respons dalam format JSON:
     const analyses = [];
 
     logger.info('========================================');
-    logger.info('🤖 Starting LLM cluster analysis...');
+    logger.info(' Starting LLM cluster analysis...');
     logger.info(`   - Total clusters: ${clusterEntries.length}`);
     logger.info(`   - Batch size: ${batchSize}`);
     logger.info('========================================');
@@ -158,7 +158,7 @@ Berikan respons dalam format JSON:
     for (let i = 0; i < clusterEntries.length; i += batchSize) {
       const batch = clusterEntries.slice(i, i + batchSize);
       
-      logger.info(`📦 Processing batch ${Math.floor(i / batchSize) + 1}/${Math.ceil(clusterEntries.length / batchSize)}...`);
+      logger.info(` Processing batch ${Math.floor(i / batchSize) + 1}/${Math.ceil(clusterEntries.length / batchSize)}...`);
 
       const batchResults = await Promise.all(
         batch.map(([clusterId, clusterData]) => 
@@ -195,15 +195,15 @@ Berikan respons dalam format JSON:
     costUSD.total = costUSD.input + costUSD.output;
 
     logger.info('========================================');
-    logger.info('✅ LLM analysis completed!');
+    logger.info(' LLM analysis completed!');
     logger.info('========================================');
-    logger.info('📊 Merge Statistics:');
+    logger.info(' Merge Statistics:');
     logger.info(`   - Full merge: ${mergeStats.full}`);
     logger.info(`   - Partial merge: ${mergeStats.partial}`);
     logger.info(`   - Keep separate: ${mergeStats.separate}`);
     logger.info(`   - Errors: ${mergeStats.errors}`);
     logger.info('');
-    logger.info('💰 Cost Summary:');
+    logger.info(' Cost Summary:');
     logger.info(`   - Input tokens: ${this.totalCost.input.toLocaleString()}`);
     logger.info(`   - Output tokens: ${this.totalCost.output.toLocaleString()}`);
     logger.info(`   - Input cost: $${costUSD.input.toFixed(4)}`);
