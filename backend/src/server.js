@@ -49,6 +49,26 @@ const limiter = rateLimit({
 
 app.use('/api/', limiter);
 
+// Root endpoint - API info
+app.get('/', (req, res) => {
+  res.json({
+    name: 'Nala Pustaka Backend API',
+    version: '1.0.0',
+    status: 'running',
+    endpoints: {
+      health: '/health',
+      manuscripts: '/api/manuscripts',
+      search: 'POST /api/search',
+      ragChat: 'POST /api/rag-chat',
+      deepChat: 'POST /api/deep-chat',
+      multiChat: 'POST /api/chat/multi-manuscript',
+      knowledgeGraph: 'POST /api/knowledge-graph',
+      educational: 'POST /api/educational/generate',
+    },
+    documentation: 'https://github.com/alcunii/nala-pustaka',
+  });
+});
+
 // Health check endpoint
 app.get('/health', async (req, res) => {
   try {
@@ -432,12 +452,14 @@ async function startServer() {
     await vectorDB.initialize();
     logger.info('Vector DB initialized');
 
-    app.listen(config.port, () => {
+    app.listen(config.port, '0.0.0.0', () => {
       logger.info('========================================');
       logger.info(` Nala Pustaka Backend Server`);
       logger.info(` Server running on port ${config.port}`);
       logger.info(` Environment: ${config.nodeEnv}`);
-      logger.info(` Health check: http://localhost:${config.port}/health`);
+      logger.info(` Listening on 0.0.0.0:${config.port}`);
+      logger.info(` Health check: /health`);
+      logger.info(` API endpoints: /api/*`);
       logger.info('========================================');
     });
   } catch (error) {
