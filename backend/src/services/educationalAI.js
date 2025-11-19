@@ -35,13 +35,32 @@ class EducationalAIService {
       // Parse JSON response
       let contentData;
       try {
-        // Extract JSON from markdown code block if present
-        const jsonMatch = aiResponse.match(/```json\n([\s\S]*?)\n```/) ||
-          aiResponse.match(/```\n([\s\S]*?)\n```/);
-        const jsonStr = jsonMatch ? jsonMatch[1] : aiResponse;
+        // Extract JSON from markdown code block if present (handle various formats)
+        let jsonStr = aiResponse.trim();
+        
+        // Try multiple regex patterns to extract JSON
+        const patterns = [
+          /```json\s*([\s\S]*?)\s*```/,     // ```json ... ```
+          /```\s*([\s\S]*?)\s*```/,          // ``` ... ```
+          /^```json\s*([\s\S]*?)$/,          // ```json ... (no closing)
+          /^```\s*([\s\S]*?)$/,              // ``` ... (no closing)
+        ];
+        
+        for (const pattern of patterns) {
+          const match = jsonStr.match(pattern);
+          if (match && match[1]) {
+            jsonStr = match[1].trim();
+            break;
+          }
+        }
+        
+        // Remove any remaining markdown artifacts
+        jsonStr = jsonStr.replace(/^```json\s*/, '').replace(/^```\s*/, '').replace(/\s*```$/, '').trim();
+        
         contentData = JSON.parse(jsonStr);
       } catch (parseError) {
-        logger.error('Failed to parse AI response as JSON:', parseError);
+        logger.error('Failed to parse AI response as JSON:', parseError.message);
+        logger.error('Response preview:', aiResponse.substring(0, 500));
         throw new Error('AI returned invalid JSON format');
       }
 
@@ -182,7 +201,14 @@ PEDOMAN PENULISAN KETAT:
 7. **DEPTH**: Jangan permukaan, gali tema dan makna yang lebih dalam
 8. **CLARITY**: Meski panjang, tetap mudah dipahami dan tidak bertele-tele
 
-Return HANYA valid JSON (escape markdown dengan benar).`;
+CRITICAL OUTPUT FORMAT:
+- Return PURE JSON only, starting with { and ending with }
+- DO NOT wrap with markdown code blocks (no \`\`\`json or \`\`\`)
+- DO NOT add any text before or after the JSON
+- Properly escape special characters in strings (especially quotes and newlines)
+- Markdown formatting INSIDE the JSON strings is OK (use \\n for newlines)
+
+Response must start with { and end with }`;
   }
 
   /**
