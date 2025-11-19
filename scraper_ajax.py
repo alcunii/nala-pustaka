@@ -7,7 +7,7 @@ import json
 import urllib.parse
 
 # Buat folder untuk menyimpan hasil scraping
-OUTPUT_DIR = "naskah_babad"
+OUTPUT_DIR = "naskah_babad_tanah_jawi"
 os.makedirs(OUTPUT_DIR, exist_ok=True)
 
 # Headers untuk request
@@ -36,7 +36,7 @@ def get_manuscript_links_ajax():
             "koleksi": {
                 "cs": "adens",
                 "fc": 11,  # kategori: Kisah, Cerita dan Kronikal
-                "fs": 46,  # sub-kategori: Babad
+                "fs": 42,  # sub-kategori: Babad Tanah Jawi
                 "nr": items_per_page,
                 "ps": offset,
                 "sk": "",
@@ -64,7 +64,7 @@ def get_manuscript_links_ajax():
             page_links = []
             for link in soup.find_all('a', href=True):
                 href = link['href']
-                if '/kisah-cerita-dan-kronikal/babad/' in href:
+                if '/kisah-cerita-dan-kronikal/' in href:
                     full_url = href if href.startswith('http') else f"https://www.sastra.org{href}"
                     if full_url not in all_links:
                         page_links.append(full_url)

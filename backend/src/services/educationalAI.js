@@ -4,17 +4,14 @@
  */
 
 const logger = require('../utils/logger');
-const { createClient } = require('@supabase/supabase-js');
+const db = require('../config/database');
 
 class EducationalAIService {
   constructor() {
     this.geminiApiKey = process.env.GEMINI_API_KEY;
-    this.geminiModel = 'gemini-2.0-flash-exp'; // Fast & cheap
-    this.supabase = createClient(
-      process.env.SUPABASE_URL,
-      process.env.SUPABASE_SERVICE_ROLE_KEY
-    );
+    this.geminiModel = 'gemini-2.5-flash-lite'; // Fast & cheap
   }
+
 
   /**
    * Generate all educational content in ONE API call (token-efficient)
@@ -34,13 +31,13 @@ class EducationalAIService {
       // Generate new content with AI
       const prompt = this.buildAllInOnePrompt(manuscript);
       const aiResponse = await this.callGemini(prompt);
-      
+
       // Parse JSON response
       let contentData;
       try {
         // Extract JSON from markdown code block if present
-        const jsonMatch = aiResponse.match(/```json\n([\s\S]*?)\n```/) || 
-                         aiResponse.match(/```\n([\s\S]*?)\n```/);
+        const jsonMatch = aiResponse.match(/```json\n([\s\S]*?)\n```/) ||
+          aiResponse.match(/```\n([\s\S]*?)\n```/);
         const jsonStr = jsonMatch ? jsonMatch[1] : aiResponse;
         contentData = JSON.parse(jsonStr);
       } catch (parseError) {
@@ -67,10 +64,12 @@ class EducationalAIService {
    */
   buildAllInOnePrompt(manuscript) {
     // Use full_text if available, fallback to excerpt
+    // INCREASED LIMIT: We now use up to 15,000 characters (~4000 tokens) to give more context to the AI
+    // for generating deeper, longer summaries.
     const manuscriptText = manuscript.full_text || manuscript.fullText || manuscript.description || '';
-    const textExcerpt = manuscriptText.substring(0, 3000); // Limit to ~750 tokens
+    const textExcerpt = manuscriptText.substring(0, 15000); 
 
-    return `Analisis naskah kuno Jawa berikut dan buat konten edukatif untuk anak muda usia 15-25 tahun.
+    return `Analisis naskah kuno Jawa berikut dan buat konten edukatif MENDALAM dengan gaya STORYTELLING yang seru untuk Gen-Z.
 
 📚 NASKAH: "${manuscript.title}"
 Penulis: ${manuscript.author || 'Tidak diketahui'}
@@ -81,49 +80,48 @@ ${manuscript.year ? `Tahun: ${manuscript.year}` : ''}
 ${textExcerpt}
 """
 
-TUGAS: Buat konten pedagogis dalam format JSON berikut:
+TUGAS: Buat konten pedagogis dalam format JSON berikut. Gunakan bahasa Indonesia yang santai, modern, "renyah" dibaca, dan relatable buat anak muda (Gen-Z/Millennial), tapi tetap berbobot.
 
 {
-  "summary": "Ringkasan 3-5 kalimat untuk awam. Bahasa Indonesia modern, tanpa istilah teknis. Buat menarik dan relatable.",
+  "summary": "Ringkasan naratif panjang (8-10 paragraf) dengan gaya STORYTELLING.\n- PARAGRAF 1 (HOOK): Mulai dengan kalimat pembuka yang bikin penasaran, seolah ini adalah utas/thread Twitter/X yang viral. Jangan kaku!\n- ISI CERITA: Ceritakan alurnya seperti kamu lagi curhat atau cerita seru ke teman nongkrong. \n- KONTEKS: Jelaskan kenapa drama/konflik di naskah ini itu 'big deal' pada zamannya.\n- ENDING: Tutup dengan kesimpulan yang nendang.\n- PENTING: Jangan pakai bahasa buku diktat. Pakai bahasa lisan yang tertata.",
   
   "wisdom": [
     {
-      "nilai": "Nama nilai kearifan lokal/filosofi",
-      "quote": "Quote relevan dari naskah (jika ada)",
-      "relevansi": "Penjelasan singkat relevansi dengan kehidupan modern anak muda"
+      "nilai": "Nama nilai (Gunakan istilah kekinian jika bisa, misal: 'Leadership', 'Mental Health', 'Self-Control')",
+      "quote": "Kutipan asli (jika ada)",
+      "relevansi": "Jelaskan kenapa ini relate banget sama masalah anak muda zaman now (misal: overthinking, quarter-life crisis, toxic relationship, ambisi karir). Panjang: 3-5 kalimat."
     }
-    // 3-5 items
+    // 5-7 items
   ],
   
   "characters": [
     {
       "nama": "Nama tokoh",
-      "peran": "Peran dalam cerita",
-      "deskripsi": "Deskripsi singkat 1-2 kalimat"
+      "peran": "Role (Protagonist/Antagonist/Support)",
+      "deskripsi": "Deskripsi character development-nya. Apakah dia 'red flag'? Apakah dia 'green flag'? Apa motivasinya? Ceritakan layaknya membahas karakter film/anime."
     }
-    // 3-5 tokoh utama, atau [] jika non-naratif
+    // 5-8 tokoh utama, atau [] jika non-naratif
   ],
   
-  "significance": "Penjelasan 3-5 kalimat: konteks historis + pengaruh budaya + relevansi masa kini",
+  "significance": "Penjelasan panjang (4-6 paragraf) tentang 'Kenapa Naskah Ini GOAT?'.\n- Bahas impact-nya di sejarah.\n- Kenapa naskah ini 'ahead of its time'?\n- Apa yang bakal terjadi kalau naskah ini hilang?\n- Yakinkan pembaca bahwa naskah ini keren banget dan wajib dilestarikan.",
   
   "quiz": [
     {
-      "question": "Pertanyaan tentang naskah",
+      "question": "Pertanyaan yang menguji pemahaman konteks (bukan hafalan tahun)",
       "options": ["A", "B", "C", "D"],
       "correct": 0,
-      "explanation": "Penjelasan jawaban yang benar"
+      "explanation": "Penjelasan jawaban yang santai dan jelas"
     }
-    // 5 questions
+    // 5-10 questions
   ]
 }
 
 PENTING:
-- Gunakan emoji untuk membuat engaging (📖💡🎭🌟)
-- Bahasa santai tapi tetap informatif
-- Jangan buat informasi di luar teks yang diberikan
-- Jika tidak ada tokoh (teks filosofis), isi characters dengan array kosong
-- Quiz harus berdasarkan konten naskah, bukan pengetahuan umum
-- Return HANYA valid JSON, tanpa teks tambahan`;
+- JANGAN KAKU. JANGAN FORMAL MEMBOSANKAN.
+- Buat pembaca merasa 'relate' dan tersenyum saat membaca.
+- Gunakan analogi modern jika perlu (misal: membandingkan raja dengan CEO, perang dengan kompetisi bisnis).
+- Panjang dan detail itu WAJIB, tapi jangan bertele-tele (harus 'daging' semua).
+- Return HANYA valid JSON.`;
   }
 
   /**
@@ -135,13 +133,13 @@ PENTING:
     }
 
     const url = `https://generativelanguage.googleapis.com/v1beta/models/${this.geminiModel}:generateContent?key=${this.geminiApiKey}`;
-    
+
     const payload = {
       contents: [{ parts: [{ text: prompt }] }],
       generationConfig: {
-        temperature: 0.5, // Balanced creativity
-        maxOutputTokens: 2048, // Allow longer response for all content
-        topP: 0.9,
+        temperature: 0.4, // Slightly lower for more coherent long-form text
+        maxOutputTokens: 8192, // MAXED OUT for long content
+        topP: 0.95,
         topK: 40
       }
     };
@@ -158,7 +156,7 @@ PENTING:
     }
 
     const result = await response.json();
-    
+
     if (!result.candidates || result.candidates.length === 0) {
       throw new Error('No response from Gemini API');
     }
@@ -167,53 +165,52 @@ PENTING:
   }
 
   /**
-   * Get cached educational content from Supabase
+   * Get cached educational content from PostgreSQL
    */
   async getCachedContent(manuscriptId) {
     try {
-      const { data, error } = await this.supabase
-        .from('educational_content')
-        .select('content_data')
-        .eq('manuscript_id', manuscriptId)
-        .single();
+      const query = `
+        SELECT content_data 
+        FROM educational_content 
+        WHERE manuscript_id = $1
+      `;
+      const { rows } = await db.query(query, [manuscriptId]);
 
-      if (error) {
-        if (error.code === 'PGRST116') {
-          // Not found - not an error, just no cache
-          return null;
-        }
-        throw error;
+      if (!rows || rows.length === 0) {
+        return null; // No cache found
       }
 
-      return data?.content_data || null;
+      return rows[0].content_data || null;
     } catch (error) {
       logger.warn(`Cache lookup failed for ${manuscriptId}:`, error.message);
       return null; // Fail gracefully, generate fresh content
     }
   }
 
+
   /**
-   * Cache educational content in Supabase
+   * Cache educational content in PostgreSQL
    */
   async cacheContent(manuscriptId, contentData, tokenCount) {
     try {
-      const { error } = await this.supabase
-        .from('educational_content')
-        .upsert({
-          manuscript_id: manuscriptId,
-          content_data: contentData,
-          token_count: tokenCount,
-          generated_at: new Date().toISOString()
-        }, {
-          onConflict: 'manuscript_id' // Update if exists
-        });
-
-      if (error) throw error;
+      const query = `
+        INSERT INTO educational_content 
+        (manuscript_id, content_data, token_count, generated_at)
+        VALUES ($1, $2, $3, NOW())
+        ON CONFLICT (manuscript_id) 
+        DO UPDATE SET 
+          content_data = EXCLUDED.content_data,
+          token_count = EXCLUDED.token_count,
+          generated_at = EXCLUDED.generated_at,
+          updated_at = NOW()
+      `;
+      await db.query(query, [manuscriptId, JSON.stringify(contentData), tokenCount]);
     } catch (error) {
       logger.error(`Failed to cache content for ${manuscriptId}:`, error);
       // Don't throw - caching failure shouldn't break generation
     }
   }
+
 
   /**
    * Get educational content by manuscript ID (cache or generate)

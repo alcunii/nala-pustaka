@@ -4,7 +4,8 @@
 
 Aplikasi web interaktif yang menggunakan AI (Google Gemini) dengan metodologi RAG (Retrieval-Augmented Generation) untuk membantu pengguna mengeksplorasi dan memahami naskah kuno Jawa. Dilengkapi dengan Admin Panel untuk manajemen naskah dan Knowledge Graph untuk visualisasi konsep.
 
-![Nala Pustaka](https://img.shields.io/badge/React-19-blue) ![Tailwind CSS](https://img.shields.io/badge/Tailwind-4-38bdf8) ![Gemini API](https://img.shields.io/badge/Gemini-2.0%20Flash-orange) ![Supabase](https://img.shields.io/badge/Supabase-Database-green)
+![Nala Pustaka](https://img.shields.io/badge/React-19-blue) ![Tailwind CSS](https://img.shields.io/badge/Tailwind-4-38bdf8) ![Gemini API](https://img.shields.io/badge/Gemini-2.0%20Flash-orange) ![PostgreSQL](https://img.shields.io/badge/PostgreSQL-16-blue) ![Pinecone](https://img.shields.io/badge/Pinecone-Vector_DB-purple)
+
 
 > 🎯 **Untuk Kiro IDE**: Repository ini sudah fully compatible! Lihat [`QUICK_START.md`](QUICK_START.md) untuk setup 2 menit. Semua config files sudah ada: `jsconfig.json`, ESLint, Prettier, Tailwind intellisense, dan debug config. ✅
 
@@ -12,7 +13,29 @@ Aplikasi web interaktif yang menggunakan AI (Google Gemini) dengan metodologi RA
 
 ---
 
-## 🎉 Update Terbaru - November 2025
+## 🎉 Update Terbaru - November 2025 (Late Update)
+
+### 🚀 Phase 4: Massive Data Pipeline
+- ✅ **Massive Scraper**: Otomatis scrape 4,500+ naskah dari sastra.org
+- ✅ **Intelligent Clustering**: Mengelompokkan 2,200+ naskah menjadi ~500 cluster bermakna
+- ✅ **Auto-Description**: LLM membuat deskripsi otomatis untuk setiap cluster naskah
+- ✅ **Vector Ingestion**: Pipeline otomatis ke Pinecone & Supabase
+
+### ⚡ Phase 5: Optimization & Cost Control
+- ✅ **Deep Chat Optimization**: 77% hemat token dengan semantic chunking & caching
+- ✅ **Multi-Chat Optimization**: 40% hemat context window
+- ✅ **Usage Tracking**: Monitor penggunaan token & biaya per user
+- ✅ **Rate Limiting**: Proteksi API dengan tiered limits (Free/Premium)
+- ✅ **Performance**: Response time lebih cepat dengan caching
+
+### 🔄 Phase 6: PostgreSQL Migration (November 2025)
+- ✅ **Migrasi dari Supabase ke PostgreSQL**: Hemat biaya, full control!
+- ✅ **Self-hosted Database**: PostgreSQL lokal atau Docker
+- ✅ **Educational Content Table**: Store AI-generated educational content
+- ✅ **Manuscript Relationships**: Store knowledge graph relationships
+- ✅ **Zero Cloud Costs**: Tidak perlu bayar Supabase Pro lagi!
+
+**📖 Migration Guide**: Lihat [`POSTGRESQL_SETUP.md`](POSTGRESQL_SETUP.md) untuk setup dan [`MIGRATION_SUMMARY.md`](MIGRATION_SUMMARY.md) untuk detail migrasi.
 
 ### ✨ Fitur Baru (Phase 1-3)
 
@@ -79,14 +102,14 @@ Aplikasi web interaktif yang menggunakan AI (Google Gemini) dengan metodologi RA
 - **Sitasi otomatis**: AI menyebutkan bagian mana dari naskah yang menjadi sumber jawaban
 - Balasan dalam Bahasa Indonesia
 
-### 3. **Knowledge Graph**
+### 4. **Knowledge Graph**
 - Visualisasi hubungan antar konsep dalam naskah menggunakan D3.js
 - Graph interaktif dengan drag, zoom, dan pan
 - Node types: Karya, Tokoh, Konsep, Struktur
 - Directed edges dengan labels
 - 3 graph datasets lengkap untuk setiap naskah
 
-### 4. **Admin Panel**
+### 5. **Admin Panel**
 - Dashboard untuk manajemen naskah tanpa coding
 - **CRUD Operations**: Tambah, edit, hapus naskah dengan mudah
 - **Author Dropdown**: Pilihan pengarang (Custom, Tidak Diketahui, Banyak Penulis)
@@ -94,6 +117,13 @@ Aplikasi web interaktif yang menggunakan AI (Google Gemini) dengan metodologi RA
 - **Pin/Unpin**: Tandai naskah unggulan untuk halaman pertama
 - **Sort & Filter**: 4 opsi sort, 2 filter, search real-time
 - **Authentication**: Login aman dengan Supabase Auth
+
+### 6. **Data Pipeline & Optimization**
+- **Massive Scraper**: Script Python untuk scrape ribuan naskah otomatis
+- **Clustering Engine**: Mengelompokkan varian naskah menjadi satu entitas
+- **Deep Chat Optimization**: Semantic chunking & caching (77% token savings)
+- **Usage Tracking**: Monitor biaya dan penggunaan token per user
+- **Rate Limiting**: Proteksi API dari abuse
 
 ## 🚀 Quick Start
 
@@ -205,16 +235,26 @@ Anda adalah "Nala Pustaka", Pustakawan AI ahli filologi Jawa.
 - Gunakan Bahasa Indonesia
 ```
 
+### Data Pipeline
+```
+Scraping (Python) → Raw Text → Clustering (Node.js) → LLM Analysis → Supabase & Pinecone
+```
+1. **Scraping**: Mengambil 4,500+ naskah dari sastra.org
+2. **Clustering**: Menggunakan K-Means & Embeddings untuk mengelompokkan varian
+3. **Ingestion**: Upload metadata ke Supabase dan vectors ke Pinecone
+
 ### Technology Stack
 - **Frontend**: React 19 + Vite (Rolldown)
 - **Styling**: Tailwind CSS 4
 - **Routing**: React Router DOM 7
-- **Database**: Supabase (PostgreSQL)
-- **Authentication**: Supabase Auth
+- **Database**: PostgreSQL 16 (self-hosted atau Docker)
+- **Vector DB**: Pinecone
+- **Authentication**: Supabase Auth (optional) atau custom auth
 - **AI Model**: Google Gemini 2.0 Flash Experimental
 - **Visualization**: D3.js 7
 - **Markdown**: Marked.js
 - **Metodologi**: RAG (Retrieval-Augmented Generation)
+- **Backend Scripts**: Python (Scraping) & Node.js (Clustering)
 
 ## 📁 Struktur Project
 
@@ -231,13 +271,18 @@ nala-pustaka/
 │   ├── App.jsx                 # Main app + komponen utama
 │   ├── index.css               # Tailwind imports
 │   └── main.jsx                # Entry point + routing
+├── backend/                    # Backend services & scripts
+│   ├── src/
+│   │   ├── services/           # Deep Chat, Multi Chat, RAG
+│   │   ├── middleware/         # Usage Tracker, Rate Limiter
+│   │   └── scripts/            # Clustering & Ingestion pipelines
 ├── guide/                      # Dokumentasi lengkap
 │   ├── CARA_PAKAI_ADMIN_PANEL.md
-│   ├── PHASE_1_FEATURES.md
-│   ├── PHASE_2_FEATURES.md
-│   ├── PIN_FEATURE_GUIDE.md
-│   ├── INTEGRASI_DATABASE.md
-│   └── ... (20+ guide files)
+│   ├── MASSIVE_SCRAPING_GUIDE.md
+│   ├── PANDUAN_CLUSTERING_FULL.md
+│   └── ... (30+ guide files)
+├── scraper_multi_kategori_all.py # Main scraping script
+├── analyze_scraping_results.py   # Scraping analysis tool
 ├── public/                     # Static assets
 ├── .env.example                # Template environment variables
 ├── README.md                   # Dokumentasi ini
@@ -354,6 +399,18 @@ nala-pustaka/
 - [x] Pin feature (5 naskah unggulan)
 - [x] Sort & filter di admin panel
 
+### ✅ Phase 4 - Massive Scale (COMPLETED)
+- [x] Scraper otomatis untuk 4,500+ naskah
+- [x] Clustering engine untuk pengelompokan varian
+- [x] Auto-description dengan LLM
+- [x] Vector ingestion pipeline
+
+### ✅ Phase 5 - Optimization (COMPLETED)
+- [x] Deep Chat optimization (77% savings)
+- [x] Multi-Chat optimization (40% savings)
+- [x] Usage tracking & cost monitoring
+- [x] Rate limiting & API protection
+
 ### 🔜 Phase 4 - Future Enhancements
 - [ ] Vector database untuk semantic search
 - [ ] Auto-generate Knowledge Graph dari database
@@ -400,6 +457,11 @@ nala-pustaka/
 - **[guide/CHANGELOG.md](guide/CHANGELOG.md)** - Riwayat perubahan
 - **[CHANGES_SUMMARY.md](CHANGES_SUMMARY.md)** - Summary of Kiro IDE fixes
 - **[LAPORAN_UPDATE_NOVEMBER_2025.txt](LAPORAN_UPDATE_NOVEMBER_2025.txt)** - Laporan update terbaru
+
+### Advanced Guides
+- **[README_MASSIVE_SCRAPER.md](README_MASSIVE_SCRAPER.md)** - Panduan scraping masif
+- **[PANDUAN_CLUSTERING_FULL.md](PANDUAN_CLUSTERING_FULL.md)** - Panduan clustering pipeline
+- **[URGENT_OPTIMIZATIONS_IMPLEMENTED.md](URGENT_OPTIMIZATIONS_IMPLEMENTED.md)** - Detail optimasi token & biaya
 
 ## 🤝 Contributing
 
@@ -628,7 +690,10 @@ Lihat [guide/CARA_PAKAI_ADMIN_PANEL.md](guide/CARA_PAKAI_ADMIN_PANEL.md) untuk d
 - 📊 Interactive D3.js visualization
 - 🔐 Secure authentication & authorization
 - 📱 Fully responsive design
-- 📖 20+ documentation files
+- 🕷️ Massive Scraper (4,500+ naskah)
+- 🧠 Intelligent Clustering Engine
+- 💰 Cost-optimized Architecture (77% savings)
+- 📖 30+ documentation files
 
 ---
 

@@ -64,7 +64,7 @@ PENTING:
 - Minimal 6 nodes, maksimal 12 nodes`;
 
     const response = await fetch(
-      `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash-exp:generateContent?key=${apiKey}`,
+      `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-lite:generateContent?key=${apiKey}`,
       {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -143,6 +143,13 @@ export default function AdminDashboard() {
   const [formError, setFormError] = useState('');
   const [formSuccess, setFormSuccess] = useState('');
   const [submitting, setSubmitting] = useState(false);
+
+  // Pagination state
+  const [currentPage, setCurrentPage] = useState(1);
+  const [itemsPerPage, setItemsPerPage] = useState(10);
+  
+  // Mobile filter toggle
+  const [showFilters, setShowFilters] = useState(false);
 
   // Check auth on mount
   useEffect(() => {
@@ -253,6 +260,18 @@ export default function AdminDashboard() {
   };
 
   const filteredManuscripts = getFilteredAndSortedManuscripts();
+
+  // Pagination Logic
+  const totalPages = Math.ceil(filteredManuscripts.length / itemsPerPage);
+  const paginatedManuscripts = filteredManuscripts.slice(
+    (currentPage - 1) * itemsPerPage,
+    currentPage * itemsPerPage
+  );
+
+  const handlePageChange = (page) => {
+    setCurrentPage(page);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
 
   // IMPROVED: Reorder with proper display_order update
   const handleReorder = async (index, direction) => {
@@ -410,7 +429,7 @@ export default function AdminDashboard() {
       author: authorValue,
       authorType: authorType,
       description: manuscript.description || '',
-      full_text: manuscript.full_text,
+      full_text: manuscript.full_text || '',
       source_url: manuscript.source_url || '',
     });
     setEditingId(manuscript.id);
@@ -882,7 +901,7 @@ export default function AdminDashboard() {
             )}
           </div>
 
-          {/* Manuscripts List */}
+          {/* Manuscripts List with Mobile Optimization */}
           {filteredManuscripts.length === 0 ? (
             <div className="text-center py-12">
               {manuscripts.length === 0 ? (
@@ -918,100 +937,173 @@ export default function AdminDashboard() {
             </div>
           ) : (
             <div className="space-y-4">
-              {filteredManuscripts.map((manuscript, index) => (
-                <div
-                  key={manuscript.id}
-                  className="border-2 border-primary-200 rounded-xl p-4 hover:border-accent-400 hover:shadow-md transition-all"
-                >
-                  <div className="flex justify-between items-start gap-4">
-                    {/* Ordering Buttons */}
-                    <div className="flex flex-col gap-1">
-                      <button
-                        onClick={() => handleReorder(index, 'up')}
-                        disabled={index === 0}
-                        className={`px-2 py-1 rounded-lg text-xs font-bold ${
-                          index === 0
-                            ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
-                            : 'bg-primary-100 text-primary-600 hover:bg-primary-200'
-                        }`}
-                        title="Naikkan urutan"
-                      >
-                        ▲
-                      </button>
-                      <button
-                        onClick={() => handleReorder(index, 'down')}
-                        disabled={index === manuscripts.length - 1}
-                        className={`px-2 py-1 rounded-lg text-xs font-bold ${
-                          index === manuscripts.length - 1
-                            ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
-                            : 'bg-primary-100 text-primary-600 hover:bg-primary-200'
-                        }`}
-                        title="Turunkan urutan"
-                      >
-                        ▼
-                      </button>
-                    </div>
+              {paginatedManuscripts.map((manuscript, index) => {
+                // Calculate global index for reorder logic across pages
+                const globalIndex = (currentPage - 1) * itemsPerPage + index;
+                
+                return (
+                  <div
+                    key={manuscript.id}
+                    className="border-2 border-primary-200 rounded-xl p-4 hover:border-accent-400 hover:shadow-md transition-all bg-white"
+                  >
+                    <div className="flex flex-col md:flex-row justify-between items-start gap-4">
+                      
+                      {/* Desktop Order Buttons (Hidden on Mobile) */}
+                      <div className="hidden md:flex flex-col gap-1">
+                        <button
+                          onClick={() => handleReorder(globalIndex, 'up')}
+                          disabled={globalIndex === 0}
+                          className={`px-2 py-1 rounded-lg text-xs font-bold ${
+                            globalIndex === 0
+                              ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
+                              : 'bg-primary-100 text-primary-600 hover:bg-primary-200'
+                          }`}
+                          title="Naikkan urutan"
+                        >
+                          ▲
+                        </button>
+                        <button
+                          onClick={() => handleReorder(globalIndex, 'down')}
+                          disabled={globalIndex === manuscripts.length - 1}
+                          className={`px-2 py-1 rounded-lg text-xs font-bold ${
+                            globalIndex === manuscripts.length - 1
+                              ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
+                              : 'bg-primary-100 text-primary-600 hover:bg-primary-200'
+                          }`}
+                          title="Turunkan urutan"
+                        >
+                          ▼
+                        </button>
+                      </div>
 
-                    <div className="flex-1">
-                      <h3 className="text-lg font-bold text-gray-900 mb-1 flex items-center gap-2">
-                        {manuscript.title}
-                        {manuscript.is_pinned && (
-                          <span className="inline-flex items-center px-2 py-1 rounded-lg bg-gradient-to-r from-yellow-100 to-amber-100 border-2 border-yellow-400 text-xs font-bold text-yellow-700">
-                            📌 Pinned
-                          </span>
-                        )}
-                      </h3>
-                      <p className="text-sm text-primary-600 font-medium mb-2">
-                        {manuscript.author}
-                      </p>
-                      {manuscript.description && (
-                        <p className="text-sm text-gray-600 mb-2">
-                          {manuscript.description}
+                      <div className="flex-1 w-full">
+                        <div className="flex justify-between items-start mb-2">
+                          <h3 className="text-lg font-bold text-gray-900 leading-tight">
+                            {manuscript.title}
+                          </h3>
+                          
+                          {/* Mobile Pinned Badge */}
+                          {manuscript.is_pinned && (
+                            <span className="shrink-0 ml-2 inline-flex items-center px-2 py-1 rounded-lg bg-gradient-to-r from-yellow-100 to-amber-100 border border-yellow-400 text-[10px] font-bold text-yellow-700">
+                              📌 Pinned
+                            </span>
+                          )}
+                        </div>
+                        
+                        <p className="text-sm text-primary-600 font-medium mb-2">
+                          ✍️ {manuscript.author}
                         </p>
-                      )}
-                      <div className="flex gap-4 text-xs text-gray-500 flex-wrap">
-                        <span>ID: {manuscript.slug}</span>
-                        <span>
-                          {new Date(manuscript.created_at).toLocaleDateString('id-ID')}
-                        </span>
-                        <span>
-                          {manuscript.full_text.length} karakter
-                        </span>
-                        {manuscript.source_url && (
-                          <span className="text-blue-600">
-                            🔗 Ada sumber
-                          </span>
+                        
+                        {manuscript.description && (
+                          <p className="text-sm text-gray-600 mb-3 line-clamp-2 md:line-clamp-3">
+                            {manuscript.description}
+                          </p>
                         )}
+                        
+                        <div className="flex gap-x-4 gap-y-1 text-xs text-gray-500 flex-wrap items-center bg-gray-50 p-2 rounded-lg border border-gray-100">
+                          <span className="font-mono text-gray-400">#{manuscript.slug}</span>
+                          <span>
+                            📅 {new Date(manuscript.created_at).toLocaleDateString('id-ID')}
+                          </span>
+                          <span>
+                            📝 {(manuscript.full_text || '').length} char
+                          </span>
+                          {manuscript.source_url && (
+                            <a 
+                              href={manuscript.source_url} 
+                              target="_blank" 
+                              rel="noopener noreferrer"
+                              className="text-blue-600 hover:underline flex items-center gap-1"
+                            >
+                              🔗 Sumber
+                            </a>
+                          )}
+                        </div>
+                      </div>
+
+                      {/* Action Buttons (Responsive) */}
+                      <div className="w-full md:w-auto flex md:flex-col gap-2 mt-2 md:mt-0 pt-3 md:pt-0 border-t md:border-t-0 border-gray-100">
+                        <button
+                          onClick={() => handleTogglePin(manuscript.id, manuscript.is_pinned, manuscript.title)}
+                          className={`flex-1 md:flex-none px-3 py-2 rounded-lg font-semibold text-sm transition-all flex justify-center items-center gap-2 ${
+                            manuscript.is_pinned
+                              ? 'bg-gradient-to-r from-yellow-100 to-amber-100 text-yellow-700 border border-yellow-400'
+                              : 'bg-gray-50 text-gray-600 border border-gray-200 hover:bg-gray-100'
+                          }`}
+                        >
+                          {manuscript.is_pinned ? '📌 Unpin' : '📍 Pin'}
+                        </button>
+                        
+                        <div className="flex flex-1 md:flex-none gap-2">
+                          <button
+                            onClick={() => handleEdit(manuscript)}
+                            className="flex-1 md:flex-none px-3 py-2 bg-blue-50 text-blue-600 border border-blue-200 rounded-lg hover:bg-blue-100 font-semibold text-sm flex justify-center items-center gap-2"
+                          >
+                            ✏️ Edit
+                          </button>
+                          <button
+                            onClick={() => handleDelete(manuscript.id, manuscript.title)}
+                            className="flex-1 md:flex-none px-3 py-2 bg-red-50 text-red-600 border border-red-200 rounded-lg hover:bg-red-100 font-semibold text-sm flex justify-center items-center gap-2"
+                          >
+                            🗑️ Hapus
+                          </button>
+                        </div>
                       </div>
                     </div>
-                    <div className="flex gap-2">
-                      <button
-                        onClick={() => handleTogglePin(manuscript.id, manuscript.is_pinned, manuscript.title)}
-                        className={`px-3 py-2 rounded-lg font-semibold text-sm transition-all ${
-                          manuscript.is_pinned
-                            ? 'bg-gradient-to-r from-yellow-100 to-amber-100 text-yellow-700 border-2 border-yellow-400 hover:from-yellow-200 hover:to-amber-200'
-                            : 'bg-gray-100 text-gray-600 border-2 border-gray-300 hover:bg-gray-200'
-                        }`}
-                        title={manuscript.is_pinned ? 'Unpin dari halaman utama' : 'Pin ke halaman utama (max 5)'}
-                      >
-                        {manuscript.is_pinned ? '📌 Unpin' : '📍 Pin'}
-                      </button>
-                      <button
-                        onClick={() => handleEdit(manuscript)}
-                        className="px-3 py-2 bg-blue-100 text-blue-600 rounded-lg hover:bg-blue-200 font-semibold text-sm"
-                      >
-                        ✏️ Edit
-                      </button>
-                      <button
-                        onClick={() => handleDelete(manuscript.id, manuscript.title)}
-                        className="px-3 py-2 bg-red-100 text-red-600 rounded-lg hover:bg-red-200 font-semibold text-sm"
-                      >
-                        🗑️ Hapus
-                      </button>
-                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          )}
+          
+          {/* Pagination Controls */}
+          {filteredManuscripts.length > 0 && (
+            <div className="mt-8 pt-6 border-t-2 border-primary-200 flex flex-col md:flex-row justify-between items-center gap-4">
+              <div className="text-sm text-gray-600">
+                Menampilkan <strong>{(currentPage - 1) * itemsPerPage + 1}</strong> - <strong>{Math.min(currentPage * itemsPerPage, filteredManuscripts.length)}</strong> dari <strong>{filteredManuscripts.length}</strong> naskah
+              </div>
+              
+              <div className="flex items-center gap-2">
+                <button
+                  onClick={() => handlePageChange(currentPage - 1)}
+                  disabled={currentPage === 1}
+                  className="p-2 rounded-lg border border-gray-300 hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  ◀️
+                </button>
+                
+                {/* Page Dropdown */}
+                <div className="relative">
+                  <select
+                    value={currentPage}
+                    onChange={(e) => handlePageChange(Number(e.target.value))}
+                    className="appearance-none pl-4 pr-8 py-2 bg-white border border-gray-300 rounded-lg font-semibold text-primary-700 focus:outline-none focus:ring-2 focus:ring-primary-500 cursor-pointer hover:bg-gray-50"
+                  >
+                    {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
+                      <option key={page} value={page}>
+                        Halaman {page}
+                      </option>
+                    ))}
+                  </select>
+                  <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-500">
+                    <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7" />
+                    </svg>
                   </div>
                 </div>
-              ))}
+                
+                <span className="text-gray-500 text-sm font-medium">
+                  / {totalPages}
+                </span>
+
+                <button
+                  onClick={() => handlePageChange(currentPage + 1)}
+                  disabled={currentPage === totalPages}
+                  className="p-2 rounded-lg border border-gray-300 hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  ▶️
+                </button>
+              </div>
             </div>
           )}
         </div>

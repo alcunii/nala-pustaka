@@ -1,4 +1,4 @@
-﻿/**
+/**
  * Vector Database Service (Pinecone)
  * Handles vector storage and similarity search
  */
@@ -94,6 +94,7 @@ class VectorDBService {
 
       const {
         topK = 5,
+        minScore = 0,
         filter = null,
         includeMetadata = true,
       } = options;
@@ -107,13 +108,15 @@ class VectorDBService {
         includeMetadata,
       });
 
-      const results = queryResponse.matches.map(match => ({
-        id: match.id,
-        score: match.score,
-        metadata: match.metadata,
-      }));
+      const results = queryResponse.matches
+        .map(match => ({
+          id: match.id,
+          score: match.score,
+          metadata: match.metadata,
+        }))
+        .filter(match => match.score >= minScore);
 
-      logger.debug(`Found ${results.length} results`);
+      logger.debug(`Found ${results.length} results (after minScore filter)`);
       return results;
     } catch (error) {
       logger.error('Error querying vectors:', error.message);
@@ -192,7 +195,7 @@ class VectorDBService {
       }
 
       logger.info(`Fetching all chunks for manuscriptId: ${manuscriptId}`);
-      const dummyVector = new Array(768).fill(0);
+      const dummyVector = new Array(1536).fill(0); // FIXED for OpenAI
       
       const queryResponse = await this.index.query({
         vector: dummyVector,

@@ -4,17 +4,15 @@
  */
 
 const logger = require('../utils/logger');
-const { createClient } = require('@supabase/supabase-js');
+const db = require('../config/database');
 const vectorDB = require('./vectorDB');
-const embeddingService = require('./embedding');
+const embeddingService = require('./embeddingOpenAI');
 
 class KnowledgeGraphService {
   constructor() {
-    this.supabase = createClient(
-      process.env.SUPABASE_URL,
-      process.env.SUPABASE_SERVICE_ROLE_KEY
-    );
+    // No longer need Supabase client
   }
+
 
   /**
    * Find related manuscripts based on multiple criteria
@@ -26,7 +24,7 @@ class KnowledgeGraphService {
 
       // 1. Check pre-computed relationships first (fast)
       const precomputed = await this.getPrecomputedRelationships(manuscriptId);
-      
+
       // 2. If no precomputed data, compute on-the-fly using vector similarity
       if (!precomputed || precomputed.length === 0) {
         logger.info('No precomputed relationships, computing on-the-fly...');
@@ -54,20 +52,20 @@ class KnowledgeGraphService {
    */
   async getPrecomputedRelationships(manuscriptId) {
     try {
-      const { data, error } = await this.supabase
-        .from('manuscript_relationships')
-        .select('*')
-        .eq('source_manuscript_id', manuscriptId)
-        .order('strength', { ascending: false })
-        .limit(10);
-
-      if (error) throw error;
-      return data || [];
+      const query = `
+        SELECT * FROM manuscript_relationships
+        WHERE source_manuscript_id = $1
+        ORDER BY strength DESC
+        LIMIT 10
+      `;
+      const { rows } = await db.query(query, [manuscriptId]);
+      return rows || [];
     } catch (error) {
       logger.warn(`Failed to get precomputed relationships for ${manuscriptId}:`, error.message);
       return [];
     }
   }
+
 
   /**
    * Compute relationships on-the-fly using vector similarity
@@ -77,19 +75,19 @@ class KnowledgeGraphService {
     try {
       // Use manuscript title + description for similarity search
       const queryText = `${manuscriptData.title} ${manuscriptData.description || ''}`.trim();
-      
+
       // Generate embedding for query
       const queryEmbedding = await embeddingService.generateEmbedding(queryText);
-      
+
       // Search for similar manuscripts in Pinecone
       const results = await vectorDB.query(queryEmbedding, { topK: 10, minScore: 0.6 });
-      
+
       // Filter out self-references and group by manuscript
       const manuscriptMap = new Map();
       for (const result of results) {
         const relatedId = result.metadata.manuscriptId;
         if (relatedId === manuscriptId) continue; // Skip self
-        
+
         if (!manuscriptMap.has(relatedId) || manuscriptMap.get(relatedId).score < result.score) {
           manuscriptMap.set(relatedId, {
             manuscript_id: relatedId,
@@ -173,18 +171,17 @@ class KnowledgeGraphService {
     const relationships = [];
 
     // Get all educational content
-    const { data: educationalData, error } = await this.supabase
-      .from('educational_content')
-      .select('manuscript_id, content_data');
+    const query = 'SELECT manuscript_id, content_data FROM educational_content';
+    const { rows: educationalData } = await db.query(query);
 
-    if (error) {
-      logger.error('Failed to fetch educational content:', error);
+    if (!educationalData || educationalData.length === 0) {
+      logger.warn('No educational content found');
       return;
     }
 
     // Build character relationships
     const characterMap = new Map(); // character_name -> [manuscript_ids]
-    
+
     for (const edu of educationalData) {
       const characters = edu.content_data.characters || [];
       for (const char of characters) {
@@ -224,14 +221,38 @@ class KnowledgeGraphService {
 
     // Insert relationships into database
     if (relationships.length > 0) {
-      const { error: insertError } = await this.supabase
-        .from('manuscript_relationships')
-        .upsert(relationships, { onConflict: 'source_manuscript_id,related_manuscript_id,relationship_type' });
+      const client = await db.getClient();
+      try {
+        await client.query('BEGIN');
 
-      if (insertError) {
-        logger.error('Failed to insert relationships:', insertError);
-      } else {
+        for (const rel of relationships) {
+          const insertQuery = `
+            INSERT INTO manuscript_relationships
+            (source_manuscript_id, related_manuscript_id, relationship_type, relationship_data, strength)
+            VALUES ($1, $2, $3, $4, $5)
+            ON CONFLICT (source_manuscript_id, related_manuscript_id, relationship_type)
+            DO UPDATE SET
+              relationship_data = EXCLUDED.relationship_data,
+              strength = EXCLUDED.strength,
+              updated_at = NOW()
+          `;
+          await client.query(insertQuery, [
+            rel.source_manuscript_id,
+            rel.related_manuscript_id,
+            rel.relationship_type,
+            JSON.stringify(rel.relationship_data),
+            rel.strength
+          ]);
+        }
+
+        await client.query('COMMIT');
         logger.info(`Successfully built ${relationships.length} relationships`);
+      } catch (insertError) {
+        await client.query('ROLLBACK');
+        logger.error('Failed to insert relationships:', insertError);
+        throw insertError;
+      } finally {
+        client.release();
       }
     }
 

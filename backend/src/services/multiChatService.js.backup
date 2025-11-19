@@ -1,0 +1,115 @@
+﻿const { GoogleGenerativeAI } = require('@google/generative-ai');
+const config = require('../config');
+const logger = require('../utils/logger');
+const vectorDB = require('./vectorDB');
+const embeddingService = require('./embedding');
+
+const genAI = new GoogleGenerativeAI(config.gemini.apiKey);
+
+async function chatWithMultipleManuscripts(manuscripts, query, conversationHistory = []) {
+  try {
+    logger.info('Multi-chat: ' + manuscripts.length + ' manuscripts');
+    
+    const startTime = Date.now();
+    
+    if (manuscripts.length > 3) throw new Error('Max 3 manuscripts');
+    if (manuscripts.length === 0) throw new Error('Min 1 manuscript');
+    
+    const queryEmbedding = await embeddingService.generateEmbedding(query);
+    
+    const allResults = await vectorDB.query(queryEmbedding, {
+      topK: 20,
+      includeMetadata: true
+    });
+    
+    logger.debug('Retrieved ' + allResults.length + ' chunks');
+    
+    // Match by UUID (primary) or title (fallback)
+    const manuscriptIds = manuscripts.map(m => m.id);
+    
+    const relevantChunks = allResults
+      .map(chunk => {
+        // Match by manuscriptId UUID
+        let matchedMs = manuscripts.find(m => m.id === chunk.metadata.manuscriptId);
+        
+        // Fallback: title matching
+        if (!matchedMs) {
+          matchedMs = manuscripts.find(m => 
+            m.title.toLowerCase().trim() === chunk.metadata.title?.toLowerCase().trim()
+          );
+        }
+        
+        if (matchedMs) {
+          return {
+            ...chunk,
+            manuscript: { id: matchedMs.id, title: matchedMs.title, author: matchedMs.author }
+          };
+        }
+        return null;
+      })
+      .filter(Boolean);
+    
+    logger.debug('Filtered to ' + relevantChunks.length + ' chunks from selected manuscripts');
+    
+    const topChunks = relevantChunks.sort((a, b) => b.score - a.score).slice(0, 9);
+    
+    logger.debug('Using top ' + topChunks.length + ' chunks');
+    
+    // Build context
+    const contextByManuscript = manuscripts.map(ms => {
+      const msChunks = topChunks.filter(c => c.manuscript.id === ms.id);
+      
+      if (msChunks.length === 0) {
+        return '=== 📜 ' + ms.title + ' (' + ms.author + ') ===\n[Tidak ditemukan informasi relevan]';
+      }
+      
+      const chunksText = msChunks.map((chunk, idx) => 
+        '[CHUNK_' + idx + ']\n' + chunk.metadata.chunkText
+      ).join('\n\n');
+      
+      return '=== 📜 ' + ms.title + ' (' + ms.author + ') ===\n' + chunksText;
+    }).join('\n\n---\n\n');
+    
+    const historyText = conversationHistory.slice(-4).map(h => (h.role === 'user' ? 'User' : 'Assistant') + ': ' + h.content).join('\n');
+    
+    const manuscriptList = manuscripts.map((m, i) => (i + 1) + '. ' + m.title + ' (oleh ' + m.author + ')').join('\n');
+    
+    const prompt = 'Anda adalah asisten peneliti naskah Jawa kuno yang ahli, ramah, dan edukatif.\n\nNASKAH YANG TERSEDIA:\n' + manuscriptList + '\n\nKONTEKS DARI NASKAH:\n' + contextByManuscript + '\n\n' + (historyText ? 'RIWAYAT PERCAKAPAN:\n' + historyText + '\n\n' : '') + 'PERTANYAAN USER: "' + query + '"\n\nINSTRUKSI PENTING:\n1. Jawab dengan DETAIL dan LENGKAP (100-600 kata)\n2. SELALU sebutkan dari naskah mana info berasal\n3. Jika naskah TIDAK membahas, katakan jelas\n4. JANGAN mengarang - HANYA gunakan teks di atas\n\nJawab:';
+
+    const model = genAI.getGenerativeModel({ 
+      model: config.gemini.model,
+      generationConfig: { temperature: 0.3, topP: 0.9, topK: 40, maxOutputTokens: 1000 }
+    });
+    
+    const result = await model.generateContent(prompt);
+    const answer = result.response.text();
+    
+    const duration = (Date.now() - startTime) / 1000;
+    logger.info('Multi-chat completed in ' + duration.toFixed(2) + 's');
+    
+    const sources = topChunks.map(chunk => ({
+      manuscriptId: chunk.manuscript.id,
+      manuscriptTitle: chunk.manuscript.title,
+      excerpt: chunk.metadata.chunkText.substring(0, 200) + '...',
+      relevance: chunk.score
+    }));
+    
+    return {
+      success: true,
+      answer: answer,
+      sources: sources,
+      metadata: {
+        manuscriptCount: manuscripts.length,
+        chunksUsed: topChunks.length,
+        processingTimeSeconds: duration,
+        timestamp: new Date().toISOString()
+      }
+    };
+    
+  } catch (error) {
+    logger.error('Multi-chat error:', error);
+    throw error;
+  }
+}
+
+module.exports = { chatWithMultipleManuscripts };

@@ -1,195 +1,167 @@
-import { createClient } from '@supabase/supabase-js';
+// import { createClient } from '@supabase/supabase-js';
 
-const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
-const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
+// const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
+// const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
 
-if (!supabaseUrl || !supabaseAnonKey) {
-  throw new Error(
-    'Missing Supabase environment variables. Please add VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY to your .env file'
-  );
-}
+// export const supabase = createClient(supabaseUrl, supabaseAnonKey);
 
-export const supabase = createClient(supabaseUrl, supabaseAnonKey);
+// --- LOCAL AUTH REPLACEMENT (Supabase Free) ---
+const MOCK_ADMIN = {
+  id: '00000000-0000-0000-0000-000000000001', // Valid UUID format
+  email: 'abinawa007@gmail.com',
+  role: 'admin'
+};
 
-// Helper functions untuk manuscripts
+// Helper functions untuk manuscripts (Refactored to use Backend API)
 export const manuscriptService = {
   // Get semua naskah (public)
   async getAll() {
-    const { data, error } = await supabase
-      .from('manuscripts')
-      .select('*')
-      .order('created_at', { ascending: false });
-    
-    if (error) throw error;
-    return data;
+    const response = await fetch('/api/manuscripts');
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.error || 'Failed to fetch manuscripts');
+    }
+    return response.json();
   },
 
   // Get satu naskah by slug
   async getBySlug(slug) {
-    const { data, error } = await supabase
-      .from('manuscripts')
-      .select('*')
-      .eq('slug', slug)
-      .single();
-    
-    if (error) throw error;
-    return data;
+    const response = await fetch(`/api/manuscripts/${slug}`);
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.error || 'Failed to fetch manuscript');
+    }
+    return response.json();
   },
 
   // Create naskah baru (require auth)
   async create(manuscript) {
-    const { data: { user } } = await supabase.auth.getUser();
+    const user = await authService.getCurrentUser();
     
-    const { data, error } = await supabase
-      .from('manuscripts')
-      .insert([
-        {
-          ...manuscript,
-          created_by: user?.id,
-        },
-      ])
-      .select()
-      .single();
-    
-    if (error) throw error;
-    return data;
+    const payload = {
+      ...manuscript,
+      created_by: user?.id,
+    };
+
+    const response = await fetch('/api/manuscripts', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload),
+    });
+
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.error || 'Failed to create manuscript');
+    }
+    return response.json();
   },
 
   // Update naskah (require auth)
   async update(id, updates) {
-    const { data, error } = await supabase
-      .from('manuscripts')
-      .update(updates)
-      .eq('id', id)
-      .select()
-      .single();
-    
-    if (error) throw error;
-    return data;
+    const response = await fetch(`/api/manuscripts/${id}`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(updates),
+    });
+
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.error || 'Failed to update manuscript');
+    }
+    return response.json();
   },
 
   // Delete naskah (require auth)
   async delete(id) {
-    const { error } = await supabase
-      .from('manuscripts')
-      .delete()
-      .eq('id', id);
-    
-    if (error) throw error;
+    const response = await fetch(`/api/manuscripts/${id}`, {
+      method: 'DELETE',
+    });
+
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.error || 'Failed to delete manuscript');
+    }
   },
 
-  // Reorder manuscripts (swap display_order) - Simple implementation without RPC
+  // Reorder manuscripts
   async reorder(manuscriptId1, manuscriptId2) {
-    // Get both manuscripts
-    const { data: manuscripts, error: fetchError } = await supabase
-      .from('manuscripts')
-      .select('id, display_order')
-      .in('id', [manuscriptId1, manuscriptId2]);
-    
-    if (fetchError) throw fetchError;
-    if (!manuscripts || manuscripts.length !== 2) {
-      throw new Error('Could not find both manuscripts');
+    const response = await fetch('/api/manuscripts/reorder', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ id1: manuscriptId1, id2: manuscriptId2 }),
+    });
+
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.error || 'Failed to reorder manuscripts');
     }
-
-    const manuscript1 = manuscripts.find(m => m.id === manuscriptId1);
-    const manuscript2 = manuscripts.find(m => m.id === manuscriptId2);
-
-    // Swap display_order values
-    const order1 = manuscript1.display_order || 0;
-    const order2 = manuscript2.display_order || 0;
-
-    // Update both manuscripts
-    const { error: update1Error } = await supabase
-      .from('manuscripts')
-      .update({ display_order: order2 })
-      .eq('id', manuscriptId1);
-
-    if (update1Error) throw update1Error;
-
-    const { error: update2Error } = await supabase
-      .from('manuscripts')
-      .update({ display_order: order1 })
-      .eq('id', manuscriptId2);
-
-    if (update2Error) throw update2Error;
-
-    return { success: true };
+    return response.json();
   },
 
-  // Toggle pin status (NEW: Pin Feature)
+  // Toggle pin status
   async togglePin(manuscriptId) {
-    // First, check current pin status
-    const { data: manuscript, error: fetchError } = await supabase
-      .from('manuscripts')
-      .select('id, is_pinned')
-      .eq('id', manuscriptId)
-      .single();
-    
-    if (fetchError) throw fetchError;
+    const response = await fetch(`/api/manuscripts/${manuscriptId}/toggle-pin`, {
+      method: 'POST',
+    });
 
-    const newPinStatus = !manuscript.is_pinned;
-
-    // If trying to pin, check if we already have 5 pinned manuscripts
-    if (newPinStatus) {
-      const { data: pinnedManuscripts, error: countError } = await supabase
-        .from('manuscripts')
-        .select('id')
-        .eq('is_pinned', true);
-      
-      if (countError) throw countError;
-
-      if (pinnedManuscripts && pinnedManuscripts.length >= 5) {
-        throw new Error('Maksimal 5 naskah dapat di-pin. Unpin naskah lain terlebih dahulu.');
-      }
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.error || 'Failed to toggle pin');
     }
-
-    // Toggle pin status
-    const { data, error } = await supabase
-      .from('manuscripts')
-      .update({ is_pinned: newPinStatus })
-      .eq('id', manuscriptId)
-      .select()
-      .single();
-    
-    if (error) throw error;
-    return data;
+    return response.json();
   },
 
-  // Get pinned manuscripts count (NEW: Pin Feature)
+  // Get pinned manuscripts count
   async getPinnedCount() {
-    const { count, error } = await supabase
-      .from('manuscripts')
-      .select('id', { count: 'exact', head: true })
-      .eq('is_pinned', true);
-    
-    if (error) throw error;
-    return count || 0;
+    const manuscripts = await this.getAll();
+    return manuscripts.filter(m => m.is_pinned).length;
   },
 };
 
-// Helper functions untuk auth
+// Helper functions untuk auth (LOCAL VERSION - No Supabase)
 export const authService = {
   // Login
   async signIn(email, password) {
-    const { data, error } = await supabase.auth.signInWithPassword({
-      email,
-      password,
-    });
+    // Hardcoded credential check
+    // Anda bisa mengganti password ini sesuai keinginan
+    if (email === 'abinawa007@gmail.com' && password === 'Bismillah001!') {
+      const sessionData = {
+        user: MOCK_ADMIN,
+        expiresAt: Date.now() + (24 * 60 * 60 * 1000) // 24 hours
+      };
+      localStorage.setItem('nalapustaka_admin_session', JSON.stringify(sessionData));
+      return { user: MOCK_ADMIN };
+    }
     
-    if (error) throw error;
-    return data;
+    throw new Error('Email atau password salah.');
   },
 
   // Logout
   async signOut() {
-    const { error } = await supabase.auth.signOut();
-    if (error) throw error;
+    localStorage.removeItem('nalapustaka_admin_session');
   },
 
   // Get current user
   async getCurrentUser() {
-    const { data: { user } } = await supabase.auth.getUser();
-    return user;
+    try {
+      const sess = localStorage.getItem('nalapustaka_admin_session');
+      if (!sess) return null;
+      
+      const data = JSON.parse(sess);
+      if (Date.now() > data.expiresAt) {
+        this.signOut();
+        return null;
+      }
+      return data.user;
+    } catch (e) {
+      return null;
+    }
+  },
+  
+  // Helper to get full session/user object
+  async getCurrentUserSession() {
+      const user = await this.getCurrentUser();
+      return { data: { user } };
   },
 
   // Check if user is authenticated

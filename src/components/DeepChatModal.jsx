@@ -1,5 +1,12 @@
-﻿import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { marked } from 'marked';
+// Configure marked for better rendering
+marked.setOptions({
+  breaks: true,
+  gfm: true,
+  headerIds: false,
+  mangle: false
+});
 import { ragApi } from '../lib/ragApi';
 
 export default function DeepChatModal({ manuscript, initialQuery, onClose }) {
@@ -136,7 +143,7 @@ export default function DeepChatModal({ manuscript, initialQuery, onClose }) {
                       : 'bg-primary-50 text-gray-800 border-2 border-primary-200'
                   }`}>
                     <div
-                      className="prose prose-sm max-w-none"
+                      className="prose prose-base max-w-none prose-headings:text-primary-800 prose-h2:text-2xl prose-h2:font-bold prose-h2:mt-6 prose-h2:mb-4 prose-h3:text-xl prose-h3:font-semibold prose-h3:mt-4 prose-h3:mb-3 prose-strong:text-primary-700 prose-strong:font-bold prose-em:text-accent-700 prose-blockquote:border-l-4 prose-blockquote:border-accent-400 prose-blockquote:pl-4 prose-blockquote:italic prose-blockquote:text-gray-700 prose-ul:list-disc prose-ul:ml-6 prose-ol:list-decimal prose-ol:ml-6 prose-li:my-1 prose-p:my-3 prose-p:leading-relaxed prose-hr:my-6 prose-hr:border-gray-300 markdown-content"
                       dangerouslySetInnerHTML={{ __html: marked.parse(msg.text) }}
                     />
                     

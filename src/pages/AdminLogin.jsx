@@ -18,8 +18,8 @@ export default function AdminLogin() {
       await authService.signIn(email, password);
       navigate('/admin/dashboard');
     } catch (err) {
-      setError(err.message || 'Login gagal. Periksa email dan password Anda.');
-      console.error('Login error:', err);
+      console.error('Full Login Error:', err); // Log full error object
+      setError(err.message || err.error_description || 'Login gagal. Periksa email dan password Anda.');
     } finally {
       setLoading(false);
     }

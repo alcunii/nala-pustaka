@@ -20,6 +20,16 @@ const config = {
     serviceRoleKey: process.env.SUPABASE_SERVICE_ROLE_KEY,
   },
 
+  // PostgreSQL (Direct Connection)
+  postgres: {
+    user: process.env.DB_USER || 'postgres',
+    host: process.env.DB_HOST || 'localhost',
+    database: process.env.DB_NAME || 'nala_pustaka',
+    password: process.env.DB_PASSWORD || 'postgres',
+    port: parseInt(process.env.DB_PORT) || 5432,
+    ssl: process.env.DB_SSL === 'true' ? { rejectUnauthorized: false } : false,
+  },
+
   // Pinecone Vector Database
   pinecone: {
     apiKey: process.env.PINECONE_API_KEY,
@@ -27,17 +37,19 @@ const config = {
     indexName: process.env.PINECONE_INDEX_NAME || 'nala-pustaka',
   },
 
-  // HuggingFace Embedding
+  // Embedding Configuration
   huggingface: {
     apiKey: process.env.HF_API_KEY,
-    model: 'sentence-transformers/paraphrase-multilingual-mpnet-base-v2',
-    dimension: 768,
+    // OpenAI text-embedding-3-small: Fast, cheap ($0.02/1M tokens), excellent quality
+    model: 'text-embedding-3-small',
+    dimension: 1536, // OpenAI dimension
+    provider: 'openai', // Using OpenAI instead of HuggingFace
   },
 
   // Google Gemini LLM
   gemini: {
     apiKey: process.env.GEMINI_API_KEY,
-    model: 'gemini-2.0-flash-exp',
+    model: 'gemini-2.5-flash-lite',
   },
 
   // Rate Limiting
@@ -66,8 +78,9 @@ const config = {
 // Validate required config
 function validateConfig() {
   const required = [
-    'supabase.url',
-    'supabase.anonKey',
+    // Supabase is now OPTIONAL (we use PostgreSQL directly)
+    // 'supabase.url',
+    // 'supabase.anonKey',
     'pinecone.apiKey',
     'pinecone.environment',
     'huggingface.apiKey',
@@ -89,7 +102,7 @@ function validateConfig() {
   if (missing.length > 0) {
     throw new Error(
       `Missing required environment variables: ${missing.join(', ')}\n` +
-        'Please check your .env file.'
+      'Please check your .env file.'
     );
   }
 }

@@ -1,0 +1,72 @@
+const embeddingService = require('./embedding');
+const vectorDB = require('./vectorDB');
+const logger = require('../utils/logger');
+
+class RagChatService {
+  constructor() {
+    this.geminiApiKey = process.env.GEMINI_API_KEY;
+    this.geminiModel = 'gemini-2.5-flash-lite';
+  }
+
+  formatContextForAI(searchResults) {
+    let context = 'KONTEKS DARI NASKAH KUNO JAWA:\n\n';
+    searchResults.forEach((result, index) => {
+      context += `[Sumber ${index + 1}] ${result.metadata.title}\n`;
+      context += `Penulis: ${result.metadata.author}\n`;
+      context += `Relevansi: ${(result.score * 100).toFixed(1)}%\n`;
+      context += `Teks:\n${result.metadata.chunkText}\n\n---\n\n`;
+    });
+    return context;
+  }
+
+  buildPrompt(query, context, conversationHistory = []) {
+    const systemPrompt = `Anda adalah Nala Pustaka AI, asisten ahli naskah Jawa. Jawab HANYA dari konteks. Selalu beri sitasi [Sumber X].`;
+    return `${systemPrompt}\n\n${context}\n\nPERTANYAAN: ${query}`;
+  }
+
+  async callGemini(prompt) {
+    if (!this.geminiApiKey) throw new Error('Gemini API key not configured');
+    const url = `https://generativelanguage.googleapis.com/v1beta/models/${this.geminiModel}:generateContent?key=${this.geminiApiKey}`;
+    const response = await fetch(url, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        contents: [{ parts: [{ text: prompt }] }],
+        generationConfig: { temperature: 0.4, maxOutputTokens: 8192 }
+      })
+    });
+    if (!response.ok) throw new Error('Gemini API Error');
+    const result = await response.json();
+    return result.candidates[0].content.parts[0].text;
+  }
+
+  async chat(query, conversationHistory = []) {
+    try {
+      logger.info(`RAG Chat: "${query}"`);
+      const queryEmbedding = await embeddingService.generateEmbedding(query);
+      const searchResults = await vectorDB.query(queryEmbedding, { topK: 5, minScore: 0.5 });
+      if (!searchResults || searchResults.length === 0) {
+        return { answer: 'Tidak ditemukan informasi relevan.', sources: [] };
+      }
+      const context = this.formatContextForAI(searchResults);
+      const prompt = this.buildPrompt(query, context, conversationHistory);
+      const aiAnswer = await this.callGemini(prompt);
+      return {
+        answer: aiAnswer,
+        sources: searchResults.map(r => ({
+          title: r.metadata.title,
+          author: r.metadata.author,
+          score: r.score,
+          url: r.metadata.url
+        })),
+        timestamp: new Date().toISOString()
+      };
+    } catch (error) {
+      logger.error('RAG Chat error:', error);
+      throw error;
+    }
+  }
+}
+
+const ragChatService = new RagChatService();
+module.exports = ragChatService;

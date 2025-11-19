@@ -178,14 +178,14 @@ function EducationalPanel({ manuscript }) {
       </div>
 
       {/* 4 Educational Cards */}
-      <div className="grid md:grid-cols-2 gap-4">
+      <div className="flex flex-col gap-6">
         {/* Card 1: Ringkasan */}
         <EducationalCard icon="📖" title="Ringkasan Mudah" cardName="summary">
-          <p className="text-gray-800 leading-relaxed">{content.summary}</p>
+          <p className="text-gray-800 leading-relaxed whitespace-pre-line">{content.summary}</p>
         </EducationalCard>
 
         {/* Card 2: Kearifan Lokal */}
-        <EducationalCard icon="💡" title="Kearifan Lokal" cardName="wisdom">
+        <EducationalCard icon="💡" title="Kearifan Lokal (Relate with You)" cardName="wisdom">
           <div className="space-y-4">
             {content.wisdom && content.wisdom.length > 0 ? (
               content.wisdom.map((item, index) => (
@@ -204,19 +204,19 @@ function EducationalPanel({ manuscript }) {
         </EducationalCard>
 
         {/* Card 3: Tokoh & Cerita */}
-        <EducationalCard icon="🎭" title="Tokoh & Cerita" cardName="characters">
+        <EducationalCard icon="🎭" title="Tokoh & Cerita (Character Check)" cardName="characters">
           <div className="space-y-3">
             {content.characters && content.characters.length > 0 ? (
               content.characters.map((char, index) => (
                 <div key={index} className="bg-primary-50 rounded-lg p-4">
                   <div className="flex items-start gap-3">
-                    <div className="w-8 h-8 bg-gradient-to-br from-primary-500 to-accent-500 rounded-full flex items-center justify-center text-white font-bold">
+                    <div className="w-8 h-8 bg-gradient-to-br from-primary-500 to-accent-500 rounded-full flex items-center justify-center text-white font-bold shrink-0">
                       {char.nama.charAt(0)}
                     </div>
                     <div className="flex-1">
                       <h4 className="font-bold text-primary-900">{char.nama}</h4>
-                      <p className="text-xs text-primary-600 font-semibold mb-1">{char.peran}</p>
-                      <p className="text-sm text-gray-700">{char.deskripsi}</p>
+                      <p className="text-xs text-primary-600 font-semibold mb-1 uppercase tracking-wide">{char.peran}</p>
+                      <p className="text-sm text-gray-700 leading-relaxed">{char.deskripsi}</p>
                     </div>
                   </div>
                 </div>
@@ -228,8 +228,8 @@ function EducationalPanel({ manuscript }) {
         </EducationalCard>
 
         {/* Card 4: Mengapa Penting */}
-        <EducationalCard icon="🌟" title="Mengapa Penting?" cardName="significance">
-          <p className="text-gray-800 leading-relaxed">{content.significance}</p>
+        <EducationalCard icon="🌟" title="Kenapa Naskah Ini Keren? (Significance)" cardName="significance">
+          <p className="text-gray-800 leading-relaxed whitespace-pre-line">{content.significance}</p>
         </EducationalCard>
       </div>
 

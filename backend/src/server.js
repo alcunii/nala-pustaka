@@ -7,12 +7,19 @@ const cors = require('cors');
 const rateLimit = require('express-rate-limit');
 const config = require('./config');
 const logger = require('./utils/logger');
+// TEMPORARY DISABLED - Manual installation needed for middleware
+// const usageTracker = require('./middleware/usageTracker');
+// const rateLimiter = require('./middleware/rateLimiter');
+
 const vectorDB = require('./services/vectorDB');
-const embeddingService = require('./services/embedding');
+const embeddingService = require('./services/embeddingOpenAI');
 const ragChatService = require('./services/ragChat');
 const deepChatService = require('./services/deepChatService');
 const educationalAIService = require('./services/educationalAI');
 const knowledgeGraphService = require('./services/knowledgeGraph');
+const multiChatService = require('./services/multiChatService');
+const manuscriptService = require('./services/manuscriptService');
+const authService = require('./services/authService'); // Add Auth Service
 
 const app = express();
 
@@ -24,6 +31,13 @@ app.use(cors({
 
 // Increase JSON payload limit for large manuscripts (default: 100kb)
 app.use(express.json({ limit: '10mb' }));
+
+// Usage tracking and rate limiting (OPTIMIZED)
+// TEMPORARY DISABLED - Manual installation needed
+// app.use(usageTracker.middleware());
+// app.use(rateLimiter.middleware({ enabled: true }));
+logger.info('⚠️  Middleware temporarily disabled - Multi-Chat optimization active');
+
 app.use(express.urlencoded({ limit: '10mb', extended: true }));
 
 // Rate limiting
@@ -275,6 +289,124 @@ app.post('/api/knowledge-graph', async (req, res) => {
     });
   } catch (error) {
     logger.error('Knowledge graph error:', error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Multi-Manuscript Chat endpoint (Max 3 manuscripts)
+app.post('/api/chat/multi-manuscript', async (req, res) => {
+  try {
+    const { manuscripts, query, conversationHistory } = req.body;
+    
+    if (!manuscripts || !Array.isArray(manuscripts)) {
+      return res.status(400).json({ 
+        error: 'Manuscripts array required' 
+      });
+    }
+    
+    if (manuscripts.length < 2) {
+      return res.status(400).json({ 
+        error: 'Minimum 2 manuscripts required for multi-chat' 
+      });
+    }
+    
+    if (manuscripts.length > 3) {
+      return res.status(400).json({ 
+        error: 'Maximum 3 manuscripts allowed for multi-chat' 
+      });
+    }
+    
+    if (!query || query.trim().length === 0) {
+      return res.status(400).json({ error: 'Query is required' });
+    }
+    
+    logger.info(`Multi-chat: ${manuscripts.length} manuscripts, query: "${query.substring(0, 50)}..."`);
+    
+    const result = await multiChatService.chatWithMultipleManuscripts(
+      manuscripts,
+      query,
+      conversationHistory || []
+    );
+    
+    res.json(result);
+  } catch (error) {
+    logger.error('Multi-chat error:', error);
+    res.status(500).json({ 
+      error: 'Multi-chat failed',
+      message: error.message 
+    });
+  }
+});
+
+// Manuscript CRUD endpoints
+app.get('/api/manuscripts', async (req, res) => {
+  try {
+    const manuscripts = await manuscriptService.getAll();
+    res.json(manuscripts);
+  } catch (error) {
+    logger.error('Get all manuscripts error:', error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
+app.get('/api/manuscripts/:slug', async (req, res) => {
+  try {
+    const manuscript = await manuscriptService.getBySlug(req.params.slug);
+    if (!manuscript) return res.status(404).json({ error: 'Manuscript not found' });
+    res.json(manuscript);
+  } catch (error) {
+    logger.error('Get manuscript by slug error:', error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
+app.post('/api/manuscripts', async (req, res) => {
+  try {
+    const manuscript = await manuscriptService.create(req.body);
+    res.status(201).json(manuscript);
+  } catch (error) {
+    logger.error('Create manuscript error:', error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
+app.put('/api/manuscripts/:id', async (req, res) => {
+  try {
+    const manuscript = await manuscriptService.update(req.params.id, req.body);
+    res.json(manuscript);
+  } catch (error) {
+    logger.error('Update manuscript error:', error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
+app.delete('/api/manuscripts/:id', async (req, res) => {
+  try {
+    await manuscriptService.delete(req.params.id);
+    res.json({ success: true });
+  } catch (error) {
+    logger.error('Delete manuscript error:', error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
+app.post('/api/manuscripts/reorder', async (req, res) => {
+  try {
+    const { id1, id2 } = req.body;
+    await manuscriptService.reorder(id1, id2);
+    res.json({ success: true });
+  } catch (error) {
+    logger.error('Reorder manuscripts error:', error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
+app.post('/api/manuscripts/:id/toggle-pin', async (req, res) => {
+  try {
+    const manuscript = await manuscriptService.togglePin(req.params.id);
+    res.json(manuscript);
+  } catch (error) {
+    logger.error('Toggle pin error:', error);
     res.status(500).json({ error: error.message });
   }
 });

@@ -2,14 +2,82 @@ import { useState } from 'react';
 import { ragApi } from '../lib/ragApi';
 
 /**
- * RAG Search Component - Semantic Search untuk Naskah Kuno
+ * Enhanced RAG Search Component - Multi-Manuscript Research
  */
-export default function RagSearch({ onResultClick, onDeepChatRequest }) {
+export default function RagSearch({ onResultClick, onDeepChatRequest, onResearchStart }) {
   const [query, setQuery] = useState('');
   const [results, setResults] = useState([]);
+  const [selectedManuscripts, setSelectedManuscripts] = useState([]);
   const [isSearching, setIsSearching] = useState(false);
   const [error, setError] = useState(null);
   const [hasSearched, setHasSearched] = useState(false);
+
+  // Research templates for guided queries
+  const researchTemplates = [
+    {
+      id: 'comparative',
+      title: '📊 Analisis Komparatif',
+      query: 'Bandingkan konsep kepemimpinan dalam naskah-naskah yang dipilih'
+    },
+    {
+      id: 'evolution',
+      title: '🕰️ Evolusi Konsep',
+      query: 'Bagaimana konsep etika berkembang dalam naskah-naskah ini?'
+    },
+    {
+      id: 'wisdom',
+      title: '💡 Kearifan Lokal',
+      query: 'Identifikasi nilai-nilai kearifan lokal yang relevan untuk kehidupan modern'
+    },
+    {
+      id: 'character',
+      title: '👤 Studi Tokoh',
+      query: 'Analisis karakter tokoh utama dan nilai-nilai yang mereka ajarkan'
+    },
+    {
+      id: 'themes',
+      title: '🎯 Tema Bersama',
+      query: 'Apa tema-tema universal yang muncul dalam naskah-naskah ini?'
+    }
+  ];
+
+  // Handle manuscript selection toggle
+  const toggleManuscriptSelection = (result) => {
+    const manuscriptId = result.metadata.manuscriptId;
+    
+    setSelectedManuscripts(prev => {
+      const isSelected = prev.some(m => m.id === manuscriptId);
+      
+      if (isSelected) {
+        return prev.filter(m => m.id !== manuscriptId);
+      } else {
+        if (prev.length >= 5) {
+          setError('Maksimal 5 naskah dapat dipilih untuk penelitian');
+          setTimeout(() => setError(null), 3000);
+          return prev;
+        }
+        return [...prev, {
+          id: manuscriptId,
+          title: result.metadata.title,
+          author: result.metadata.author,
+          year: result.metadata.year
+        }];
+      }
+    });
+  };
+
+  // Start multi-manuscript research
+  const handleStartResearch = () => {
+    if (selectedManuscripts.length < 2) {
+      setError('Pilih minimal 2 naskah untuk penelitian komparatif');
+      setTimeout(() => setError(null), 3000);
+      return;
+    }
+
+    if (onResearchStart) {
+      onResearchStart(selectedManuscripts, query);
+    }
+  };
 
   const handleSearch = async (e) => {
     e.preventDefault();
@@ -22,9 +90,10 @@ export default function RagSearch({ onResultClick, onDeepChatRequest }) {
     setIsSearching(true);
     setError(null);
     setHasSearched(true);
+    setSelectedManuscripts([]); // Reset selection on new search
 
     try {
-      const data = await ragApi.search(query, 5, 0.5);
+      const data = await ragApi.search(query, 10, 0.3); // Get more results with lower threshold
       setResults(data.results || []);
       
       if (data.results.length === 0) {
@@ -46,12 +115,34 @@ export default function RagSearch({ onResultClick, onDeepChatRequest }) {
 
   return (
     <div className="space-y-6">
+      {/* Research Templates */}
+      <div className="bg-gradient-to-br from-primary-50 to-accent-50 rounded-2xl border-2 border-primary-200 p-5">
+        <h3 className="text-lg font-bold text-primary-800 mb-3 flex items-center gap-2">
+          💡 Template Penelitian
+          <span className="text-xs font-normal text-gray-600 bg-white px-2 py-1 rounded-full">Pilih 2-5 naskah</span>
+        </h3>
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+          {researchTemplates.map(template => (
+            <button
+              key={template.id}
+              onClick={() => setQuery(template.query)}
+              className="text-left p-3 bg-white rounded-lg border-2 border-primary-200 hover:border-accent-400 hover:shadow-md transition-all group"
+            >
+              <h4 className="font-semibold text-primary-800 group-hover:text-accent-600 transition-colors">
+                {template.title}
+              </h4>
+              <p className="text-xs text-gray-600 mt-1 line-clamp-2">{template.query}</p>
+            </button>
+          ))}
+        </div>
+      </div>
+
       {/* Search Form */}
       <div className="bg-white rounded-2xl shadow-lg border-2 border-primary-200 p-6">
         <form onSubmit={handleSearch} className="space-y-4">
           <div>
             <label htmlFor="rag-search" className="block text-sm font-bold text-primary-700 mb-2">
-              🔍 Pencarian Semantik dengan AI
+              🔬 Penelitian Multi-Manuscript dengan AI
             </label>
             <div className="flex gap-3">
               <input
@@ -59,7 +150,7 @@ export default function RagSearch({ onResultClick, onDeepChatRequest }) {
                 type="text"
                 value={query}
                 onChange={(e) => setQuery(e.target.value)}
-                placeholder="Contoh: Siapa Pangeran Mangkubumi? atau Sejarah Kerajaan Mataram..."
+                placeholder="Contoh: Bandingkan konsep kepemimpinan dalam naskah..."
                 className="flex-1 px-4 py-3 border-2 border-primary-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-accent-500 focus:border-transparent"
                 disabled={isSearching}
               />
@@ -82,7 +173,7 @@ export default function RagSearch({ onResultClick, onDeepChatRequest }) {
               </button>
             </div>
             <p className="text-xs text-gray-500 mt-2">
-              💡 Tips: Gunakan pertanyaan natural seperti "Siapa pendiri Mataram?" atau "Cerita tentang Sunan Kalijaga"
+              💡 Tips: Pilih 2-5 naskah untuk analisis komparatif. Gunakan template penelitian untuk hasil optimal.
             </p>
           </div>
         </form>
@@ -105,18 +196,48 @@ export default function RagSearch({ onResultClick, onDeepChatRequest }) {
         <div className="space-y-4">
           <div className="flex items-center justify-between">
             <h3 className="text-xl font-bold text-primary-800">
-              📚 Ditemukan {results.length} hasil relevan
+              📚 {results.length} naskah ditemukan
             </h3>
-            <p className="text-sm text-gray-500">Query: "{query}"</p>
+            <div className="flex items-center gap-3">
+              <span className="text-sm text-gray-600">
+                Dipilih: <span className="font-bold text-accent-600">{selectedManuscripts.length}/5</span>
+              </span>
+              {selectedManuscripts.length >= 2 && (
+                <button
+                  onClick={handleStartResearch}
+                  className="px-6 py-2 bg-gradient-to-r from-green-600 to-green-500 text-white font-bold rounded-lg hover:from-green-700 hover:to-green-600 transition-all shadow-md flex items-center gap-2"
+                >
+                  🚀 Mulai Penelitian ({selectedManuscripts.length} naskah)
+                </button>
+              )}
+            </div>
           </div>
 
           <div className="grid gap-4">
-            {results.map((result, index) => (
-              <div
-                key={result.id || index}
-                className="bg-white rounded-xl border-2 border-primary-200 hover:border-accent-400 hover:shadow-lg transition-all p-5 cursor-pointer"
-                onClick={() => onResultClick && onResultClick(result)}
-              >
+            {results.map((result, index) => {
+              const isSelected = selectedManuscripts.some(m => m.id === result.metadata.manuscriptId);
+              
+              return (
+                <div
+                  key={result.id || index}
+                  className={`bg-white rounded-xl border-2 transition-all p-5 ${
+                    isSelected 
+                      ? 'border-green-400 bg-green-50 shadow-lg' 
+                      : 'border-primary-200 hover:border-accent-400 hover:shadow-md'
+                  }`}
+                >
+                  <div className="flex items-start gap-4">
+                    {/* Checkbox */}
+                    <div className="mt-1">
+                      <input
+                        type="checkbox"
+                        checked={isSelected}
+                        onChange={() => toggleManuscriptSelection(result)}
+                        className="w-5 h-5 text-green-600 border-2 border-gray-300 rounded focus:ring-green-500 cursor-pointer"
+                      />
+                    </div>
+                    
+                    <div className="flex-1 cursor-pointer" onClick={() => onResultClick && onResultClick(result)}>
                 {/* Header */}
                 <div className="flex items-start justify-between mb-3">
                   <div className="flex-1">
@@ -171,12 +292,22 @@ export default function RagSearch({ onResultClick, onDeepChatRequest }) {
                       </svg>
                     </a>
                   </div>
-                  <span className="text-xs text-gray-500">
-                    Chunk {result.metadata.chunkIndex} • {result.metadata.tokenCount} tokens
-                  </span>
+                  <div className="flex items-center gap-2">
+                    <span className="text-xs text-gray-500">
+                      Chunk {result.metadata.chunkIndex} • {result.metadata.tokenCount} tokens
+                    </span>
+                    {isSelected && (
+                      <span className="text-xs font-bold text-green-600 bg-green-100 px-2 py-1 rounded-full">
+                        ✓ Terpilih
+                      </span>
+                    )}
+                  </div>
                 </div>
-              </div>
-            ))}
+                    </div>
+                  </div>
+                </div>
+              );
+            })}
           </div>
         </div>
       )}
@@ -191,11 +322,11 @@ export default function RagSearch({ onResultClick, onDeepChatRequest }) {
             </svg>
           </div>
           <h3 className="text-xl font-bold text-primary-800 mb-2">
-            Cari dengan AI Semantic Search
+            Multi-Manuscript Research
           </h3>
           <p className="text-gray-600 max-w-md mx-auto">
-            Gunakan natural language untuk mencari informasi dalam 121 naskah kuno Jawa.
-            Sistem akan memahami konteks pertanyaan Anda.
+            Cari naskah, pilih 2-5 yang relevan, dan dapatkan analisis komparatif mendalam dengan AI.
+            Sistem akan mengidentifikasi persamaan, perbedaan, dan insight lintas naskah.
           </p>
         </div>
       )}
