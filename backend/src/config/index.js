@@ -74,9 +74,9 @@ const config = {
     maxRequests: parseInt(process.env.RATE_LIMIT_MAX_REQUESTS) || 60,
   },
 
-  // CORS
+  // CORS - Support multiple origins
   cors: {
-    origin: process.env.CORS_ORIGIN || 'http://localhost:5173',
+    origin: (process.env.CORS_ORIGIN || 'http://localhost:5173').split(',').map(o => o.trim()),
   },
 
   // Chunking Strategy
