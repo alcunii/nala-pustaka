@@ -69,27 +69,27 @@ class EducationalAIService {
     const manuscriptText = manuscript.full_text || manuscript.fullText || manuscript.description || '';
     const textExcerpt = manuscriptText.substring(0, 15000); 
 
-    return `Analisis naskah kuno Jawa berikut dan buat konten edukatif MENDALAM dengan gaya STORYTELLING yang seru untuk Gen-Z.
+    return `Analisis naskah kuno Jawa berikut dan buat konten edukatif yang mendalam dengan pendekatan storytelling yang menarik dan mudah dipahami.
 
- NASKAH: "${manuscript.title}"
+NASKAH: "${manuscript.title}"
 Penulis: ${manuscript.author || 'Tidak diketahui'}
 ${manuscript.year ? `Tahun: ${manuscript.year}` : ''}
 
- TEKS:
+TEKS:
 """
 ${textExcerpt}
 """
 
-TUGAS: Buat konten pedagogis dalam format JSON berikut. Gunakan bahasa Indonesia yang santai, modern, "renyah" dibaca, dan relatable buat anak muda (Gen-Z/Millennial), tapi tetap berbobot.
+TUGAS: Buat konten edukatif dalam format JSON berikut. Gunakan bahasa Indonesia yang santai tapi tetap berkelas, mudah dipahami, dan menarik untuk dibaca.
 
 {
-  "summary": "Ringkasan naratif panjang (8-10 paragraf) dengan gaya STORYTELLING.\n- PARAGRAF 1 (HOOK): Mulai dengan kalimat pembuka yang bikin penasaran, seolah ini adalah utas/thread Twitter/X yang viral. Jangan kaku!\n- ISI CERITA: Ceritakan alurnya seperti kamu lagi curhat atau cerita seru ke teman nongkrong. \n- KONTEKS: Jelaskan kenapa drama/konflik di naskah ini itu 'big deal' pada zamannya.\n- ENDING: Tutup dengan kesimpulan yang nendang.\n- PENTING: Jangan pakai bahasa buku diktat. Pakai bahasa lisan yang tertata.",
+  "summary": "Ringkasan naratif yang komprehensif (8-10 paragraf):\n- PEMBUKA: Mulai dengan kalimat yang menarik perhatian dan memberi gambaran mengapa naskah ini penting atau menarik.\n- ISI: Jelaskan isi naskah secara kronologis dengan gaya bercerita yang mengalir. Fokus pada tokoh, konflik, dan perkembangan alur.\n- KONTEKS: Berikan konteks historis dan budaya yang membantu pembaca memahami latar belakang cerita.\n- PENUTUP: Ringkas dengan kesimpulan yang memberikan insight atau makna dari naskah ini.\n- GAYA: Gunakan bahasa yang natural dan mudah dicerna, seperti menjelaskan cerita menarik kepada teman.",
   
   "wisdom": [
     {
-      "nilai": "Nama nilai (Gunakan istilah kekinian jika bisa, misal: 'Leadership', 'Mental Health', 'Self-Control')",
-      "quote": "Kutipan asli (jika ada)",
-      "relevansi": "Jelaskan kenapa ini relate banget sama masalah anak muda zaman now (misal: overthinking, quarter-life crisis, toxic relationship, ambisi karir). Panjang: 3-5 kalimat."
+      "nilai": "Nama nilai atau pelajaran (gunakan istilah yang jelas, misal: 'Kepemimpinan', 'Kesetiaan', 'Kebijaksanaan')",
+      "quote": "Kutipan asli dari naskah (jika ada)",
+      "relevansi": "Jelaskan bagaimana nilai ini masih relevan di kehidupan modern. Hubungkan dengan situasi konkret yang mudah dipahami pembaca masa kini. Panjang: 3-5 kalimat."
     }
     // 5-7 items
   ],
@@ -98,30 +98,31 @@ TUGAS: Buat konten pedagogis dalam format JSON berikut. Gunakan bahasa Indonesia
     {
       "nama": "Nama tokoh",
       "peran": "Role (Protagonist/Antagonist/Support)",
-      "deskripsi": "Deskripsi character development-nya. Apakah dia 'red flag'? Apakah dia 'green flag'? Apa motivasinya? Ceritakan layaknya membahas karakter film/anime."
+      "deskripsi": "Jelaskan karakter tokoh ini: latar belakang, motivasi, perkembangan karakter, dan perannya dalam cerita. Buat pembaca bisa memahami siapa tokoh ini dan mengapa ia penting."
     }
-    // 5-8 tokoh utama, atau [] jika non-naratif
+    // 5-8 tokoh utama, atau [] jika naskah non-naratif
   ],
   
-  "significance": "Penjelasan panjang (4-6 paragraf) tentang 'Kenapa Naskah Ini GOAT?'.\n- Bahas impact-nya di sejarah.\n- Kenapa naskah ini 'ahead of its time'?\n- Apa yang bakal terjadi kalau naskah ini hilang?\n- Yakinkan pembaca bahwa naskah ini keren banget dan wajib dilestarikan.",
+  "significance": "Penjelasan mendalam (4-6 paragraf) tentang mengapa naskah ini penting:\n- Apa kontribusinya terhadap sejarah dan budaya Jawa?\n- Apa yang membuat naskah ini unik atau istimewa?\n- Bagaimana pengaruhnya terhadap karya-karya lain atau pemikiran pada masanya?\n- Apa yang akan hilang jika naskah ini tidak dilestarikan?\n- Jelaskan dengan gaya yang persuasif namun tetap faktual.",
   
   "quiz": [
     {
-      "question": "Pertanyaan yang menguji pemahaman konteks (bukan hafalan tahun)",
+      "question": "Pertanyaan yang menguji pemahaman isi dan konteks (bukan sekadar hafalan)",
       "options": ["A", "B", "C", "D"],
       "correct": 0,
-      "explanation": "Penjelasan jawaban yang santai dan jelas"
+      "explanation": "Penjelasan jawaban yang jelas dan membantu pembaca memahami konsep lebih dalam"
     }
     // 5-10 questions
   ]
 }
 
-PENTING:
-- JANGAN KAKU. JANGAN FORMAL MEMBOSANKAN.
-- Buat pembaca merasa 'relate' dan tersenyum saat membaca.
-- Gunakan analogi modern jika perlu (misal: membandingkan raja dengan CEO, perang dengan kompetisi bisnis).
-- Panjang dan detail itu WAJIB, tapi jangan bertele-tele (harus 'daging' semua).
-- Return HANYA valid JSON.`;
+PEDOMAN PENULISAN:
+- Hindari bahasa yang terlalu formal dan kaku seperti buku teks.
+- Hindari juga bahasa slang atau istilah yang terlalu kasual yang bisa cepat ketinggalan zaman.
+- Fokus pada clarity: setiap kalimat harus mudah dipahami dan memberikan informasi berguna.
+- Gunakan analogi atau perbandingan modern ketika membantu pemahaman.
+- Prioritaskan substansi: setiap paragraf harus memberi insight bermakna.
+- Return HANYA valid JSON tanpa tambahan teks lain.`;
   }
 
   /**
