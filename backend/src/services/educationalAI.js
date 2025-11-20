@@ -206,19 +206,55 @@ class EducationalAIService {
     logger.warn(`Generating fallback content for: ${manuscript.title}`);
     
     return {
-      summary: `**${manuscript.title}**\n\nNaskah ini adalah salah satu karya penting dalam khazanah sastra Nusantara. ${manuscript.description || 'Naskah ini memiliki nilai sejarah dan budaya yang tinggi.'}\n\n**Catatan:** Konten edukatif lengkap sedang dalam proses regenerasi. Silakan coba lagi nanti untuk mendapatkan analisis yang lebih mendalam.`,
+      summary: `## RINGKASAN NARATIF
+
+**Sebuah Karya Penting dalam Khazanah Sastra Nusantara**
+
+Naskah **${manuscript.title}** adalah salah satu karya penting dalam khazanah sastra Nusantara. ${manuscript.description || 'Naskah ini memiliki nilai sejarah dan budaya yang tinggi.'}
+
+### Tentang Naskah Ini
+
+${manuscript.author ? `Karya ini ditulis oleh **${manuscript.author}**` : 'Naskah ini'} mencerminkan pemikiran dan nilai-nilai pada masanya. Melalui narasi dan ajaran yang terkandung di dalamnya, kita dapat mempelajari banyak hal tentang kehidupan, budaya, dan filosofi masyarakat Jawa.
+
+### Nilai dan Pembelajaran
+
+Naskah ini mengajarkan berbagai nilai luhur yang masih relevan hingga kini, termasuk:
+- **Kebijaksanaan** dalam menghadapi tantangan hidup
+- **Kepemimpinan** yang berintegritas dan adil  
+- **Kesetiaan** terhadap nilai-nilai kebaikan
+
+**📝 Catatan:** Konten edukatif lengkap sedang dalam proses regenerasi. Silakan coba lagi nanti untuk mendapatkan analisis yang lebih mendalam.`,
       
       wisdom: [
         {
           nilai: 'Pelestarian Budaya',
           quote: 'Setiap naskah adalah jendela ke masa lalu',
-          relevansi: `**Relevansi Modern:**\n\nNaskah "${manuscript.title}" mengingatkan kita akan pentingnya melestarikan warisan budaya. Di era digital ini, kita memiliki tanggung jawab untuk menjaga dan menyebarkan pengetahuan tentang karya-karya klasik Nusantara.\n\nPelestarian bukan hanya tentang menyimpan, tetapi juga memahami dan mengaplikasikan nilai-nilai luhur dalam kehidupan sehari-hari.`
+          relevansi: `**Relevansi Modern:**\n\nNaskah **"${manuscript.title}"** mengingatkan kita akan pentingnya melestarikan warisan budaya. Di era digital ini, kita memiliki tanggung jawab untuk menjaga dan menyebarkan pengetahuan tentang karya-karya klasik Nusantara.\n\nPelestarian bukan hanya tentang menyimpan, tetapi juga **memahami** dan **mengaplikasikan** nilai-nilai luhur dalam kehidupan sehari-hari.`
         }
       ],
       
       characters: [],
       
-      significance: `**## Nilai Historis**\n\nNaskah "${manuscript.title}" merupakan bagian penting dari sejarah literatur Nusantara. ${manuscript.year ? `Ditulis sekitar tahun ${manuscript.year}` : 'Naskah ini'} mencerminkan pemikiran dan nilai-nilai pada masanya.\n\n**## Urgensi Pelestarian**\n\nSetiap naskah kuno adalah warisan tak ternilai yang perlu dijaga. Dengan mempelajari dan memahami naskah-naskah seperti ini, kita dapat lebih menghargai kekayaan budaya Indonesia.\n\n**Catatan:** Analisis lengkap sedang dalam proses regenerasi.`,
+      significance: `## SIGNIFIKANSI NASKAH
+
+### Nilai Historis
+
+Naskah **"${manuscript.title}"** merupakan bagian penting dari sejarah literatur Nusantara. ${manuscript.year ? `Ditulis sekitar tahun ${manuscript.year},` : ''} naskah ini mencerminkan pemikiran dan nilai-nilai pada masanya.
+
+Sebagai dokumen historis, naskah ini memberikan wawasan berharga tentang:
+- **Kehidupan sosial** masyarakat Jawa pada masanya
+- **Sistem nilai** dan norma yang berlaku
+- **Tradisi literasi** dan penyampaian pengetahuan
+
+### Keunikan
+
+Keunikan naskah ini terletak pada cara penyampaian yang khas, penggunaan bahasa yang indah, dan pesan-pesan universal yang terkandung di dalamnya.
+
+### Urgensi Pelestarian
+
+Setiap naskah kuno adalah **warisan tak ternilai** yang perlu dijaga. Dengan mempelajari dan memahami naskah-naskah seperti ini, kita dapat lebih menghargai kekayaan budaya Indonesia dan mengambil pembelajaran untuk kehidupan modern.
+
+**📝 Catatan:** Analisis lengkap sedang dalam proses regenerasi.`,
       
       quiz: [
         {
@@ -230,7 +266,7 @@ class EducationalAIService {
             'Tidak ada alasan khusus'
           ],
           correct: 0,
-          explanation: `**Penjelasan:**\n\nMelestarikan naskah kuno sangat penting untuk menjaga warisan budaya dan pengetahuan leluhur. Naskah-naskah ini mengandung nilai-nilai, sejarah, dan pemikiran yang dapat memberikan pembelajaran bagi generasi sekarang dan masa depan.\n\nPelestarian bukan sekadar penyimpanan fisik, tetapi juga pemahaman dan penyebaran ilmu yang terkandung di dalamnya.`
+          explanation: `**Penjelasan:**\n\nMelestarikan naskah kuno sangat penting untuk **menjaga warisan budaya** dan **pengetahuan leluhur**. Naskah-naskah ini mengandung nilai-nilai, sejarah, dan pemikiran yang dapat memberikan pembelajaran bagi generasi sekarang dan masa depan.\n\nPelestarian bukan sekadar penyimpanan fisik, tetapi juga _pemahaman_ dan _penyebaran_ ilmu yang terkandung di dalamnya.`
         }
       ],
       
@@ -261,77 +297,100 @@ ${textExcerpt}
 TUGAS: Buat konten edukatif dalam format JSON berikut. Gunakan Markdown untuk formatting dan struktur yang mudah dibaca.
 
 {
-  "summary": "**RINGKASAN NARATIF (6-8 PARAGRAF)**
+  "summary": "## RINGKASAN NARATIF
 
-Gunakan Markdown untuk struktur:
-- Gunakan **bold** untuk istilah penting
+**Sebuah Potret [Tema Utama Naskah]**
+
+Naskah **${manuscript.title}**... [mulai dengan pembuka yang engaging, jelaskan tema utama dan daya tarik naskah]
+
+[Paragraf pembuka harus menarik perhatian dan memberikan preview tentang apa yang akan dibahas]
+
+### Konteks Sejarah dan Budaya
+
+Pada [masa/era], [konteks sejarah]... [jelaskan latar belakang waktu dan tempat penulisan naskah]
+
+[Berikan konteks yang membantu pembaca memahami mengapa naskah ini penting]
+
+### Narasi Utama
+
+Cerita dimulai dengan... [jelaskan setting, tokoh utama, dan situasi awal]
+
+[Perkembangan plot]: [jelaskan konflik, perkembangan cerita, dan momen-momen penting]
+
+[Klimaks dan resolusi]: [jelaskan puncak konflik dan bagaimana cerita berakhir]
+
+### Tema dan Pesan
+
+Tema utama yang menonjol adalah **[tema 1]**, **[tema 2]**, dan **[tema 3]**. [Elaborasi tentang pesan moral/filosofis]
+
+[Jelaskan bagaimana tema-tema ini disampaikan melalui cerita]
+
+### Relevansi Modern
+
+Naskah ${manuscript.title} menawarkan pelajaran berharga tentang... [jelaskan nilai-nilai yang masih relevan]
+
+[Tutup dengan refleksi tentang mengapa naskah ini penting untuk dipelajari hari ini]
+
+**FORMAT PENTING:**
+- Gunakan heading ## dan ### untuk struktur
+- Gunakan **bold** untuk istilah/konsep penting
 - Gunakan _italic_ untuk emphasis
-- Pisahkan dengan paragraf yang jelas (dua line break)
-
-STRUKTUR:
-
-**Paragraf 1 (Pembuka):**
-Mulai dengan opening yang menarik. Jelaskan mengapa naskah ini menarik dan apa tema utamanya.
-
-**Paragraf 2 (Latar Belakang):**
-Jelaskan konteks sejarah dan budaya pada masa naskah ini ditulis.
-
-**Paragraf 3-5 (Isi Cerita):**
-Ceritakan isi naskah secara kronologis:
-- Setting dan tokoh utama
-- Perkembangan plot dan konflik
-- Klimaks dan resolusi
-
-**Paragraf 6 (Tema):**
-Analisis tema utama dan pesan moral/filosofis.
-
-**Paragraf 7-8 (Penutup):**
-Rangkum dan jelaskan relevansi naskah untuk hari ini.
-
-PENTING: 
-- Target 6-8 paragraf (sekitar 800-1200 kata)
-- Setiap paragraf 3-4 kalimat
-- Gunakan bahasa yang mengalir dan enak dibaca
-- Informatif tapi tidak bertele-tele",
+- 6-8 paragraf (800-1200 kata)
+- Bahasa yang mengalir, informatif, engaging",
 
   "wisdom": [
     {
-      "nilai": "Nama nilai atau pelajaran (contoh: 'Kepemimpinan Bijaksana', 'Kesetiaan', 'Kebijaksanaan')",
-      "quote": "Kutipan dari naskah (jika ada) atau parafrase",
-      "relevansi": "**Relevansi Modern:**\n\nJelaskan nilai ini dalam konteks naskah (2-3 kalimat). Kemudian bagaimana nilai ini relevan di kehidupan modern dengan contoh konkret (2-3 kalimat)."
+      "nilai": "Nama Nilai atau Pelajaran (gunakan title case)",
+      "quote": "Kutipan dari naskah dalam bahasa asli (Jawa) jika ada, atau parafrase yang bermakna",
+      "relevansi": "**Relevansi Modern:**\n\nJelaskan nilai ini dalam konteks naskah dengan **bold** untuk konsep penting (2-3 kalimat).\n\nBagaimana nilai ini relevan di kehidupan modern dengan contoh _konkret_ dan aplikatif (2-3 kalimat). Gunakan **bold** untuk kata kunci dan _italic_ untuk emphasis."
     }
-    // 4-5 items nilai penting
+    // 4-5 items nilai penting dengan markdown formatting
   ],
 
   "characters": [
     {
-      "nama": "Nama lengkap tokoh",
-      "peran": "Role (Protagonist/Antagonist/Supporting/Mentor)",
-      "deskripsi": "**Deskripsi Karakter:**\n\nJelaskan latar belakang, kepribadian, dan peran tokoh dalam cerita (4-6 kalimat). Sertakan motivasi dan karakteristik pentingnya."
+      "nama": "Nama Lengkap Tokoh",
+      "peran": "Role dalam cerita (contoh: Penulis/Narator, Figur Otoritas, Tokoh Spiritual, Tokoh Sentral, dll)",
+      "deskripsi": "**Deskripsi Karakter:**\n\n[Jelaskan latar belakang tokoh dengan detail yang menarik]. Gunakan **bold** untuk konsep penting seperti jabatan, sifat khas, atau peran kunci.\n\n[Jelaskan kepribadian, motivasi, dan kontribusi tokoh]. Gunakan _italic_ untuk emphasis pada karakteristik unik.\n\n[Jelaskan mengapa tokoh ini penting dalam naskah]. Total 4-6 kalimat dengan markdown formatting."
     }
-    // 3-5 tokoh utama, atau [] jika naskah non-naratif
+    // 3-5 tokoh utama dengan markdown formatting, atau [] jika naskah non-naratif
   ],
 
-  "significance": "**SIGNIFIKANSI NASKAH (4-5 PARAGRAF)**
+  "significance": "## SIGNIFIKANSI NASKAH
 
-Gunakan struktur markdown dengan heading:
+### Nilai Historis
 
-**## Nilai Historis**
-Jelaskan konteks sejarah penulisan naskah dan bagaimana naskah ini menjadi saksi zamannya (2-3 kalimat).
+Naskah **${manuscript.title}** merupakan... [jelaskan konteks sejarah penulisan dan bagaimana naskah ini menjadi saksi zamannya]
 
-**## Keunikan**
-Apa yang membuat naskah ini berbeda dari karya lain? Aspek unik dari gaya, tema, atau pendekatannya (2-3 kalimat).
+[Berikan detail tentang periode penulisan, kondisi sosial-politik saat itu, dan mengapa naskah ini penting secara historis]
 
-**## Pengaruh**
-Dampak naskah terhadap sastra dan budaya Jawa (2-3 kalimat).
+### Keunikan
 
-**## Urgensi Pelestarian**
-Mengapa naskah ini perlu dilestarikan dan nilai apa yang perlu diwariskan ke generasi mendatang (2-3 kalimat).
+Keunikan naskah ini terletak pada... [jelaskan aspek-aspek unik]
 
-PENTING:
-- Target 4-5 paragraf (sekitar 400-600 kata)
-- Setiap paragraf 2-3 kalimat
-- Faktual dan informatif",
+Apa yang membuat berbeda dari karya lain:
+- **[Aspek 1]**: [Penjelasan]
+- **[Aspek 2]**: [Penjelasan]  
+- **[Aspek 3]**: [Penjelasan]
+
+### Pengaruh dan Dampak
+
+Sebagai bagian dari tradisi [genre/jenis sastra], naskah ini berkontribusi pada... [jelaskan pengaruhnya]
+
+[Jelaskan dampak terhadap sastra, budaya, dan pemikiran Jawa]
+
+### Urgensi Pelestarian
+
+Pelestarian naskah ini sangat penting untuk... [jelaskan alasan pelestarian]
+
+[Jelaskan nilai-nilai yang perlu diwariskan, koneksi dengan generasi muda, dan pembelajaran yang dapat diambil]
+
+**FORMAT PENTING:**
+- Gunakan heading ### untuk setiap bagian
+- Gunakan **bold** untuk istilah kunci
+- Gunakan bullets (-) untuk lists
+- 400-600 kata total
+- Faktual, informatif, inspiring",
 
   "quiz": [
     {
@@ -404,11 +463,14 @@ Response must start with { and end with }`;
 
   /**
    * Get cached educational content from PostgreSQL
+   * Auto-invalidates cache older than 12 hours
    */
   async getCachedContent(manuscriptId) {
     try {
+      const CACHE_TTL_HOURS = 12;
+      
       const query = `
-        SELECT content_data 
+        SELECT content_data, generated_at 
         FROM educational_content 
         WHERE manuscript_id = $1
       `;
@@ -418,6 +480,17 @@ Response must start with { and end with }`;
         return null; // No cache found
       }
 
+      // Check cache age
+      const generatedAt = new Date(rows[0].generated_at);
+      const now = new Date();
+      const ageInHours = (now - generatedAt) / (1000 * 60 * 60);
+
+      if (ageInHours > CACHE_TTL_HOURS) {
+        logger.info(`Cache expired for ${manuscriptId} (age: ${ageInHours.toFixed(1)}h, TTL: ${CACHE_TTL_HOURS}h)`);
+        return null; // Cache expired, will regenerate
+      }
+
+      logger.info(`Using cached content for ${manuscriptId} (age: ${ageInHours.toFixed(1)}h)`);
       return rows[0].content_data || null;
     } catch (error) {
       logger.warn(`Cache lookup failed for ${manuscriptId}:`, error.message);

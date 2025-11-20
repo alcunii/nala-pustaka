@@ -7,6 +7,7 @@ const cors = require('cors');
 const rateLimit = require('express-rate-limit');
 const config = require('./config');
 const logger = require('./utils/logger');
+const db = require('./config/database');
 // TEMPORARY DISABLED - Manual installation needed for middleware
 // const usageTracker = require('./middleware/usageTracker');
 // const rateLimiter = require('./middleware/rateLimiter');
@@ -317,6 +318,41 @@ app.post('/api/knowledge-graph', async (req, res) => {
   }
 });
 
+// Full Knowledge Graph Visualization Endpoint
+app.get('/api/graph/explore', async (req, res) => {
+  try {
+    const limit = parseInt(req.query.limit) || 500; // Default to 500 nodes
+    
+    // Fetch nodes and edges
+    // We prioritize "VALUE" nodes and their connections
+    const result = await db.query(`
+      WITH TopNodes AS (
+        SELECT id, label, type, description 
+        FROM knowledge_nodes 
+        ORDER BY id  -- Random/Sequential for now, ideally PageRank or degree centrality
+        LIMIT $1
+      )
+      SELECT 
+        json_build_object(
+          'nodes', (SELECT json_agg(row_to_json(n)) FROM TopNodes n),
+          'edges', (
+            SELECT json_agg(row_to_json(e)) FROM (
+              SELECT id, source_id, target_id, relation_type, description, weight
+              FROM knowledge_edges
+              WHERE source_id IN (SELECT id FROM TopNodes)
+              AND target_id IN (SELECT id FROM TopNodes)
+            ) e
+          )
+        ) as graph
+    `, [limit]);
+    
+    res.json(result.rows[0].graph || { nodes: [], edges: [] });
+  } catch (error) {
+    logger.error('Graph explore error:', error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
 // Multi-Manuscript Chat endpoint (Max 3 manuscripts)
 app.post('/api/chat/multi-manuscript', async (req, res) => {
   try {
@@ -411,6 +447,31 @@ app.delete('/api/manuscripts/:id', async (req, res) => {
   } catch (error) {
     logger.error('Delete manuscript error:', error);
     res.status(500).json({ error: error.message });
+  }
+});
+
+// Knowledge Graph endpoints
+app.get('/api/knowledge-graph/:manuscriptId', async (req, res) => {
+  try {
+    const { manuscriptId } = req.params;
+    
+    // 🔍 DEBUG: Log request yang diterima
+    logger.info(`🔍 Knowledge Graph Request - Manuscript ID: ${manuscriptId}`);
+    
+    const graph = await knowledgeGraphService.getGraphByManuscript(manuscriptId);
+    
+    // 🔍 DEBUG: Log response yang akan dikirim
+    logger.info(`✅ Knowledge Graph Response - Nodes: ${graph.nodes?.length || 0}, Links: ${graph.links?.length || 0}`);
+    
+    // Disable caching
+    res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate');
+    res.setHeader('Pragma', 'no-cache');
+    res.setHeader('Expires', '0');
+    
+    res.json(graph);
+  } catch (error) {
+    logger.error('Get knowledge graph error:', error);
+    res.status(500).json({ error: error.message, nodes: [], links: [] });
   }
 });
 

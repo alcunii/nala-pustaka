@@ -43,13 +43,13 @@ export default function RagSearch({ onResultClick, onDeepChatRequest, onResearch
 
   // Handle manuscript selection toggle
   const toggleManuscriptSelection = (result) => {
-    const manuscriptId = result.metadata.manuscriptId;
+    const manuscriptId = result.metadata.manuscriptId; // This is Pinecone UUID
     
     setSelectedManuscripts(prev => {
-      const isSelected = prev.some(m => m.id === manuscriptId);
+      const isSelected = prev.some(m => m.manuscript_id === manuscriptId);
       
       if (isSelected) {
-        return prev.filter(m => m.id !== manuscriptId);
+        return prev.filter(m => m.manuscript_id !== manuscriptId);
       } else {
         if (prev.length >= 5) {
           setError('Maksimal 5 naskah dapat dipilih untuk penelitian');
@@ -57,7 +57,8 @@ export default function RagSearch({ onResultClick, onDeepChatRequest, onResearch
           return prev;
         }
         return [...prev, {
-          id: manuscriptId,
+          id: manuscriptId, // Keep for backwards compatibility
+          manuscript_id: manuscriptId, // Pinecone UUID - this is what backend needs!
           title: result.metadata.title,
           author: result.metadata.author,
           year: result.metadata.year

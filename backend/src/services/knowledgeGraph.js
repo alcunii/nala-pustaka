@@ -13,6 +13,139 @@ class KnowledgeGraphService {
     // No longer need Supabase client
   }
 
+  /**
+   * Get knowledge graph nodes and edges for a specific manuscript
+   * Returns D3.js-compatible format for visualization
+   */
+  async getGraphByManuscript(manuscriptId) {
+    try {
+      logger.info(`🔍 Getting knowledge graph for manuscript: ${manuscriptId}`);
+
+      // 🔍 DEBUG: Verify manuscript exists
+      const manuscriptCheck = await db.query(
+        'SELECT id, title FROM manuscripts WHERE id = $1',
+        [manuscriptId]
+      );
+      
+      if (manuscriptCheck.rows.length === 0) {
+        logger.warn(`⚠️ Manuscript not found: ${manuscriptId}`);
+        return { nodes: [], links: [], error: 'Manuscript not found' };
+      }
+      
+      logger.info(`✅ Found manuscript: ${manuscriptCheck.rows[0].title}`);
+
+      // Get all nodes connected to this manuscript
+      const nodesQuery = `
+        SELECT 
+          kn.id, 
+          kn.label, 
+          kn.type, 
+          kn.description,
+          kn.importance,
+          kn.source_count
+        FROM knowledge_nodes kn
+        WHERE EXISTS (
+          SELECT 1 FROM knowledge_edges ke 
+          WHERE ke.manuscript_id = $1 
+          AND (ke.source_id = kn.id OR ke.target_id = kn.id)
+        )
+        ORDER BY 
+          CASE WHEN kn.importance = 'high' THEN 1 
+               WHEN kn.importance = 'medium' THEN 2 
+               ELSE 3 END,
+          kn.source_count DESC
+      `;
+      
+      const { rows: nodes } = await db.query(nodesQuery, [manuscriptId]);
+      
+      // 🔍 DEBUG: Log query result
+      logger.info(`📊 Query returned ${nodes.length} nodes for manuscript ${manuscriptId}`);
+      
+      if (nodes.length === 0) {
+        return { nodes: [], links: [], message: 'No knowledge graph data for this manuscript' };
+      }
+
+      // Get all edges for this manuscript
+      const edgesQuery = `
+        SELECT 
+          ke.id,
+          src.id as source_id,
+          src.label as source,
+          tgt.id as target_id,
+          tgt.label as target,
+          ke.relation_type,
+          ke.description,
+          ke.weight
+        FROM knowledge_edges ke
+        JOIN knowledge_nodes src ON src.id = ke.source_id
+        JOIN knowledge_nodes tgt ON tgt.id = ke.target_id
+        WHERE ke.manuscript_id = $1
+      `;
+      
+      const { rows: edges } = await db.query(edgesQuery, [manuscriptId]);
+      
+      // Create node ID map for D3.js indexing
+      const nodeIdMap = new Map();
+      nodes.forEach((n, index) => {
+        nodeIdMap.set(n.id, index);
+      });
+
+      // Format for D3.js visualization
+      const graph = {
+        nodes: nodes.map(n => ({
+          id: n.id,
+          label: n.label,
+          type: n.type,
+          description: n.description || '',
+          importance: n.importance || 'medium',
+          group: this.getNodeGroup(n.type),
+          size: this.getNodeSize(n.type, n.importance)
+        })),
+        links: edges.map(e => ({
+          source: nodeIdMap.get(e.source_id),
+          target: nodeIdMap.get(e.target_id),
+          label: e.relation_type,
+          description: e.description || '',
+          value: parseFloat(e.weight) || 0.5
+        })).filter(l => l.source !== undefined && l.target !== undefined)
+      };
+      
+      logger.info(`Found ${graph.nodes.length} nodes and ${graph.links.length} links`);
+      return graph;
+      
+    } catch (error) {
+      logger.error('Error getting knowledge graph:', error);
+      return { nodes: [], links: [], error: error.message };
+    }
+  }
+
+  /**
+   * Helper: Get node group for visualization coloring
+   */
+  getNodeGroup(type) {
+    const groupMap = {
+      'VALUE': 1,      // Gold/Brown for values
+      'PERSON': 2,     // Blue for persons
+      'LOCATION': 3,   // Green for locations
+      'CONCEPT': 4,    // Purple for concepts
+      'ARTIFACT': 5,   // Orange for artifacts
+      'EVENT': 6       // Red for events
+    };
+    return groupMap[type] || 0;
+  }
+
+  /**
+   * Helper: Get node size based on type and importance
+   */
+  getNodeSize(type, importance) {
+    const baseSize = type === 'VALUE' ? 12 : 8;
+    const importanceMultiplier = {
+      'high': 1.5,
+      'medium': 1.0,
+      'low': 0.75
+    };
+    return baseSize * (importanceMultiplier[importance] || 1.0);
+  }
 
   /**
    * Find related manuscripts based on multiple criteria

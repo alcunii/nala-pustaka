@@ -128,6 +128,7 @@ export default function AdminDashboard() {
   const [sortOrder, setSortOrder] = useState('desc'); // 'asc', 'desc'
   const [filterAuthorType, setFilterAuthorType] = useState('all'); // 'all', 'custom', 'unknown', 'multiple'
   const [filterSource, setFilterSource] = useState('all'); // 'all', 'with_source', 'no_source'
+  const [filterQuality, setFilterQuality] = useState('all'); // 'all', 'rich', 'medium', 'short', 'very_short', 'empty'
   const [searchQuery, setSearchQuery] = useState('');
 
   // Form state
@@ -223,6 +224,11 @@ export default function AdminDashboard() {
         }
         return true;
       });
+    }
+
+    // 4. Apply Content Quality Filter
+    if (filterQuality !== 'all') {
+      filtered = filtered.filter((m) => m.content_quality === filterQuality);
     }
 
     // 4. Apply Sorting
@@ -869,6 +875,7 @@ export default function AdminDashboard() {
                     setSortOrder('desc');
                     setFilterAuthorType('all');
                     setFilterSource('all');
+                    setFilterQuality('all');
                     setSearchQuery('');
                   }}
                   className="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 font-semibold text-sm transition-all"
@@ -879,7 +886,7 @@ export default function AdminDashboard() {
             </div>
 
             {/* Active Filters Summary */}
-            {(searchQuery || filterAuthorType !== 'all' || filterSource !== 'all') && (
+            {(searchQuery || filterAuthorType !== 'all' || filterSource !== 'all' || filterQuality !== 'all') && (
               <div className="flex items-center gap-2 flex-wrap p-3 bg-accent-50 rounded-lg border border-accent-200">
                 <span className="text-xs font-semibold text-gray-700">Filter Aktif:</span>
                 {searchQuery && (
@@ -895,6 +902,11 @@ export default function AdminDashboard() {
                 {filterSource !== 'all' && (
                   <span className="px-2 py-1 bg-white rounded-md text-xs border border-primary-300">
                     🔗 {filterSource === 'with_source' ? 'Ada Sumber' : 'Tanpa Sumber'}
+                  </span>
+                )}
+                {filterQuality !== 'all' && (
+                  <span className="px-2 py-1 bg-white rounded-md text-xs border border-primary-300">
+                    📝 {filterQuality === 'rich' ? '🟢 Rich' : filterQuality === 'medium' ? '🟡 Medium' : filterQuality === 'short' ? '🟠 Short' : filterQuality === 'very_short' ? '⚠️ Very Short' : '🔴 Empty'}
                   </span>
                 )}
               </div>

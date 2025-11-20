@@ -1,4 +1,13 @@
 import { useState, useEffect } from 'react';
+import { marked } from 'marked';
+
+// Configure marked for better rendering
+marked.setOptions({
+  breaks: true,
+  gfm: true,
+  headerIds: false,
+  mangle: false
+});
 
 /**
  * Educational Panel Component - Phase 1
@@ -82,22 +91,24 @@ function EducationalPanel({ manuscript }) {
     return Math.round((correct / content.quiz.length) * 100);
   };
 
-  // Card component
-  const EducationalCard = ({ icon, title, children, cardName }) => {
+  // Card component with enhanced styling
+  const EducationalCard = ({ icon, title, children, cardName, gradient = "from-primary-500 to-accent-500" }) => {
     const isExpanded = expandedCard === cardName;
     
     return (
-      <div className="bg-white rounded-xl shadow-md border-2 border-primary-200 overflow-hidden hover:shadow-lg transition-all">
+      <div className="bg-white rounded-2xl shadow-lg border-2 border-primary-200 overflow-hidden hover:shadow-xl transition-all animate-fadeIn">
         <button
           onClick={() => toggleCard(cardName)}
-          className="w-full px-4 sm:px-5 py-3 sm:py-4 flex items-center justify-between bg-gradient-to-r from-primary-50 to-accent-50 hover:from-primary-100 hover:to-accent-100 transition-colors"
+          className="w-full px-5 py-4 flex items-center justify-between bg-gradient-to-r from-primary-50 to-accent-50 hover:from-primary-100 hover:to-accent-100 transition-all group"
         >
-          <div className="flex items-center gap-3">
-            <span className="text-2xl">{icon}</span>
-            <h3 className="text-lg font-bold text-primary-900">{title}</h3>
+          <div className="flex items-center gap-4">
+            <div className={`w-12 h-12 rounded-full bg-gradient-to-br ${gradient} flex items-center justify-center text-white text-2xl shadow-md group-hover:scale-110 transition-transform`}>
+              {icon}
+            </div>
+            <h3 className="text-lg sm:text-xl font-bold text-primary-900">{title}</h3>
           </div>
           <svg
-            className={`w-5 h-5 text-primary-600 transition-transform ${isExpanded ? 'rotate-180' : ''}`}
+            className={`w-6 h-6 text-primary-600 transition-transform ${isExpanded ? 'rotate-180' : ''} group-hover:text-accent-600`}
             fill="none"
             stroke="currentColor"
             viewBox="0 0 24 24"
@@ -107,7 +118,7 @@ function EducationalPanel({ manuscript }) {
         </button>
         
         {isExpanded && (
-          <div className="px-4 sm:px-5 py-4 sm:py-5 bg-white">
+          <div className="px-5 py-5 bg-gradient-to-b from-white to-gray-50 animate-fadeIn">
             {children}
           </div>
         )}
@@ -117,34 +128,46 @@ function EducationalPanel({ manuscript }) {
 
   if (!content && !loading) {
     return (
-      <div className="bg-gradient-to-br from-primary-50 to-accent-50 rounded-2xl p-6 sm:p-8 text-center border-2 border-primary-300">
-        <div className="mb-4">
-          <div className="inline-flex p-4 bg-gradient-to-br from-accent-400 to-primary-500 rounded-full mb-4">
-            <svg className="w-8 h-8 text-white" fill="currentColor" viewBox="0 0 20 20">
+      <div className="bg-gradient-to-br from-gray-50 to-white rounded-2xl p-8 sm:p-12 text-center border-2 border-primary-200 shadow-xl">
+        <div className="mb-6 animate-bounce">
+          <div className="inline-flex p-5 bg-gradient-to-br from-accent-500 to-primary-600 rounded-full shadow-2xl">
+            <svg className="w-12 h-12 text-white" fill="currentColor" viewBox="0 0 20 20">
               <path d="M9 4.804A7.968 7.968 0 005.5 4c-1.255 0-2.443.29-3.5.804v10A7.969 7.969 0 015.5 14c1.669 0 3.218.51 4.5 1.385A7.962 7.962 0 0114.5 14c1.255 0 2.443.29 3.5.804v-10A7.968 7.968 0 0014.5 4c-1.255 0-2.443.29-3.5.804V12a1 1 0 11-2 0V4.804z" />
             </svg>
           </div>
         </div>
-        <h3 className="text-xl font-bold text-primary-900 mb-2">📚 Mode Belajar</h3>
-        <p className="text-gray-700 mb-6">
+        <h3 className="text-2xl sm:text-3xl font-bold text-gray-800 mb-3">📚 Mode Belajar Interaktif</h3>
+        <p className="text-gray-600 mb-2 text-lg">
           Generate konten edukatif untuk memahami naskah ini dengan mudah!
+        </p>
+        <p className="text-sm text-gray-500 mb-8">
+          ✨ Ringkasan • 💡 Kearifan Lokal • 🎭 Tokoh • 🌟 Kenapa Keren • 🎯 Quiz
         </p>
         <button
           onClick={generateContent}
-          className="px-6 py-3 bg-gradient-to-r from-primary-600 to-accent-500 text-white rounded-xl font-semibold hover:from-primary-700 hover:to-accent-600 transition-all shadow-lg"
+          className="px-8 py-4 bg-gradient-to-r from-primary-600 to-accent-500 text-white rounded-xl font-bold hover:from-primary-700 hover:to-accent-600 transition-all shadow-lg hover:shadow-xl text-lg"
         >
           🎓 Generate Konten Edukatif
         </button>
+        <p className="text-xs text-gray-500 mt-4">
+          ⚡ AI akan menganalisis naskah (~10 detik)
+        </p>
       </div>
     );
   }
 
   if (loading) {
     return (
-      <div className="bg-white rounded-2xl p-8 text-center">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-4 border-primary-600 mx-auto mb-4"></div>
-        <p className="text-gray-600 font-medium">Generating konten edukatif...</p>
-        <p className="text-sm text-gray-500 mt-2">AI sedang menganalisis naskah (~10 detik)</p>
+      <div className="bg-gradient-to-br from-white to-gray-50 rounded-2xl p-12 text-center border-2 border-primary-200 shadow-lg">
+        <div className="animate-spin rounded-full h-16 w-16 border-b-4 border-primary-600 mx-auto mb-6"></div>
+        <p className="text-gray-800 font-bold text-xl mb-2">🤖 AI Sedang Bekerja...</p>
+        <p className="text-gray-600 mb-4">Generating konten edukatif untuk Anda</p>
+        <div className="flex items-center justify-center gap-2 text-sm text-gray-500">
+          <div className="w-2 h-2 bg-primary-500 rounded-full animate-bounce"></div>
+          <div className="w-2 h-2 bg-accent-500 rounded-full animate-bounce" style={{ animationDelay: '150ms' }}></div>
+          <div className="w-2 h-2 bg-primary-500 rounded-full animate-bounce" style={{ animationDelay: '300ms' }}></div>
+        </div>
+        <p className="text-xs text-gray-500 mt-4">⏱️ Biasanya memakan waktu ~10 detik</p>
       </div>
     );
   }
@@ -165,88 +188,166 @@ function EducationalPanel({ manuscript }) {
   }
 
   return (
-    <div className="space-y-4">
-      {/* Header */}
-      <div className="bg-gradient-to-r from-primary-600 to-accent-500 rounded-xl px-5 py-4 text-white">
-        <h2 className="text-xl font-bold flex items-center gap-2">
-          <span>🎓</span>
-          Mode Belajar: {manuscript.title}
-        </h2>
-        <p className="text-sm text-white/90 mt-1">
-          Konten edukatif khusus untuk memudahkan pemahaman
-        </p>
+    <div className="space-y-6">
+      {/* Enhanced Header */}
+      <div className="bg-gradient-to-r from-primary-600 to-accent-500 rounded-2xl px-6 py-5 text-white shadow-lg">
+        <div className="flex items-start gap-4">
+          <div className="w-14 h-14 bg-white/20 backdrop-blur-sm rounded-full flex items-center justify-center text-3xl flex-shrink-0 shadow-md">
+            🎓
+          </div>
+          <div className="flex-1">
+            <h2 className="text-2xl font-bold mb-2">
+              Mode Belajar Interaktif
+            </h2>
+            <p className="text-sm text-white/90 mb-2">
+              {manuscript.title} • {manuscript.author}
+            </p>
+            <p className="text-xs text-white/80">
+              💡 Konten edukatif khusus untuk memudahkan pemahaman naskah kuno Jawa
+            </p>
+          </div>
+        </div>
       </div>
 
-      {/* 4 Educational Cards */}
+      {/* 4 Educational Cards with Different Gradients */}
       <div className="flex flex-col gap-6">
         {/* Card 1: Ringkasan */}
-        <EducationalCard icon="📖" title="Ringkasan Mudah" cardName="summary">
-          <p className="text-gray-800 leading-relaxed whitespace-pre-line">{content.summary}</p>
+        <EducationalCard icon="📖" title="Ringkasan Mudah" cardName="summary" gradient="from-blue-500 to-cyan-500">
+          <div 
+            className="prose prose-base max-w-none
+              prose-headings:text-primary-900 prose-headings:font-bold
+              prose-h1:text-3xl prose-h1:mb-4 prose-h1:mt-6
+              prose-h2:text-2xl prose-h2:font-bold prose-h2:mt-8 prose-h2:mb-4 prose-h2:border-b-2 prose-h2:border-blue-200 prose-h2:pb-2
+              prose-h3:text-xl prose-h3:font-semibold prose-h3:mt-6 prose-h3:mb-3 prose-h3:text-blue-800
+              prose-h4:text-lg prose-h4:font-semibold prose-h4:mt-4 prose-h4:mb-2
+              prose-p:text-gray-800 prose-p:leading-relaxed prose-p:my-4 prose-p:text-base
+              prose-strong:text-primary-900 prose-strong:font-bold
+              prose-em:text-blue-700 prose-em:italic
+              prose-ul:list-disc prose-ul:ml-6 prose-ul:my-4 prose-ul:space-y-2
+              prose-ol:list-decimal prose-ol:ml-6 prose-ol:my-4 prose-ol:space-y-2
+              prose-li:text-gray-800 prose-li:leading-relaxed
+              prose-blockquote:border-l-4 prose-blockquote:border-blue-500 prose-blockquote:pl-4 prose-blockquote:italic prose-blockquote:text-gray-700 prose-blockquote:bg-blue-50 prose-blockquote:py-3 prose-blockquote:my-4 prose-blockquote:rounded-r
+              prose-code:bg-blue-100 prose-code:text-blue-900 prose-code:px-2 prose-code:py-1 prose-code:rounded prose-code:text-sm
+              markdown-content
+            "
+            dangerouslySetInnerHTML={{ __html: marked.parse(content.summary || '') }}
+          />
         </EducationalCard>
 
         {/* Card 2: Kearifan Lokal */}
-        <EducationalCard icon="💡" title="Kearifan Lokal (Relate with You)" cardName="wisdom">
+        <EducationalCard icon="💡" title="Kearifan Lokal (Relate with You)" cardName="wisdom" gradient="from-amber-500 to-orange-500">
           <div className="space-y-4">
             {content.wisdom && content.wisdom.length > 0 ? (
               content.wisdom.map((item, index) => (
-                <div key={index} className="bg-accent-50 rounded-lg p-4 border-l-4 border-accent-500">
-                  <h4 className="font-bold text-primary-900 mb-1">{item.nilai}</h4>
-                  {item.quote && (
-                    <p className="text-sm italic text-gray-700 mb-2">"{item.quote}"</p>
-                  )}
-                  <p className="text-sm text-gray-800">{item.relevansi}</p>
-                </div>
-              ))
-            ) : (
-              <p className="text-gray-600 italic">Tidak ada kearifan lokal spesifik dalam naskah ini.</p>
-            )}
-          </div>
-        </EducationalCard>
-
-        {/* Card 3: Tokoh & Cerita */}
-        <EducationalCard icon="🎭" title="Tokoh & Cerita (Character Check)" cardName="characters">
-          <div className="space-y-3">
-            {content.characters && content.characters.length > 0 ? (
-              content.characters.map((char, index) => (
-                <div key={index} className="bg-primary-50 rounded-lg p-4">
+                <div key={index} className="bg-gradient-to-r from-amber-50 to-orange-50 rounded-xl p-5 border-l-4 border-amber-500 shadow-sm hover:shadow-md transition-shadow">
                   <div className="flex items-start gap-3">
-                    <div className="w-8 h-8 bg-gradient-to-br from-primary-500 to-accent-500 rounded-full flex items-center justify-center text-white font-bold shrink-0">
-                      {char.nama.charAt(0)}
+                    <div className="w-10 h-10 bg-gradient-to-br from-amber-500 to-orange-500 rounded-full flex items-center justify-center text-white text-lg flex-shrink-0 shadow-md">
+                      💫
                     </div>
                     <div className="flex-1">
-                      <h4 className="font-bold text-primary-900">{char.nama}</h4>
-                      <p className="text-xs text-primary-600 font-semibold mb-1 uppercase tracking-wide">{char.peran}</p>
-                      <p className="text-sm text-gray-700 leading-relaxed">{char.deskripsi}</p>
+                      <h4 className="font-bold text-primary-900 text-lg mb-2">{item.nilai}</h4>
+                      {item.quote && (
+                        <blockquote className="text-sm italic text-gray-700 mb-3 pl-4 border-l-2 border-amber-400 bg-amber-100/50 py-2 rounded-r">
+                          "{item.quote}"
+                        </blockquote>
+                      )}
+                      <div 
+                        className="prose prose-sm max-w-none
+                          prose-p:text-gray-800 prose-p:leading-relaxed prose-p:my-2
+                          prose-strong:text-amber-900 prose-strong:font-bold
+                          prose-em:text-amber-700 prose-em:italic
+                          prose-ul:list-disc prose-ul:ml-5 prose-ul:my-2
+                          prose-li:text-gray-800
+                        "
+                        dangerouslySetInnerHTML={{ __html: marked.parse(item.relevansi || '') }}
+                      />
                     </div>
                   </div>
                 </div>
               ))
             ) : (
-              <p className="text-gray-600 italic">Naskah ini bersifat filosofis tanpa tokoh naratif spesifik.</p>
+              <p className="text-gray-600 italic text-center py-4">Tidak ada kearifan lokal spesifik dalam naskah ini.</p>
+            )}
+          </div>
+        </EducationalCard>
+
+        {/* Card 3: Tokoh & Cerita */}
+        <EducationalCard icon="🎭" title="Tokoh & Cerita (Character Check)" cardName="characters" gradient="from-purple-500 to-pink-500">
+          <div className="space-y-4">
+            {content.characters && content.characters.length > 0 ? (
+              content.characters.map((char, index) => (
+                <div key={index} className="bg-gradient-to-r from-purple-50 to-pink-50 rounded-xl p-5 shadow-sm hover:shadow-md transition-shadow">
+                  <div className="flex items-start gap-4">
+                    <div className="w-12 h-12 bg-gradient-to-br from-purple-500 to-pink-500 rounded-full flex items-center justify-center text-white font-bold text-xl shrink-0 shadow-md">
+                      {char.nama.charAt(0)}
+                    </div>
+                    <div className="flex-1">
+                      <h4 className="font-bold text-primary-900 text-lg mb-1">{char.nama}</h4>
+                      <p className="text-xs text-purple-600 font-bold mb-3 uppercase tracking-wider bg-purple-100 inline-block px-2 py-1 rounded">{char.peran}</p>
+                      <div 
+                        className="prose prose-sm max-w-none
+                          prose-p:text-gray-800 prose-p:leading-relaxed prose-p:my-2
+                          prose-strong:text-purple-900 prose-strong:font-bold
+                          prose-em:text-purple-700 prose-em:italic
+                          prose-ul:list-disc prose-ul:ml-5 prose-ul:my-2
+                          prose-li:text-gray-800
+                          prose-blockquote:border-l-2 prose-blockquote:border-purple-400 prose-blockquote:pl-3 prose-blockquote:italic prose-blockquote:bg-purple-50
+                        "
+                        dangerouslySetInnerHTML={{ __html: marked.parse(char.deskripsi || '') }}
+                      />
+                    </div>
+                  </div>
+                </div>
+              ))
+            ) : (
+              <p className="text-gray-600 italic text-center py-4">Naskah ini bersifat filosofis tanpa tokoh naratif spesifik.</p>
             )}
           </div>
         </EducationalCard>
 
         {/* Card 4: Mengapa Penting */}
-        <EducationalCard icon="🌟" title="Kenapa Naskah Ini Keren? (Significance)" cardName="significance">
-          <p className="text-gray-800 leading-relaxed whitespace-pre-line">{content.significance}</p>
+        <EducationalCard icon="🌟" title="Kenapa Naskah Ini Keren? (Significance)" cardName="significance" gradient="from-emerald-500 to-teal-500">
+          <div 
+            className="prose prose-base max-w-none
+              prose-headings:text-primary-900 prose-headings:font-bold
+              prose-h1:text-3xl prose-h1:mb-4 prose-h1:mt-6
+              prose-h2:text-2xl prose-h2:font-bold prose-h2:mt-8 prose-h2:mb-4 prose-h2:border-b-2 prose-h2:border-emerald-200 prose-h2:pb-2
+              prose-h3:text-xl prose-h3:font-semibold prose-h3:mt-6 prose-h3:mb-3 prose-h3:text-emerald-800
+              prose-h4:text-lg prose-h4:font-semibold prose-h4:mt-4 prose-h4:mb-2
+              prose-p:text-gray-800 prose-p:leading-relaxed prose-p:my-4 prose-p:text-base
+              prose-strong:text-primary-900 prose-strong:font-bold
+              prose-em:text-emerald-700 prose-em:italic
+              prose-ul:list-disc prose-ul:ml-6 prose-ul:my-4 prose-ul:space-y-2
+              prose-ol:list-decimal prose-ol:ml-6 prose-ol:my-4 prose-ol:space-y-2
+              prose-li:text-gray-800 prose-li:leading-relaxed
+              prose-blockquote:border-l-4 prose-blockquote:border-emerald-500 prose-blockquote:pl-4 prose-blockquote:italic prose-blockquote:text-gray-700 prose-blockquote:bg-emerald-50 prose-blockquote:py-3 prose-blockquote:my-4 prose-blockquote:rounded-r
+              prose-code:bg-emerald-100 prose-code:text-emerald-900 prose-code:px-2 prose-code:py-1 prose-code:rounded prose-code:text-sm
+              markdown-content
+            "
+            dangerouslySetInnerHTML={{ __html: marked.parse(content.significance || '') }}
+          />
         </EducationalCard>
       </div>
 
-      {/* Quiz Section */}
+      {/* Quiz Section - Enhanced */}
       {content.quiz && content.quiz.length > 0 && (
-        <div className="bg-white rounded-xl shadow-md border-2 border-primary-200 overflow-hidden">
-          <div className="bg-gradient-to-r from-accent-100 to-primary-100 px-5 py-4 flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <span className="text-2xl">🎯</span>
-              <h3 className="text-lg font-bold text-primary-900">Quiz Pemahaman</h3>
+        <div className="bg-white rounded-2xl shadow-lg border-2 border-primary-200 overflow-hidden animate-fadeIn">
+          <div className="bg-gradient-to-r from-accent-500 to-yellow-500 px-6 py-5 flex items-center justify-between">
+            <div className="flex items-center gap-4">
+              <div className="w-12 h-12 bg-white/20 backdrop-blur-sm rounded-full flex items-center justify-center text-2xl shadow-md">
+                🎯
+              </div>
+              <div>
+                <h3 className="text-xl font-bold text-white">Quiz Pemahaman</h3>
+                <p className="text-xs text-white/90">Test seberapa paham kamu dengan naskah ini!</p>
+              </div>
             </div>
             {!showQuiz && (
               <button
                 onClick={() => setShowQuiz(true)}
-                className="px-4 py-2 bg-accent-500 text-white rounded-lg hover:bg-accent-600 font-semibold"
+                className="px-6 py-3 bg-white text-accent-600 rounded-xl hover:bg-gray-50 font-bold shadow-md hover:shadow-lg transition-all"
               >
-                Mulai Quiz
+                🚀 Mulai Quiz
               </button>
             )}
           </div>
@@ -314,16 +415,25 @@ function EducationalPanel({ manuscript }) {
                 <button
                   onClick={submitQuiz}
                   disabled={Object.keys(quizAnswers).length !== content.quiz.length}
-                  className="w-full px-6 py-3 bg-gradient-to-r from-primary-600 to-accent-500 text-white rounded-xl font-semibold hover:from-primary-700 hover:to-accent-600 transition-all shadow-lg disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="w-full px-6 py-4 bg-gradient-to-r from-primary-600 to-accent-500 text-white rounded-xl font-bold hover:from-primary-700 hover:to-accent-600 transition-all shadow-lg hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed text-lg"
                 >
-                  Submit Jawaban
+                  ✅ Submit Jawaban
                 </button>
               ) : (
-                <div className="bg-gradient-to-r from-primary-100 to-accent-100 rounded-xl px-6 py-4 text-center border-2 border-primary-300">
-                  <p className="text-2xl font-bold text-primary-900 mb-1">
+                <div className="bg-gradient-to-r from-primary-50 to-accent-50 rounded-2xl px-6 py-6 text-center border-2 border-primary-300 shadow-md">
+                  <div className="mb-4">
+                    <div className="inline-flex p-4 bg-gradient-to-br from-primary-500 to-accent-500 rounded-full shadow-lg mb-3">
+                      <span className="text-4xl">
+                        {calculateScore() === 100 && "🎉"}
+                        {calculateScore() >= 60 && calculateScore() < 100 && "👍"}
+                        {calculateScore() < 60 && "💪"}
+                      </span>
+                    </div>
+                  </div>
+                  <p className="text-3xl font-bold text-primary-900 mb-2">
                     Skor: {calculateScore()}%
                   </p>
-                  <p className="text-sm text-gray-700">
+                  <p className="text-base text-gray-700 font-medium">
                     {calculateScore() === 100 && "🎉 Sempurna! Anda memahami naskah dengan baik!"}
                     {calculateScore() >= 60 && calculateScore() < 100 && "👍 Bagus! Terus belajar!"}
                     {calculateScore() < 60 && "💪 Terus semangat! Baca lagi untuk pemahaman lebih baik."}

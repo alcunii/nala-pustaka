@@ -2,7 +2,7 @@ import { useState, useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import * as d3 from 'd3';
 import { marked } from 'marked';
-import { MANUSCRIPT_DATA, KNOWLEDGE_GRAPH_DATA } from './data/manuscripts';
+import { MANUSCRIPT_DATA } from './data/manuscripts';
 import { manuscriptService } from './lib/supabase';
 import RagChatPanel from './components/RagChatPanel';
 import DeepChatModal from './components/DeepChatModal';
@@ -21,26 +21,30 @@ marked.setOptions({
 // Fallback ke data hardcoded jika Supabase gagal
 
 // Komponen Header
-function Header() {
+function Header({ onGoHome }) {
   return (
     <header className="bg-gradient-to-r from-primary-700 via-primary-600 to-accent-500 text-white shadow-lg">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 py-4 sm:py-6">
         <div className="flex items-center justify-between gap-4">
-          <div className="flex items-center gap-4">
-            <div className="w-12 h-12 bg-white/20 backdrop-blur-sm rounded-xl flex items-center justify-center border border-white/30">
+          <button 
+            onClick={onGoHome}
+            className="flex items-center gap-4 hover:opacity-80 transition-opacity cursor-pointer group"
+            title="Kembali ke Beranda"
+          >
+            <div className="w-12 h-12 bg-white/20 backdrop-blur-sm rounded-xl flex items-center justify-center border border-white/30 group-hover:bg-white/30 transition-colors">
               <svg className="w-7 h-7 text-white" fill="currentColor" viewBox="0 0 20 20">
                 <path d="M9 4.804A7.968 7.968 0 005.5 4c-1.255 0-2.443.29-3.5.804v10A7.969 7.969 0 015.5 14c1.669 0 3.218.51 4.5 1.385A7.962 7.962 0 0114.5 14c1.255 0 2.443.29 3.5.804v-10A7.968 7.968 0 0014.5 4c-1.255 0-2.443.29-3.5.804V12a1 1 0 11-2 0V4.804z" />
               </svg>
             </div>
-            <div>
-              <h1 className="text-3xl font-bold tracking-tight">Nala Pustaka</h1>
-              <p className="text-primary-100">AI untuk Digitalisasi Naskah Kuno Jawa</p>
+            <div className="text-left">
+              <h1 className="text-2xl sm:text-3xl font-bold tracking-tight group-hover:text-primary-100 transition-colors">Nala Pustaka</h1>
+              <p className="text-xs sm:text-sm text-primary-100">AI untuk Digitalisasi Naskah Kuno Jawa</p>
             </div>
-          </div>
+          </button>
 
           <Link
             to="/donation"
-            className="flex items-center gap-2 px-4 py-2 bg-white/10 hover:bg-white/20 text-white rounded-lg border border-white/30 transition-all backdrop-blur-sm font-semibold text-sm sm:text-base shadow-sm hover:shadow-md"
+            className="flex items-center gap-2 px-3 sm:px-4 py-2 bg-white/10 hover:bg-white/20 text-white rounded-lg border border-white/30 transition-all backdrop-blur-sm font-semibold text-sm sm:text-base shadow-sm hover:shadow-md flex-shrink-0"
           >
             <span>💝</span>
             <span className="hidden sm:inline">Dukung Kami</span>
@@ -51,7 +55,7 @@ function Header() {
   );
 }
 
-// Komponen Manuscript Card - Modern Golden Style
+// Komponen Manuscript Card - Modern Golden Style with Mobile Optimization
 function ManuscriptCard({ manuscript, isSelected, onClick, selectionMode, isSelectedForResearch, onToggleSelection, disableSelection }) {
   const handleClick = (e) => {
     if (selectionMode) {
@@ -67,106 +71,282 @@ function ManuscriptCard({ manuscript, isSelected, onClick, selectionMode, isSele
   return (
     <div
       onClick={handleClick}
-      className={`p-4 mb-3 rounded-xl cursor-pointer transition-all duration-300 border-2 ${isSelectedForResearch
+      className={`p-3 sm:p-4 mb-2 sm:mb-3 rounded-xl cursor-pointer transition-all duration-300 border-2 ${isSelectedForResearch
         ? 'bg-gradient-to-br from-green-100 to-emerald-100 border-green-500 shadow-lg scale-[1.02]'
         : isSelected
           ? 'bg-gradient-to-br from-primary-100 to-accent-100 border-accent-500 shadow-lg scale-[1.02]'
           : 'bg-white border-primary-200 hover:border-primary-400 hover:shadow-md hover:scale-[1.01]'
         } ${disableSelection ? 'opacity-60 cursor-not-allowed' : ''}`}
     >
-      <div className="flex items-start gap-3">
+      <div className="flex items-start gap-2 sm:gap-3">
         {/* Checkbox for selection mode */}
         {selectionMode && (
-          <div className="flex items-center">
+          <div className="flex items-center pt-1">
             <input
               type="checkbox"
               checked={isSelectedForResearch}
               onChange={() => !disableSelection && onToggleSelection(manuscript)}
               disabled={disableSelection}
-              className="w-5 h-5 text-green-600 border-2 border-gray-300 rounded focus:ring-2 focus:ring-green-500 cursor-pointer disabled:cursor-not-allowed"
+              className="w-4 h-4 sm:w-5 sm:h-5 text-green-600 border-2 border-gray-300 rounded focus:ring-2 focus:ring-green-500 cursor-pointer disabled:cursor-not-allowed"
               onClick={(e) => e.stopPropagation()}
             />
           </div>
         )}
 
-        <div className={`w-1 h-16 rounded-full ${isSelectedForResearch ? 'bg-gradient-to-b from-green-500 to-emerald-600' : isSelected ? 'bg-gradient-to-b from-accent-500 to-primary-600' : 'bg-primary-300'}`}></div>
-        <div className="flex-1">
-          <h3 className={`font-bold text-lg mb-1 flex items-center gap-2 ${isSelectedForResearch ? 'text-green-800' : isSelected ? 'text-primary-800' : 'text-gray-900'}`}>
-            {manuscript.title}
+        <div className={`w-1 h-14 sm:h-16 rounded-full flex-shrink-0 ${isSelectedForResearch ? 'bg-gradient-to-b from-green-500 to-emerald-600' : isSelected ? 'bg-gradient-to-b from-accent-500 to-primary-600' : 'bg-primary-300'}`}></div>
+        <div className="flex-1 min-w-0">
+          <div className="flex items-start justify-between gap-2 mb-1">
+            <h3 className={`font-bold text-sm sm:text-lg leading-tight flex-1 ${isSelectedForResearch ? 'text-green-800' : isSelected ? 'text-primary-800' : 'text-gray-900'}`}>
+              {manuscript.title}
+            </h3>
             {manuscript.is_pinned && (
-              <span className="inline-flex items-center px-1.5 py-0.5 rounded text-xs font-bold bg-gradient-to-r from-yellow-200 to-amber-200 text-yellow-800 border border-yellow-400">
+              <span className="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-bold bg-gradient-to-r from-yellow-200 to-amber-200 text-yellow-800 border border-yellow-400 flex-shrink-0">
                 📌
               </span>
             )}
-          </h3>
-          <p className="text-sm text-primary-600 font-medium mb-2">{manuscript.author}</p>
-          <p className="text-xs text-gray-600 line-clamp-2">{manuscript.description}</p>
+          </div>
+          <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-2 mb-1.5">
+            <p className="text-xs sm:text-sm text-primary-600 font-medium truncate">{manuscript.author}</p>
+            {manuscript.content_quality && (
+              <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-[9px] sm:text-[10px] font-bold w-fit ${
+                manuscript.content_quality === 'rich' ? 'bg-green-100 text-green-700 border border-green-300' :
+                manuscript.content_quality === 'medium' ? 'bg-yellow-100 text-yellow-700 border border-yellow-300' :
+                manuscript.content_quality === 'short' ? 'bg-orange-100 text-orange-700 border border-orange-300' :
+                manuscript.content_quality === 'very_short' ? 'bg-orange-100 text-orange-700 border border-orange-300' :
+                'bg-red-100 text-red-700 border border-red-300'
+              }`}>
+                {manuscript.content_quality === 'rich' ? '🟢 Lengkap' :
+                 manuscript.content_quality === 'medium' ? '🟡 Cukup' :
+                 manuscript.content_quality === 'short' ? '🟠 Terbatas' :
+                 manuscript.content_quality === 'very_short' ? '🟠 Pendek' :
+                 '🔴 Kosong'}
+              </span>
+            )}
+          </div>
+          <p className="text-[11px] sm:text-xs text-gray-600 line-clamp-2 leading-relaxed">{manuscript.description}</p>
         </div>
       </div>
     </div>
   );
 }
 
-// Komponen Welcome Screen - Modern Golden Theme
+// Komponen Welcome Screen - Modern Landing Page
 function WelcomeScreen() {
   return (
-    <div className="flex items-center justify-center h-full bg-gradient-to-br from-primary-50 via-amber-50 to-accent-50">
-      <div className="text-center max-w-3xl px-6 sm:px-8 py-8">
-        {/* Icon dengan gradien */}
-        <div className="mb-8">
-          <div className="inline-flex p-6 bg-gradient-to-br from-primary-500 to-accent-500 rounded-3xl shadow-xl">
+    <div className="h-full overflow-y-auto bg-gradient-to-br from-primary-50 via-amber-50 to-accent-50">
+      <div className="max-w-4xl mx-auto px-6 sm:px-8 py-12">
+        {/* Hero Section */}
+        <div className="text-center mb-16">
+          <div className="mb-8 inline-flex p-6 bg-gradient-to-br from-primary-500 to-accent-500 rounded-3xl shadow-xl">
             <svg className="w-16 h-16 text-white" fill="currentColor" viewBox="0 0 20 20">
               <path d="M9 4.804A7.968 7.968 0 005.5 4c-1.255 0-2.443.29-3.5.804v10A7.969 7.969 0 015.5 14c1.669 0 3.218.51 4.5 1.385A7.962 7.962 0 0114.5 14c1.255 0 2.443.29 3.5.804v-10A7.968 7.968 0 0014.5 4c-1.255 0-2.443.29-3.5.804V12a1 1 0 11-2 0V4.804z" />
             </svg>
           </div>
-        </div>
-
-        {/* Heading dengan gradien text */}
-        <h2 className="text-3xl sm:text-5xl font-bold mb-4 bg-gradient-to-r from-primary-700 to-accent-600 bg-clip-text text-transparent">
-          Selamat Datang di Nala Pustaka
-        </h2>
-
-        {/* Description */}
-        <p className="text-base sm:text-lg text-gray-700 mb-10 leading-relaxed">
-          Jelajahi naskah kuno Jawa dengan bantuan AI. Gunakan <strong className="text-primary-700">RAG (Retrieval-Augmented Generation)</strong> untuk memahami warisan budaya Nusantara.
-        </p>
-
-        {/* Features dengan background gradient */}
-        <div className="grid md:grid-cols-2 gap-4 sm:gap-6 mb-8 text-left">
-          <div className="bg-white rounded-2xl p-5 sm:p-6 shadow-lg border-2 border-primary-200 hover:border-accent-400 hover:shadow-xl transition-all">
-            <div className="flex items-center gap-3 mb-4">
-              <div className="w-12 h-12 bg-gradient-to-br from-primary-500 to-accent-500 rounded-xl flex items-center justify-center">
-                <svg className="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 20 20">
-                  <path fillRule="evenodd" d="M18 10c0 3.866-3.582 7-8 7a8.841 8.841 0 01-4.083-.98L2 17l1.338-3.123C2.493 12.767 2 11.434 2 10c0-3.866 3.582-7 8-7s8 3.134 8 7zM7 9H5v2h2V9zm8 0h-2v2h2V9zM9 9h2v2H9V9z" clipRule="evenodd" />
-                </svg>
-              </div>
-              <h3 className="font-bold text-xl text-gray-900">Chat AI</h3>
-            </div>
-            <p className="text-sm text-gray-600 text-left">
-              Ajukan pertanyaan tentang isi, makna, dan konteks naskah. AI menjawab berdasarkan sumber asli.
-            </p>
-          </div>
-
-          <div className="bg-white rounded-2xl p-5 sm:p-6 shadow-lg border-2 border-primary-200 hover:border-accent-400 hover:shadow-xl transition-all">
-            <div className="flex items-center gap-3 mb-4">
-              <div className="w-12 h-12 bg-gradient-to-br from-accent-500 to-primary-600 rounded-xl flex items-center justify-center">
-                <svg className="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 20 20">
-                  <path d="M2 11a1 1 0 011-1h2a1 1 0 011 1v5a1 1 0 01-1 1H3a1 1 0 01-1-1v-5zM8 7a1 1 0 011-1h2a1 1 0 011 1v9a1 1 0 01-1 1H9a1 1 0 01-1-1V7zM14 4a1 1 0 011-1h2a1 1 0 011 1v12a1 1 0 01-1 1h-2a1 1 0 01-1-1V4z" />
-                </svg>
-              </div>
-              <h3 className="font-bold text-xl text-gray-900">Knowledge Graph</h3>
-            </div>
-            <p className="text-sm text-gray-600 text-left">
-              Visualisasi interaktif hubungan tokoh, konsep, dan tema dalam naskah.
-            </p>
-          </div>
-        </div>
-
-        {/* CTA */}
-        <div className="bg-gradient-to-r from-primary-600 to-accent-500 rounded-2xl p-5 sm:p-6 shadow-xl">
-          <p className="text-white font-semibold text-base sm:text-lg">
-            👈 Pilih naskah di sebelah kiri untuk mulai menjelajah
+          
+          <h1 className="text-4xl sm:text-5xl font-bold mb-6 bg-gradient-to-r from-primary-700 to-accent-600 bg-clip-text text-transparent">
+            Selamat Datang di Nala Pustaka
+          </h1>
+          
+          <p className="text-lg sm:text-xl text-gray-700 mb-6 leading-relaxed max-w-2xl mx-auto">
+            Platform AI untuk menjelajahi dan memahami naskah kuno Jawa dengan teknologi <strong className="text-primary-700">RAG (Retrieval-Augmented Generation)</strong>
           </p>
+          
+          <div className="inline-flex items-center gap-2 bg-white px-6 py-3 rounded-full shadow-md border-2 border-primary-200">
+            <span className="text-2xl">📚</span>
+            <p className="text-primary-800 font-semibold">Pilih naskah untuk memulai</p>
+          </div>
+        </div>
+
+        {/* How to Use Section */}
+        <div className="mb-16">
+          <h2 className="text-3xl font-bold text-center text-primary-800 mb-8">
+            Cara Menggunakan Nala Pustaka
+          </h2>
+          
+          <div className="space-y-6">
+            {/* Step 1 */}
+            <div className="bg-white rounded-2xl p-6 shadow-lg border-l-4 border-primary-500">
+              <div className="flex items-start gap-4">
+                <div className="flex-shrink-0 w-12 h-12 bg-primary-500 text-white rounded-xl flex items-center justify-center font-bold text-xl">
+                  1
+                </div>
+                <div className="flex-1">
+                  <h3 className="text-xl font-bold text-gray-900 mb-2">Pilih Naskah</h3>
+                  <p className="text-gray-700 leading-relaxed">
+                    Cari dan pilih naskah yang ingin Anda pelajari dari daftar di sidebar kiri. Gunakan fitur pencarian untuk menemukan naskah berdasarkan judul atau pengarang.
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            {/* Step 2 */}
+            <div className="bg-white rounded-2xl p-6 shadow-lg border-l-4 border-accent-500">
+              <div className="flex items-start gap-4">
+                <div className="flex-shrink-0 w-12 h-12 bg-accent-500 text-white rounded-xl flex items-center justify-center font-bold text-xl">
+                  2
+                </div>
+                <div className="flex-1">
+                  <h3 className="text-xl font-bold text-gray-900 mb-2">Pilih Mode Eksplorasi</h3>
+                  <p className="text-gray-700 leading-relaxed mb-3">
+                    Setelah memilih naskah, Anda akan melihat menu tab di bagian atas. Pilih salah satu dari 4 mode eksplorasi yang tersedia.
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            {/* Step 3 */}
+            <div className="bg-white rounded-2xl p-6 shadow-lg border-l-4 border-primary-600">
+              <div className="flex items-start gap-4">
+                <div className="flex-shrink-0 w-12 h-12 bg-primary-600 text-white rounded-xl flex items-center justify-center font-bold text-xl">
+                  3
+                </div>
+                <div className="flex-1">
+                  <h3 className="text-xl font-bold text-gray-900 mb-2">Mulai Belajar</h3>
+                  <p className="text-gray-700 leading-relaxed">
+                    Gunakan fitur yang tersedia untuk mengeksplorasi naskah. Ajukan pertanyaan, visualisasikan hubungan antar konsep, atau dapatkan penjelasan edukatif tentang isi naskah.
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Features Section */}
+        <div className="mb-16">
+          <h2 className="text-3xl font-bold text-center text-primary-800 mb-8">
+            Fitur-Fitur yang Tersedia
+          </h2>
+          
+          <div className="space-y-8">
+            {/* Feature 1: Chat AI */}
+            <div className="bg-white rounded-2xl p-6 sm:p-8 shadow-lg border-2 border-primary-200">
+              <div className="flex items-start gap-4 mb-4">
+                <div className="flex-shrink-0 w-14 h-14 bg-gradient-to-br from-primary-500 to-accent-500 rounded-xl flex items-center justify-center">
+                  <svg className="w-7 h-7 text-white" fill="currentColor" viewBox="0 0 20 20">
+                    <path fillRule="evenodd" d="M18 10c0 3.866-3.582 7-8 7a8.841 8.841 0 01-4.083-.98L2 17l1.338-3.123C2.493 12.767 2 11.434 2 10c0-3.866 3.582-7 8-7s8 3.134 8 7zM7 9H5v2h2V9zm8 0h-2v2h2V9zM9 9h2v2H9V9z" clipRule="evenodd" />
+                  </svg>
+                </div>
+                <div className="flex-1">
+                  <h3 className="text-2xl font-bold text-gray-900 mb-3">🤖 Chat dengan AI</h3>
+                  <p className="text-gray-700 leading-relaxed mb-4">
+                    Ajukan pertanyaan tentang isi, makna, dan konteks naskah yang dipilih. AI akan menjawab berdasarkan <strong>isi asli naskah</strong>, bukan dari pengetahuan umum.
+                  </p>
+                  <div className="bg-primary-50 rounded-xl p-4 border-l-4 border-primary-500">
+                    <p className="text-sm font-semibold text-primary-800 mb-2">Contoh Pertanyaan:</p>
+                    <ul className="space-y-1 text-sm text-gray-700">
+                      <li>• Apa tema utama yang dibahas dalam naskah ini?</li>
+                      <li>• Siapa tokoh-tokoh penting yang disebutkan?</li>
+                      <li>• Bagaimana konteks historis naskah ini?</li>
+                    </ul>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Feature 2: Knowledge Graph */}
+            <div className="bg-white rounded-2xl p-6 sm:p-8 shadow-lg border-2 border-accent-200">
+              <div className="flex items-start gap-4 mb-4">
+                <div className="flex-shrink-0 w-14 h-14 bg-gradient-to-br from-accent-500 to-primary-600 rounded-xl flex items-center justify-center">
+                  <svg className="w-7 h-7 text-white" fill="currentColor" viewBox="0 0 20 20">
+                    <path d="M2 11a1 1 0 011-1h2a1 1 0 011 1v5a1 1 0 01-1 1H3a1 1 0 01-1-1v-5zM8 7a1 1 0 011-1h2a1 1 0 011 1v9a1 1 0 01-1 1H9a1 1 0 01-1-1V7zM14 4a1 1 0 011-1h2a1 1 0 011 1v12a1 1 0 01-1 1h-2a1 1 0 01-1-1V4z" />
+                  </svg>
+                </div>
+                <div className="flex-1">
+                  <h3 className="text-2xl font-bold text-gray-900 mb-3">🔮 Knowledge Graph</h3>
+                  <p className="text-gray-700 leading-relaxed mb-4">
+                    Visualisasi interaktif yang menampilkan <strong>hubungan antar tokoh, konsep, dan tema</strong> dalam naskah. Geser, zoom, dan klik untuk eksplorasi lebih dalam.
+                  </p>
+                  <div className="bg-accent-50 rounded-xl p-4 border-l-4 border-accent-500">
+                    <p className="text-sm font-semibold text-accent-800 mb-2">Cara Menggunakan:</p>
+                    <ul className="space-y-1 text-sm text-gray-700">
+                      <li>• Geser node untuk mengatur posisi</li>
+                      <li>• Scroll untuk zoom in/out</li>
+                      <li>• Drag background untuk menggeser canvas</li>
+                    </ul>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Feature 3: Educational Panel */}
+            <div className="bg-white rounded-2xl p-6 sm:p-8 shadow-lg border-2 border-green-200">
+              <div className="flex items-start gap-4 mb-4">
+                <div className="flex-shrink-0 w-14 h-14 bg-gradient-to-br from-green-500 to-emerald-600 rounded-xl flex items-center justify-center text-2xl">
+                  📚
+                </div>
+                <div className="flex-1">
+                  <h3 className="text-2xl font-bold text-gray-900 mb-3">📚 Mode Edukatif</h3>
+                  <p className="text-gray-700 leading-relaxed mb-4">
+                    Dapatkan <strong>penjelasan edukatif yang terstruktur</strong> tentang naskah, lengkap dengan analisis mendalam, konteks historis, dan nilai-nilai yang terkandung di dalamnya.
+                  </p>
+                  <div className="bg-green-50 rounded-xl p-4 border-l-4 border-green-500">
+                    <p className="text-sm font-semibold text-green-800 mb-2">Apa yang Anda Dapatkan:</p>
+                    <ul className="space-y-1 text-sm text-gray-700">
+                      <li>• Ringkasan isi naskah</li>
+                      <li>• Analisis tema dan makna</li>
+                      <li>• Konteks sejarah dan budaya</li>
+                      <li>• Nilai-nilai yang bisa dipelajari</li>
+                    </ul>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Feature 4: RAG Chat All */}
+            <div className="bg-white rounded-2xl p-6 sm:p-8 shadow-lg border-2 border-purple-200">
+              <div className="flex items-start gap-4 mb-4">
+                <div className="flex-shrink-0 w-14 h-14 bg-gradient-to-br from-purple-500 to-indigo-600 rounded-xl flex items-center justify-center text-2xl">
+                  🔍
+                </div>
+                <div className="flex-1">
+                  <h3 className="text-2xl font-bold text-gray-900 mb-3">🔍 Chat Semua Naskah</h3>
+                  <p className="text-gray-700 leading-relaxed mb-4">
+                    Ajukan pertanyaan tentang <strong>seluruh koleksi naskah sekaligus</strong>. AI akan mencari informasi relevan dari semua naskah untuk menjawab pertanyaan Anda.
+                  </p>
+                  <div className="bg-purple-50 rounded-xl p-4 border-l-4 border-purple-500">
+                    <p className="text-sm font-semibold text-purple-800 mb-2">Kapan Menggunakannya:</p>
+                    <ul className="space-y-1 text-sm text-gray-700">
+                      <li>• Mencari tema yang muncul di berbagai naskah</li>
+                      <li>• Membandingkan tokoh atau konsep antar naskah</li>
+                      <li>• Eksplorasi topik spesifik lintas koleksi</li>
+                    </ul>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Tips Section */}
+        <div className="bg-gradient-to-r from-primary-600 to-accent-500 rounded-2xl p-8 shadow-xl text-white">
+          <h2 className="text-2xl font-bold mb-4 text-center">💡 Tips Penggunaan</h2>
+          <div className="space-y-3 text-sm sm:text-base">
+            <div className="flex items-start gap-3">
+              <span className="flex-shrink-0">✓</span>
+              <p>Ajukan pertanyaan yang spesifik untuk mendapatkan jawaban yang lebih detail</p>
+            </div>
+            <div className="flex items-start gap-3">
+              <span className="flex-shrink-0">✓</span>
+              <p>Gunakan Mode Edukatif untuk mendapatkan overview komprehensif sebelum bertanya</p>
+            </div>
+            <div className="flex items-start gap-3">
+              <span className="flex-shrink-0">✓</span>
+              <p>Eksplorasi Knowledge Graph untuk memahami struktur dan hubungan dalam naskah</p>
+            </div>
+            <div className="flex items-start gap-3">
+              <span className="flex-shrink-0">✓</span>
+              <p>Gunakan Chat Semua Naskah untuk perbandingan antar naskah</p>
+            </div>
+          </div>
+        </div>
+
+        {/* Footer CTA */}
+        <div className="text-center mt-12 pb-8">
+          <p className="text-gray-600 text-lg mb-4">Siap untuk mulai menjelajah?</p>
+          <div className="inline-flex items-center gap-2 bg-white px-8 py-4 rounded-2xl shadow-lg border-2 border-primary-300">
+            <span className="text-3xl">📚</span>
+            <p className="text-primary-800 font-bold text-lg">Pilih naskah untuk memulai</p>
+          </div>
         </div>
       </div>
     </div>
@@ -187,19 +367,6 @@ function ChatPanel({ manuscript }) {
 
   // NEW: Chat History localStorage key
   const getChatHistoryKey = (manuscriptId) => `nala-chat-history-${manuscriptId}`;
-
-  // NEW: Load chat history from localStorage
-  const loadChatHistory = (manuscriptId) => {
-    try {
-      const saved = localStorage.getItem(getChatHistoryKey(manuscriptId));
-      if (saved) {
-        return JSON.parse(saved);
-      }
-    } catch (error) {
-      console.error('Error loading chat history:', error);
-    }
-    return null;
-  };
 
   // NEW: Save chat history to localStorage
   const saveChatHistory = (manuscriptId, messages) => {
@@ -397,29 +564,39 @@ INSTRUKSI: Jawab pertanyaan pengguna HANYA berdasarkan KONTEKS NASKAH di atas.${
 
   return (
     <div className="flex flex-col h-full">
-      {/* Header Chat - Golden Theme with History Button */}
-      <div className="px-4 sm:px-6 py-3 sm:py-4 bg-gradient-to-r from-primary-100 to-accent-100 border-b-2 border-primary-300">
-        <div className="flex justify-between items-center">
-          <div>
-            <h3 className="text-lg sm:text-xl font-bold text-primary-900 flex items-center gap-2">
-              <span className="text-xl sm:text-2xl">🤖</span>
+      {/* Header Chat - Bold Gradient Theme with History Button */}
+      <div className="px-4 sm:px-6 py-4 sm:py-5 bg-gradient-to-r from-primary-600 to-accent-500 text-white flex-shrink-0">
+        <div className="flex justify-between items-start">
+          <div className="flex-1">
+            <h3 className="text-xl sm:text-2xl font-bold mb-2 flex items-center gap-2">
+              <span className="text-2xl sm:text-3xl">🤖</span>
               Chat dengan AI
             </h3>
-            <p className="text-sm text-primary-700">Tentang {manuscript.title}</p>
+            <div className="flex gap-2 flex-wrap mb-2">
+              <span className="bg-white/20 px-3 py-1 rounded-lg text-xs sm:text-sm backdrop-blur-sm">
+                📜 {manuscript.title}
+              </span>
+              <span className="bg-white/20 px-3 py-1 rounded-lg text-xs sm:text-sm backdrop-blur-sm">
+                ✍️ {manuscript.author}
+              </span>
+            </div>
+            <p className="text-xs sm:text-sm text-white/90">
+              💡 Tanya apa saja tentang naskah ini. AI menjawab berdasarkan isi asli naskah.
+            </p>
           </div>
 
           {/* History & Clear Buttons */}
-          <div className="flex gap-2">
+          <div className="flex gap-2 ml-4">
             <button
               onClick={() => setShowHistoryModal(true)}
-              className="px-3 py-2 bg-white text-primary-600 rounded-lg hover:bg-primary-50 border-2 border-primary-300 font-semibold text-xs sm:text-sm transition-all"
+              className="px-3 py-2 bg-white/20 text-white rounded-lg hover:bg-white/30 backdrop-blur-sm font-semibold text-xs sm:text-sm transition-all"
               title="Lihat Riwayat Chat"
             >
               📜 Riwayat
             </button>
             <button
               onClick={clearChatHistory}
-              className="px-3 py-2 bg-red-100 text-red-600 rounded-lg hover:bg-red-200 border-2 border-red-300 font-semibold text-xs sm:text-sm transition-all"
+              className="px-3 py-2 bg-red-500/80 text-white rounded-lg hover:bg-red-600 backdrop-blur-sm font-semibold text-xs sm:text-sm transition-all"
               title="Hapus Riwayat Chat"
             >
               🗑️
@@ -428,34 +605,69 @@ INSTRUKSI: Jawab pertanyaan pengguna HANYA berdasarkan KONTEKS NASKAH di atas.${
         </div>
       </div>
 
-      {/* Messages Container - Colorful */}
-      <div className="flex-1 overflow-y-auto p-4 sm:p-6 bg-gradient-to-br from-amber-50 to-orange-50 space-y-4">
+      {/* Messages Container - With Welcome Screen and Avatar Bubbles */}
+      <div className="flex-1 overflow-y-auto p-4 sm:p-6 bg-gradient-to-b from-gray-50 to-white space-y-4">
+        {messages.length === 1 && messages[0].text.includes('Salam. Saya Pustakawan AI') && (
+          <div className="text-center py-12">
+            <div className="text-6xl mb-4 animate-bounce">💭</div>
+            <h3 className="text-xl font-bold text-gray-700 mb-2">
+              Mulai Percakapan AI
+            </h3>
+            <p className="text-gray-600 mb-6">
+              Ajukan pertanyaan tentang {manuscript.title}
+            </p>
+            <div className="max-w-md mx-auto space-y-3 text-left">
+              <div className="bg-white p-4 rounded-xl border-2 border-primary-200 shadow-sm">
+                <div className="font-bold text-primary-700 mb-2">📚 Contoh Pertanyaan:</div>
+                <ul className="space-y-2 text-sm text-gray-700">
+                  <li className="flex items-start gap-2">
+                    <span className="text-accent-500 flex-shrink-0">•</span>
+                    <span>Apa tema utama yang dibahas dalam naskah ini?</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <span className="text-accent-500 flex-shrink-0">•</span>
+                    <span>Siapa tokoh-tokoh penting yang disebutkan?</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <span className="text-accent-500 flex-shrink-0">•</span>
+                    <span>Bagaimana konteks historis naskah ini?</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <span className="text-accent-500 flex-shrink-0">•</span>
+                    <span>Apa nilai-nilai yang terkandung di dalamnya?</span>
+                  </li>
+                </ul>
+              </div>
+            </div>
+          </div>
+        )}
+
         {messages.map((message) => (
           <div
             key={message.id}
-            className={`flex ${message.sender === 'user' ? 'justify-end' : 'justify-start'}`}
+            className={`flex ${message.sender === 'user' ? 'justify-end' : 'justify-start'} animate-fadeIn`}
           >
+            {message.sender === 'ai' && (
+              <div className="flex-shrink-0 w-10 h-10 rounded-full bg-gradient-to-br from-primary-500 to-accent-500 flex items-center justify-center text-white font-bold mr-3 shadow-md">
+                🤖
+              </div>
+            )}
+
             <div
-              className={`max-w-full sm:max-w-[70%] rounded-2xl px-4 sm:px-5 py-3 sm:py-4 shadow-md ${message.sender === 'user'
-                ? 'bg-gradient-to-br from-primary-600 to-accent-500 text-white'
-                : 'bg-white border-2 border-primary-200 text-gray-900'
+              className={`max-w-full sm:max-w-3xl rounded-2xl px-4 sm:px-5 py-3 sm:py-4 ${message.sender === 'user'
+                ? 'bg-gradient-to-r from-primary-600 to-accent-500 text-white shadow-lg'
+                : 'bg-white border-2 border-primary-200 text-gray-900 shadow-md'
                 }`}
             >
-              {message.sender === 'ai' && (
-                <div className="flex items-center gap-2 mb-2 pb-2 border-b border-primary-200">
-                  <div className="w-6 h-6 bg-gradient-to-br from-primary-500 to-accent-500 rounded-full flex items-center justify-center">
-                    <span className="text-white text-xs font-bold">AI</span>
-                  </div>
-                  <span className="font-semibold text-sm text-primary-700">Assistant</span>
-                </div>
-              )}
 
               {/* Render Markdown untuk AI, plain text untuk user */}
               {message.sender === 'ai' ? (
                 <div
-                  className="prose prose-sm max-w-none
+                  className="prose prose-base max-w-none
                     prose-headings:text-primary-900 prose-headings:font-bold
-                    prose-p:text-gray-800 prose-p:leading-relaxed prose-p:my-2
+                    prose-h2:text-2xl prose-h2:font-bold prose-h2:mt-6 prose-h2:mb-4
+                    prose-h3:text-xl prose-h3:font-semibold prose-h3:mt-4 prose-h3:mb-3
+                    prose-p:text-gray-800 prose-p:leading-relaxed prose-p:my-3
                     prose-strong:text-primary-800 prose-strong:font-bold
                     prose-em:text-primary-700 prose-em:italic
                     prose-ul:list-disc prose-ul:pl-5 prose-ul:my-2 prose-ul:space-y-1
@@ -471,27 +683,35 @@ INSTRUKSI: Jawab pertanyaan pengguna HANYA berdasarkan KONTEKS NASKAH di atas.${
                     prose-th:border prose-th:border-primary-300 prose-th:p-2 prose-th:text-left
                     prose-td:border prose-td:border-primary-200 prose-td:p-2
                     prose-tr:even:bg-primary-50
+                    markdown-content
                   "
                   dangerouslySetInnerHTML={{ __html: marked(message.text) }}
                 />
               ) : (
-                <p className="text-sm leading-relaxed whitespace-pre-wrap">{message.text}</p>
+                <p className="leading-relaxed whitespace-pre-wrap">{message.text}</p>
               )}
             </div>
+
+            {message.sender === 'user' && (
+              <div className="flex-shrink-0 w-10 h-10 rounded-full bg-gradient-to-br from-green-500 to-emerald-500 flex items-center justify-center text-white font-bold ml-3 shadow-md">
+                👤
+              </div>
+            )}
           </div>
         ))}
 
-        {/* Loading indicator - Golden */}
+        {/* Loading indicator with Avatar */}
         {isLoading && (
-          <div className="flex justify-start">
-            <div className="bg-white border-2 border-primary-300 rounded-2xl px-5 py-4 shadow-md">
-              <div className="flex items-center gap-2">
-                <div className="flex gap-1">
-                  <div className="w-2.5 h-2.5 bg-primary-600 rounded-full animate-bounce"></div>
-                  <div className="w-2.5 h-2.5 bg-accent-500 rounded-full animate-bounce" style={{ animationDelay: '150ms' }}></div>
-                  <div className="w-2.5 h-2.5 bg-primary-600 rounded-full animate-bounce" style={{ animationDelay: '300ms' }}></div>
-                </div>
-                <span className="text-sm text-gray-600 font-medium">AI sedang berpikir...</span>
+          <div className="flex justify-start animate-fadeIn">
+            <div className="flex-shrink-0 w-10 h-10 rounded-full bg-gradient-to-br from-primary-500 to-accent-500 flex items-center justify-center text-white font-bold mr-3 shadow-md">
+              🤖
+            </div>
+            <div className="bg-white border-2 border-primary-200 rounded-2xl p-4 shadow-md">
+              <div className="flex items-center gap-3">
+                <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-primary-600"></div>
+                <span className="text-gray-600 text-sm">
+                  AI sedang membaca dan menganalisis...
+                </span>
               </div>
             </div>
           </div>
@@ -500,25 +720,29 @@ INSTRUKSI: Jawab pertanyaan pengguna HANYA berdasarkan KONTEKS NASKAH di atas.${
         <div ref={messagesEndRef} />
       </div>
 
-      {/* Input Form - Golden Theme */}
-      <div className="border-t-2 border-primary-300 p-4 sm:p-5 bg-gradient-to-r from-primary-50 to-accent-50">
-        <form onSubmit={handleSend} className="max-w-4xl mx-auto flex flex-col sm:flex-row gap-3">
+      {/* Input Form */}
+      <div className="border-t-2 border-gray-200 p-4 bg-gray-50 flex-shrink-0">
+        <form onSubmit={handleSend} className="flex flex-col sm:flex-row gap-3">
           <input
             type="text"
             value={input}
             onChange={(e) => setInput(e.target.value)}
             placeholder="Tanyakan sesuatu tentang naskah ini..."
-            className="flex-1 px-4 sm:px-5 py-3 rounded-xl border-2 border-primary-300 focus:outline-none focus:border-accent-500 focus:ring-4 focus:ring-accent-200 disabled:bg-gray-100 disabled:cursor-not-allowed text-gray-900 placeholder-gray-500"
+            className="flex-1 px-4 py-3 border-2 border-primary-300 rounded-xl focus:outline-none focus:border-accent-500 focus:ring-4 focus:ring-accent-200 transition-all disabled:bg-gray-100 disabled:cursor-not-allowed text-gray-900 placeholder-gray-500"
             disabled={isLoading}
+            autoFocus
           />
           <button
             type="submit"
-            className="w-full sm:w-auto px-6 sm:px-8 py-3 bg-gradient-to-r from-primary-600 to-accent-500 text-white rounded-xl font-semibold hover:from-primary-700 hover:to-accent-600 transition-all shadow-lg disabled:opacity-50 disabled:cursor-not-allowed"
+            className="px-6 py-3 bg-gradient-to-r from-primary-600 to-accent-500 text-white font-bold rounded-xl hover:from-primary-700 hover:to-accent-600 disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-lg hover:shadow-xl disabled:shadow-none"
             disabled={isLoading || !input.trim()}
           >
-            {isLoading ? '⏳' : '📤'} {isLoading ? 'Mengirim...' : 'Kirim'}
+            {isLoading ? '⏳' : '📤'} Kirim
           </button>
         </form>
+        <p className="text-xs text-gray-500 mt-2 text-center">
+          💡 Tips: Ajukan pertanyaan spesifik untuk jawaban yang lebih detail dan akurat
+        </p>
       </div>
 
       {/* History Modal (NEW) */}
@@ -604,31 +828,121 @@ INSTRUKSI: Jawab pertanyaan pengguna HANYA berdasarkan KONTEKS NASKAH di atas.${
 // Komponen Knowledge Graph Panel dengan D3.js
 function KnowledgeGraphPanel({ manuscript }) {
   const svgRef = useRef();
-  const [dimensions, setDimensions] = useState({ width: 800, height: 600 });
+  const [graphData, setGraphData] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  
+  const apiUrl = import.meta.env.VITE_RAG_API_URL || 'http://localhost:3001';
 
-  // Data Knowledge Graph diambil dari manuscript object atau fallback ke hardcoded
-  const getKnowledgeGraphData = (manuscriptObj) => {
-    // Priority: database > hardcoded
-    if (manuscriptObj.knowledge_graph && manuscriptObj.knowledge_graph.nodes) {
-      return manuscriptObj.knowledge_graph;
-    }
+  // Fetch Knowledge Graph data from API
+  useEffect(() => {
+    const fetchGraphData = async () => {
+      setLoading(true);
+      setError(null);
+      
+      try {
+        console.log('🔮 OLD KG: Fetching graph for manuscript:', manuscript.id, manuscript.title);
+        
+        const response = await fetch(`${apiUrl}/api/knowledge-graph/${manuscript.id}`, {
+          cache: 'no-store',
+          headers: {
+            'Cache-Control': 'no-cache, no-store, must-revalidate'
+          }
+        });
+        
+        if (!response.ok) {
+          throw new Error('Failed to fetch knowledge graph');
+        }
+        
+        const data = await response.json();
+        
+        console.log('✅ OLD KG: Received data:', data.nodes?.length, 'nodes,', data.links?.length, 'links');
+        
+        if (!data.nodes || data.nodes.length === 0) {
+          setError('No knowledge graph data available for this manuscript');
+          setGraphData(null);
+        } else {
+          // Transform API format to D3.js format
+          // IMPORTANT: Keep nodes array structure intact to preserve index mapping
+          const transformedData = {
+            nodes: data.nodes.map((n, index) => ({
+              ...n, // Keep original structure including ID
+              label: n.label,
+              type: mapTypeToOldFormat(n.type),
+              originalIndex: index // Add for debugging
+            })),
+            links: data.links.map(l => {
+              // Backend sends source/target as indices
+              // Create proper link objects with index references
+              return {
+                source: typeof l.source === 'number' ? l.source : parseInt(l.source),
+                target: typeof l.target === 'number' ? l.target : parseInt(l.target),
+                label: l.label || l.description?.substring(0, 20) || 'terkait'
+              };
+            })
+          };
+          
+          // Validate links indices
+          const maxIndex = transformedData.nodes.length - 1;
+          const validLinks = transformedData.links.filter(l => {
+            const sourceValid = l.source >= 0 && l.source <= maxIndex;
+            const targetValid = l.target >= 0 && l.target <= maxIndex;
+            if (!sourceValid || !targetValid) {
+              console.warn('⚠️ Invalid link:', l, 'Max index:', maxIndex);
+            }
+            return sourceValid && targetValid;
+          });
+          
+          transformedData.links = validLinks;
+          
+          console.log('🔧 Transformed data:', {
+            nodesCount: transformedData.nodes.length,
+            linksCount: transformedData.links.length,
+            sampleNode: transformedData.nodes[0],
+            sampleLink: transformedData.links[0]
+          });
+          
+          setGraphData(transformedData);
+        }
+      } catch (err) {
+        console.error('❌ OLD KG: Error fetching graph:', err);
+        setError(err.message);
+        setGraphData(null);
+      } finally {
+        setLoading(false);
+      }
+    };
+    
+    fetchGraphData();
+  }, [manuscript.id, apiUrl]);
 
-    // Fallback ke hardcoded data
-    return KNOWLEDGE_GRAPH_DATA[manuscriptObj.id] || KNOWLEDGE_GRAPH_DATA['wulangreh'];
+  // Map new type format to old format for colors
+  const mapTypeToOldFormat = (type) => {
+    const typeMap = {
+      'VALUE': 'Konsep',
+      'PERSON': 'Tokoh',
+      'LOCATION': 'Konsep',
+      'CONCEPT': 'Konsep',
+      'ARTIFACT': 'Karya',
+      'EVENT': 'Konsep'
+    };
+    return typeMap[type] || 'Konsep';
   };
 
+  // D3.js visualization
   useEffect(() => {
+    if (!graphData || !svgRef.current) return;
+
     const svg = d3.select(svgRef.current);
     svg.selectAll('*').remove(); // Clear previous graph
 
-    const kgData = getKnowledgeGraphData(manuscript);
+    const kgData = graphData;
 
     // Setup dimensions
     const containerWidth = svgRef.current?.parentElement?.clientWidth || 800;
     const isSmallScreen = typeof window !== 'undefined' && window.matchMedia('(max-width: 768px)').matches;
     const width = containerWidth;
     const height = isSmallScreen ? 420 : 600;
-    setDimensions({ width, height });
 
     // Color scale Golden/Brown - Modern & Vibrant
     const colorScale = {
@@ -657,7 +971,7 @@ function KnowledgeGraphPanel({ manuscript }) {
     // Setup force simulation
     const simulation = d3.forceSimulation(kgData.nodes)
       .force('link', d3.forceLink(kgData.links)
-        .id(d => d.id)
+        // Don't use .id() - let D3 use array indices (default behavior)
         .distance(120))
       .force('charge', d3.forceManyBody().strength(-300))
       .force('center', d3.forceCenter(width / 2, height / 2))
@@ -688,16 +1002,16 @@ function KnowledgeGraphPanel({ manuscript }) {
       .attr('stroke-width', 2.5)
       .attr('marker-end', 'url(#arrow)');
 
-    // Create link labels - Golden
-    const linkLabel = g.append('g')
-      .selectAll('text')
-      .data(kgData.links)
-      .enter().append('text')
-      .attr('font-size', 11)
-      .attr('font-weight', '600')
-      .attr('fill', '#6B5744')
-      .attr('text-anchor', 'middle')
-      .text(d => d.label);
+    // Create link labels - Golden (DISABLED - labels removed for cleaner visualization)
+    // const linkLabel = g.append('g')
+    //   .selectAll('text')
+    //   .data(kgData.links)
+    //   .enter().append('text')
+    //   .attr('font-size', 11)
+    //   .attr('font-weight', '600')
+    //   .attr('fill', '#6B5744')
+    //   .attr('text-anchor', 'middle')
+    //   .text(d => d.label);
 
     // Create node groups
     const node = g.append('g')
@@ -760,9 +1074,10 @@ function KnowledgeGraphPanel({ manuscript }) {
         .attr('x2', d => d.target.x)
         .attr('y2', d => d.target.y);
 
-      linkLabel
-        .attr('x', d => (d.source.x + d.target.x) / 2)
-        .attr('y', d => (d.source.y + d.target.y) / 2);
+      // linkLabel position update (DISABLED)
+      // linkLabel
+      //   .attr('x', d => (d.source.x + d.target.x) / 2)
+      //   .attr('y', d => (d.source.y + d.target.y) / 2);
 
       node.attr('transform', d => `translate(${d.x},${d.y})`);
     });
@@ -789,7 +1104,52 @@ function KnowledgeGraphPanel({ manuscript }) {
     return () => {
       simulation.stop();
     };
-  }, [manuscript.id]);
+  }, [manuscript.id, graphData]);
+
+  // Loading state
+  if (loading) {
+    return (
+      <div className="flex flex-col h-full bg-gradient-to-br from-primary-50 to-accent-50">
+        <div className="px-4 sm:px-6 py-3 sm:py-4 bg-gradient-to-r from-primary-100 to-accent-100 border-b-2 border-primary-300">
+          <h3 className="text-lg sm:text-xl font-bold text-primary-900 flex items-center gap-2">
+            <span className="text-xl sm:text-2xl">🔮</span>
+            Knowledge Graph
+          </h3>
+          <p className="text-sm text-primary-700">Visualisasi {manuscript.title}</p>
+        </div>
+        <div className="flex-1 flex items-center justify-center">
+          <div className="text-center">
+            <div className="animate-spin rounded-full h-16 w-16 border-b-4 border-primary-600 mx-auto mb-4"></div>
+            <p className="text-gray-600 font-medium">Loading knowledge graph...</p>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // Error state
+  if (error) {
+    return (
+      <div className="flex flex-col h-full bg-gradient-to-br from-primary-50 to-accent-50">
+        <div className="px-4 sm:px-6 py-3 sm:py-4 bg-gradient-to-r from-primary-100 to-accent-100 border-b-2 border-primary-300">
+          <h3 className="text-lg sm:text-xl font-bold text-primary-900 flex items-center gap-2">
+            <span className="text-xl sm:text-2xl">🔮</span>
+            Knowledge Graph
+          </h3>
+          <p className="text-sm text-primary-700">Visualisasi {manuscript.title}</p>
+        </div>
+        <div className="flex-1 flex items-center justify-center p-6">
+          <div className="bg-yellow-50 border-2 border-yellow-300 rounded-2xl p-6 max-w-md text-center">
+            <p className="text-yellow-800 font-semibold mb-2">⚠️ Knowledge Graph Tidak Tersedia</p>
+            <p className="text-yellow-700 text-sm mb-3">Belum ada data relasi untuk naskah ini.</p>
+            <p className="text-xs text-gray-600">
+              Knowledge graph akan tersedia setelah lebih banyak naskah ter-analisis.
+            </p>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="flex flex-col h-full bg-gradient-to-br from-primary-50 to-accent-50">
@@ -845,22 +1205,30 @@ function KnowledgeGraphPanel({ manuscript }) {
 // Komponen Left Panel (Daftar Naskah)
 // Komponen Left Panel - Modern Golden Sidebar
 // Komponen Left Panel - Manuscript List (Desktop)
-function LeftPanel({ selectedManuscript, onSelectManuscript, manuscripts, onResearchStart }) {
+function LeftPanel({ selectedManuscript, onSelectManuscript, manuscripts, onResearchStart, setViewMode }) {
   const [searchQuery, setSearchQuery] = useState('');
   const [currentPage, setCurrentPage] = useState(1); // Pagination state
-  const [itemsPerPage, setItemsPerPage] = useState(10); // Items per page (Increased default)
+  const [itemsPerPage, setItemsPerPage] = useState(20); // Items per page (Increased default)
   const [selectionMode, setSelectionMode] = useState(false); // Multi-selection mode
   const [selectedManuscripts, setSelectedManuscripts] = useState([]); // Selected for research
-  const [showFilters, setShowFilters] = useState(false); // Mobile filter toggle
+  const [qualityFilter, setQualityFilter] = useState('all'); // NEW: Quality filter
 
-  // Filter manuscripts based on search query
+  // Filter manuscripts based on search query AND quality filter
   const filteredManuscripts = manuscripts.filter((manuscript) => {
     const query = searchQuery.toLowerCase();
-    return (
+    const matchesSearch = (
       manuscript.title.toLowerCase().includes(query) ||
       manuscript.author.toLowerCase().includes(query) ||
       (manuscript.description && manuscript.description.toLowerCase().includes(query))
     );
+    
+    // Quality filter logic
+    const matchesQuality = qualityFilter === 'all' || 
+      (qualityFilter === 'rich' && manuscript.content_quality === 'rich') ||
+      (qualityFilter === 'medium' && manuscript.content_quality === 'medium') ||
+      (qualityFilter === 'short' && (manuscript.content_quality === 'short' || manuscript.content_quality === 'very_short'));
+    
+    return matchesSearch && matchesQuality;
   });
 
   // Separate pinned and non-pinned manuscripts
@@ -877,10 +1245,10 @@ function LeftPanel({ selectedManuscript, onSelectManuscript, manuscripts, onRese
     currentPage * itemsPerPage
   );
 
-  // Reset to page 1 when search changes
+  // Reset to page 1 when search or filter changes
   useEffect(() => {
     setCurrentPage(1);
-  }, [searchQuery]);
+  }, [searchQuery, qualityFilter]);
 
   const handlePageChange = (page) => {
     setCurrentPage(page);
@@ -920,6 +1288,17 @@ function LeftPanel({ selectedManuscript, onSelectManuscript, manuscripts, onRese
       <div className="mb-6 shrink-0">
         <h2 className="text-xl font-bold text-primary-800 mb-2">Daftar Naskah</h2>
         <div className="h-1 w-16 bg-gradient-to-r from-accent-500 to-primary-600 rounded-full"></div>
+      </div>
+
+      {/* Chat Semua Naskah Button */}
+      <div className="mb-4 shrink-0">
+        <button
+          onClick={() => setViewMode('ragchat')}
+          className="w-full px-4 py-3 rounded-xl font-semibold transition-all shadow-md bg-gradient-to-r from-accent-600 to-primary-500 text-white hover:from-accent-700 hover:to-primary-600"
+          title="Chat dengan seluruh naskah menggunakan AI"
+        >
+          🔍 Chat Semua Naskah
+        </button>
       </div>
 
       {/* Multi-Selection Toggle */}
@@ -992,11 +1371,60 @@ function LeftPanel({ selectedManuscript, onSelectManuscript, manuscripts, onRese
             </button>
           )}
         </div>
-        {searchQuery && (
+        {(searchQuery || qualityFilter !== 'all') && (
           <p className="text-xs text-gray-500 mt-2">
             {filteredManuscripts.length} naskah ditemukan
           </p>
         )}
+      </div>
+
+      {/* Quality Filter Buttons - NEW */}
+      <div className="mb-4 shrink-0">
+        <div className="flex items-center gap-2 mb-2">
+          <span className="text-xs font-semibold text-primary-700">🎯 Filter Kualitas:</span>
+        </div>
+        <div className="grid grid-cols-2 gap-2">
+          <button
+            onClick={() => setQualityFilter('all')}
+            className={`px-3 py-2 rounded-lg text-xs font-bold transition-all ${
+              qualityFilter === 'all'
+                ? 'bg-gradient-to-r from-primary-600 to-accent-500 text-white shadow-md'
+                : 'bg-white text-gray-700 border border-gray-300 hover:border-primary-400'
+            }`}
+          >
+            📚 Semua
+          </button>
+          <button
+            onClick={() => setQualityFilter('rich')}
+            className={`px-3 py-2 rounded-lg text-xs font-bold transition-all ${
+              qualityFilter === 'rich'
+                ? 'bg-green-600 text-white shadow-md'
+                : 'bg-white text-green-700 border border-green-300 hover:border-green-400'
+            }`}
+          >
+            🟢 Lengkap
+          </button>
+          <button
+            onClick={() => setQualityFilter('medium')}
+            className={`px-3 py-2 rounded-lg text-xs font-bold transition-all ${
+              qualityFilter === 'medium'
+                ? 'bg-yellow-600 text-white shadow-md'
+                : 'bg-white text-yellow-700 border border-yellow-300 hover:border-yellow-400'
+            }`}
+          >
+            🟡 Cukup
+          </button>
+          <button
+            onClick={() => setQualityFilter('short')}
+            className={`px-3 py-2 rounded-lg text-xs font-bold transition-all ${
+              qualityFilter === 'short'
+                ? 'bg-orange-600 text-white shadow-md'
+                : 'bg-white text-orange-700 border border-orange-300 hover:border-orange-400'
+            }`}
+          >
+            🟠 Pendek
+          </button>
+        </div>
       </div>
 
       <div className="flex-1 overflow-y-auto min-h-0 pr-2 space-y-3">
@@ -1033,14 +1461,14 @@ function LeftPanel({ selectedManuscript, onSelectManuscript, manuscripts, onRese
         )}
       </div>
 
-      {/* Pagination Controls */}
+      {/* Pagination Controls - Mobile Optimized */}
       {totalPages > 1 && (
         <div className="mt-4 pt-4 border-t border-primary-200 shrink-0">
           <div className="flex flex-col gap-3">
             {/* Page Info & Items Per Page */}
-            <div className="flex justify-between items-center text-xs text-gray-600">
+            <div className="flex justify-between items-center text-[10px] sm:text-xs text-gray-600">
               <span>
-                Hal. <strong>{currentPage}</strong> dari <strong>{totalPages}</strong>
+                Hal. <strong className="text-primary-700">{currentPage}</strong> / <strong className="text-primary-700">{totalPages}</strong>
               </span>
               <select
                 value={itemsPerPage}
@@ -1048,50 +1476,88 @@ function LeftPanel({ selectedManuscript, onSelectManuscript, manuscripts, onRese
                   setItemsPerPage(Number(e.target.value));
                   setCurrentPage(1);
                 }}
-                className="bg-transparent border-b border-gray-300 focus:outline-none focus:border-primary-500"
+                className="text-[10px] sm:text-xs bg-transparent border-b border-gray-300 focus:outline-none focus:border-primary-500 font-semibold text-primary-600"
               >
-                <option value={5}>5 / hal</option>
-                <option value={10}>10 / hal</option>
-                <option value={20}>20 / hal</option>
+                <option value={5}>5 per hal</option>
+                <option value={10}>10 per hal</option>
+                <option value={20}>20 per hal</option>
               </select>
             </div>
 
-            {/* Navigation Buttons */}
+            {/* Navigation Buttons - Responsive */}
             <div className="flex justify-between items-center gap-2">
               <button
                 onClick={() => handlePageChange(currentPage - 1)}
                 disabled={currentPage === 1}
-                className="p-2 rounded-lg border border-gray-300 hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed"
+                className="px-3 py-2 sm:px-4 sm:py-2 rounded-lg border-2 border-primary-300 hover:bg-primary-50 disabled:opacity-40 disabled:cursor-not-allowed transition-all font-bold text-primary-700 text-xs sm:text-sm"
+                title="Halaman sebelumnya"
               >
-                ◀️
+                ◀
               </button>
 
-              {/* Jump to Page Dropdown */}
-              <div className="relative flex-1 mx-2">
-                <select
-                  value={currentPage}
-                  onChange={(e) => handlePageChange(Number(e.target.value))}
-                  className="w-full appearance-none pl-3 pr-8 py-2 bg-white border border-gray-300 rounded-lg text-sm font-semibold text-primary-700 focus:outline-none focus:ring-2 focus:ring-primary-500 cursor-pointer text-center"
-                >
-                  {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
-                    <option key={page} value={page}>
-                      Halaman {page}
-                    </option>
-                  ))}
-                </select>
-                <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-500">
-                  <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7" />
-                  </svg>
+              {/* Page Indicator - Mobile Friendly */}
+              <div className="flex-1 flex items-center justify-center gap-2">
+                {/* Show compact page numbers on mobile, full on desktop */}
+                <div className="hidden sm:flex items-center gap-1">
+                  {Array.from({ length: Math.min(totalPages, 5) }, (_, i) => {
+                    let pageNum;
+                    if (totalPages <= 5) {
+                      pageNum = i + 1;
+                    } else if (currentPage <= 3) {
+                      pageNum = i + 1;
+                    } else if (currentPage >= totalPages - 2) {
+                      pageNum = totalPages - 4 + i;
+                    } else {
+                      pageNum = currentPage - 2 + i;
+                    }
+                    
+                    return (
+                      <button
+                        key={pageNum}
+                        onClick={() => handlePageChange(pageNum)}
+                        className={`w-8 h-8 rounded-lg text-xs font-bold transition-all ${
+                          currentPage === pageNum
+                            ? 'bg-gradient-to-r from-primary-600 to-accent-500 text-white shadow-md'
+                            : 'bg-white border border-primary-300 text-primary-700 hover:border-primary-500'
+                        }`}
+                      >
+                        {pageNum}
+                      </button>
+                    );
+                  })}
+                  {totalPages > 5 && currentPage < totalPages - 2 && (
+                    <span className="text-gray-400 px-1">...</span>
+                  )}
+                </div>
+                
+                {/* Mobile: Dropdown for page selection */}
+                <div className="sm:hidden relative flex-1">
+                  <select
+                    value={currentPage}
+                    onChange={(e) => handlePageChange(Number(e.target.value))}
+                    className="w-full appearance-none pl-3 pr-8 py-2 bg-white border-2 border-primary-300 rounded-lg text-xs font-bold text-primary-700 focus:outline-none focus:ring-2 focus:ring-primary-500 cursor-pointer text-center"
+                  >
+                    {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
+                      <option key={page} value={page}>
+                        Hal {page} / {totalPages}
+                      </option>
+                    ))}
+                  </select>
+                  <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-primary-500">
+                    <svg className="h-3 w-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M19 9l-7 7-7-7" />
+                    </svg>
+                  </div>
                 </div>
               </div>
 
               <button
                 onClick={() => handlePageChange(currentPage + 1)}
                 disabled={currentPage === totalPages}
-                className="p-2 rounded-lg border border-gray-300 hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed"
+                className="px-3 py-2 sm:px-4 sm:py-2 rounded-lg border-2 border-primary-300 hover:bg-primary-50 disabled:opacity-40 disabled:cursor-not-allowed transition-all font-bold text-primary-700 text-xs sm:text-sm"
+                title="Halaman selanjutnya"
               >
-                ▶️
+                ▶
               </button>
             </div>
           </div>
@@ -1108,15 +1574,73 @@ function LeftPanel({ selectedManuscript, onSelectManuscript, manuscripts, onRese
 }
 
 // Komponen Mobile Selector - Horizontal scroll untuk layar kecil
-function MobileManuscriptSelector({ selectedManuscript, onSelectManuscript, manuscripts }) {
+function MobileManuscriptSelector({ selectedManuscript, onSelectManuscript, manuscripts, onResearchStart, setViewMode }) {
   // State for search and pagination in mobile view
   const [mobileSearch, setMobileSearch] = useState('');
   const [isExpanded, setIsExpanded] = useState(false);
+  const [mobileQualityFilter, setMobileQualityFilter] = useState('all'); // Mobile quality filter
+  const [selectionMode, setSelectionMode] = useState(false); // Multi-selection mode
+  const [selectedManuscripts, setSelectedManuscripts] = useState([]); // Selected for research
+  const [currentPage, setCurrentPage] = useState(1); // Pagination state
+  const itemsPerPage = 20; // Fixed 20 items per page for mobile
 
-  const filteredManuscripts = manuscripts.filter(m => 
-    m.title.toLowerCase().includes(mobileSearch.toLowerCase()) ||
-    m.author.toLowerCase().includes(mobileSearch.toLowerCase())
+  const filteredManuscripts = manuscripts.filter(m => {
+    const matchesSearch = (
+      m.title.toLowerCase().includes(mobileSearch.toLowerCase()) ||
+      m.author.toLowerCase().includes(mobileSearch.toLowerCase())
+    );
+    
+    const matchesQuality = mobileQualityFilter === 'all' ||
+      (mobileQualityFilter === 'rich' && m.content_quality === 'rich') ||
+      (mobileQualityFilter === 'medium' && m.content_quality === 'medium') ||
+      (mobileQualityFilter === 'short' && (m.content_quality === 'short' || m.content_quality === 'very_short'));
+    
+    return matchesSearch && matchesQuality;
+  });
+
+  // Sort: Pinned first
+  const sortedManuscripts = [...filteredManuscripts].sort((a, b) => {
+    if (a.is_pinned === b.is_pinned) return 0;
+    return a.is_pinned ? -1 : 1;
+  });
+
+  // Pagination Logic
+  const totalPages = Math.ceil(sortedManuscripts.length / itemsPerPage);
+  const paginatedManuscripts = sortedManuscripts.slice(
+    (currentPage - 1) * itemsPerPage,
+    currentPage * itemsPerPage
   );
+
+  // Reset page when filter changes
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [mobileSearch, mobileQualityFilter]);
+
+  // Selection handlers
+  const handleToggleSelection = (manuscript) => {
+    setSelectedManuscripts(prev => {
+      const isSelected = prev.some(m => m.id === manuscript.id);
+      if (isSelected) {
+        return prev.filter(m => m.id !== manuscript.id);
+      } else {
+        if (prev.length >= 3) return prev; // Max 3
+        return [...prev, manuscript];
+      }
+    });
+  };
+
+  const handleStartResearch = () => {
+    if (selectedManuscripts.length >= 2) {
+      onResearchStart(selectedManuscripts);
+      setSelectionMode(false);
+      setSelectedManuscripts([]);
+    }
+  };
+
+  const handleToggleMode = () => {
+    setSelectionMode(!selectionMode);
+    setSelectedManuscripts([]);
+  };
 
   return (
     <div className="lg:hidden bg-gradient-to-br from-primary-50 via-amber-50 to-accent-50 border-b border-primary-200 shadow-md sticky top-0 z-30">
@@ -1137,9 +1661,55 @@ function MobileManuscriptSelector({ selectedManuscript, onSelectManuscript, manu
           </button>
         </div>
 
-        {/* Expandable Search Area */}
-        {isExpanded && (
+        {/* Action Buttons - Chat Semua & Multi-selection */}
+        <div className="space-y-2 mb-3">
+          <button
+            onClick={() => setViewMode('ragchat')}
+            className="w-full px-4 py-2.5 rounded-xl font-semibold transition-all shadow-md bg-gradient-to-r from-accent-600 to-primary-500 text-white hover:from-accent-700 hover:to-primary-600 text-sm"
+          >
+            🔍 Chat Semua Naskah
+          </button>
+          
+          <button
+            onClick={handleToggleMode}
+            className={`w-full px-4 py-2.5 rounded-xl font-semibold transition-all shadow-md text-sm ${selectionMode
+              ? 'bg-gradient-to-r from-red-500 to-red-600 text-white hover:from-red-600 hover:to-red-700'
+              : 'bg-gradient-to-r from-primary-600 to-accent-500 text-white hover:from-primary-700 hover:to-accent-600'
+            }`}
+          >
+            {selectionMode ? '❌ Batal Pilih' : '💬 Pilih untuk Chat (Max 3)'}
+          </button>
+
+          {selectionMode && (
+            <div className="p-2.5 bg-accent-50 border-2 border-accent-300 rounded-xl">
+              <p className="text-xs text-gray-700 text-center">
+                <strong className="text-accent-700">
+                  {selectedManuscripts.length === 0 && 'Pilih 2-3 naskah untuk chat multi-naskah'}
+                  {selectedManuscripts.length === 1 && '1 naskah dipilih (perlu 1 lagi, max: 3)'}
+                  {selectedManuscripts.length >= 2 && selectedManuscripts.length < 3 && `${selectedManuscripts.length} naskah dipilih (siap chat!)`}
+                  {selectedManuscripts.length === 3 && '3 naskah dipilih (maksimum tercapai)'}
+                </strong>
+              </p>
+            </div>
+          )}
+        </div>
+
+        {/* Multi-Chat Button - Shows when 2-3 selected */}
+        {selectionMode && selectedManuscripts.length >= 2 && selectedManuscripts.length <= 3 && (
           <div className="mb-3">
+            <button
+              onClick={handleStartResearch}
+              className="w-full px-4 py-3 bg-gradient-to-r from-green-600 to-emerald-600 text-white rounded-xl font-bold hover:from-green-700 hover:to-emerald-700 transition-all shadow-lg text-sm"
+            >
+              💬 Chat dengan {selectedManuscripts.length} Naskah
+            </button>
+          </div>
+        )}
+
+        {/* Expandable Search & Filter Area */}
+        {isExpanded && (
+          <div className="space-y-3 mb-3">
+            {/* Search Input */}
             <div className="relative">
               <input
                 type="text"
@@ -1157,6 +1727,53 @@ function MobileManuscriptSelector({ selectedManuscript, onSelectManuscript, manu
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
               </svg>
             </div>
+            
+            {/* Quality Filter Buttons */}
+            <div className="space-y-2">
+              <span className="text-xs font-semibold text-primary-700">🎯 Filter Kualitas:</span>
+              <div className="grid grid-cols-4 gap-2">
+                <button
+                  onClick={() => setMobileQualityFilter('all')}
+                  className={`px-2 py-1.5 rounded-lg text-[10px] font-bold transition-all ${
+                    mobileQualityFilter === 'all'
+                      ? 'bg-gradient-to-r from-primary-600 to-accent-500 text-white shadow-md'
+                      : 'bg-white text-gray-700 border border-gray-300'
+                  }`}
+                >
+                  📚 Semua
+                </button>
+                <button
+                  onClick={() => setMobileQualityFilter('rich')}
+                  className={`px-2 py-1.5 rounded-lg text-[10px] font-bold transition-all ${
+                    mobileQualityFilter === 'rich'
+                      ? 'bg-green-600 text-white shadow-md'
+                      : 'bg-white text-green-700 border border-green-300'
+                  }`}
+                >
+                  🟢
+                </button>
+                <button
+                  onClick={() => setMobileQualityFilter('medium')}
+                  className={`px-2 py-1.5 rounded-lg text-[10px] font-bold transition-all ${
+                    mobileQualityFilter === 'medium'
+                      ? 'bg-yellow-600 text-white shadow-md'
+                      : 'bg-white text-yellow-700 border border-yellow-300'
+                  }`}
+                >
+                  🟡
+                </button>
+                <button
+                  onClick={() => setMobileQualityFilter('short')}
+                  className={`px-2 py-1.5 rounded-lg text-[10px] font-bold transition-all ${
+                    mobileQualityFilter === 'short'
+                      ? 'bg-orange-600 text-white shadow-md'
+                      : 'bg-white text-orange-700 border border-orange-300'
+                  }`}
+                >
+                  🟠
+                </button>
+              </div>
+            </div>
           </div>
         )}
       </div>
@@ -1166,61 +1783,133 @@ function MobileManuscriptSelector({ selectedManuscript, onSelectManuscript, manu
         className="flex gap-3 overflow-x-auto pb-4 px-4"
         style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
       >
-        {filteredManuscripts.slice(0, 15).map((manuscript) => { // Show top 15 for performance
+        {paginatedManuscripts.map((manuscript) => {
           const isActive = selectedManuscript?.id === manuscript.id;
+          const isSelectedForResearch = selectedManuscripts.some(m => m.id === manuscript.id);
+          const disableSelection = !isSelectedForResearch && selectedManuscripts.length >= 3;
+          
           return (
             <button
               key={manuscript.id}
               type="button"
-              onClick={() => onSelectManuscript(manuscript)}
-              className={`flex-shrink-0 w-[260px] rounded-xl border px-4 py-3 text-left transition-all duration-200 shadow-sm relative overflow-hidden ${isActive
-                ? 'bg-gradient-to-br from-primary-600 to-accent-600 text-white border-transparent shadow-lg'
-                : 'bg-white border-primary-200 text-gray-900 hover:border-primary-400'
-                }`}
+              onClick={() => selectionMode ? (!disableSelection && handleToggleSelection(manuscript)) : onSelectManuscript(manuscript)}
+              className={`flex-shrink-0 w-[260px] rounded-xl border px-4 py-3 text-left transition-all duration-200 shadow-sm relative overflow-hidden ${
+                isSelectedForResearch 
+                  ? 'bg-gradient-to-br from-green-100 to-emerald-100 border-green-500 shadow-lg'
+                  : isActive
+                    ? 'bg-gradient-to-br from-primary-600 to-accent-600 text-white border-transparent shadow-lg'
+                    : 'bg-white border-primary-200 text-gray-900 hover:border-primary-400'
+              } ${disableSelection && selectionMode ? 'opacity-60' : ''}`}
+              disabled={selectionMode && disableSelection}
             >
+              {/* Selection Checkbox - Shows in selection mode */}
+              {selectionMode && (
+                <div className="absolute top-2 left-2 z-10">
+                  <input
+                    type="checkbox"
+                    checked={isSelectedForResearch}
+                    onChange={(e) => {
+                      e.stopPropagation();
+                      if (!disableSelection) handleToggleSelection(manuscript);
+                    }}
+                    disabled={disableSelection}
+                    className="w-5 h-5 text-green-600 border-2 border-gray-300 rounded focus:ring-2 focus:ring-green-500 cursor-pointer disabled:cursor-not-allowed"
+                    onClick={(e) => e.stopPropagation()}
+                  />
+                </div>
+              )}
+              
               {/* Active Indicator */}
-              {isActive && (
+              {!selectionMode && isActive && (
                 <div className="absolute top-0 right-0 bg-white/20 p-1 rounded-bl-lg">
                   <span className="text-xs">✓</span>
                 </div>
               )}
               
-              <div className="flex items-center gap-2 mb-2">
+              {/* Selected Indicator */}
+              {selectionMode && isSelectedForResearch && (
+                <div className="absolute top-0 right-0 bg-green-500 p-1 rounded-bl-lg">
+                  <span className="text-xs text-white">✓</span>
+                </div>
+              )}
+              
+              <div className={`flex items-center gap-2 mb-2 ${selectionMode ? 'mt-6' : ''}`}>
                 {manuscript.is_pinned && (
-                  <span className={`text-[10px] px-1.5 rounded ${isActive ? 'bg-white/20 text-white' : 'bg-yellow-100 text-yellow-800 border border-yellow-300'}`}>
+                  <span className={`text-[10px] px-1.5 rounded ${
+                    isSelectedForResearch 
+                      ? 'bg-green-200 text-green-800 border border-green-400'
+                      : isActive 
+                        ? 'bg-white/20 text-white' 
+                        : 'bg-yellow-100 text-yellow-800 border border-yellow-300'
+                  }`}>
                     📌 Pin
                   </span>
                 )}
-                <p className={`text-[10px] uppercase tracking-wide font-bold truncate ${isActive ? 'text-primary-100' : 'text-primary-600'}`}>
+                <p className={`text-[10px] uppercase tracking-wide font-bold truncate ${
+                  isSelectedForResearch 
+                    ? 'text-green-700'
+                    : isActive 
+                      ? 'text-primary-100' 
+                      : 'text-primary-600'
+                }`}>
                   {manuscript.author}
                 </p>
               </div>
               
-              <h3 className="text-sm font-bold leading-snug mb-1 line-clamp-2 h-10">
+              <h3 className={`text-sm font-bold leading-snug mb-1 line-clamp-2 h-10 ${
+                isSelectedForResearch 
+                  ? 'text-green-900'
+                  : isActive 
+                    ? 'text-white' 
+                    : 'text-gray-900'
+              }`}>
                 {manuscript.title}
               </h3>
               
-              <p className={`text-[10px] line-clamp-2 ${isActive ? 'text-primary-100' : 'text-gray-500'}`}>
+              <p className={`text-[10px] line-clamp-2 ${
+                isSelectedForResearch 
+                  ? 'text-green-700'
+                  : isActive 
+                    ? 'text-primary-100' 
+                    : 'text-gray-500'
+              }`}>
                 {manuscript.description}
               </p>
             </button>
           );
         })}
         
-        {filteredManuscripts.length > 15 && (
-          <div className="flex-shrink-0 w-[100px] flex items-center justify-center">
-            <p className="text-xs text-gray-500 text-center px-2">
-              Gunakan pencarian untuk hasil lainnya...
-            </p>
-          </div>
-        )}
-        
-        {filteredManuscripts.length === 0 && (
+        {sortedManuscripts.length === 0 && (
           <div className="w-full text-center py-4 text-gray-500 text-sm">
             Tidak ada naskah ditemukan.
           </div>
         )}
       </div>
+
+      {/* Mobile Pagination Controls */}
+      {totalPages > 1 && (
+        <div className="px-4 pb-3 flex items-center justify-between gap-2">
+          <button
+            onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
+            disabled={currentPage === 1}
+            className="px-3 py-1.5 rounded-lg border border-primary-300 bg-white text-primary-700 text-xs font-bold disabled:opacity-50"
+          >
+            ◀ Prev
+          </button>
+          
+          <span className="text-xs text-gray-600 font-medium">
+            Hal {currentPage} / {totalPages}
+          </span>
+          
+          <button
+            onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
+            disabled={currentPage === totalPages}
+            className="px-3 py-1.5 rounded-lg border border-primary-300 bg-white text-primary-700 text-xs font-bold disabled:opacity-50"
+          >
+            Next ▶
+          </button>
+        </div>
+      )}
     </div>
   );
 }
@@ -1252,16 +1941,6 @@ function RightPanel({ selectedManuscript, viewMode, setViewMode }) {
                 }`}
             >
               💬 Chat
-            </button>
-            <button
-              onClick={() => setViewMode('ragchat')}
-              className={`px-4 py-2.5 sm:px-5 rounded-xl font-semibold transition-all duration-200 ${viewMode === 'ragchat'
-                ? 'bg-gradient-to-r from-accent-600 to-primary-500 text-white shadow-lg sm:scale-105'
-                : 'bg-white text-gray-700 border-2 border-accent-300 hover:border-accent-400 hover:shadow-md'
-                }`}
-              title="RAG Chat - Tanya lintas semua naskah"
-            >
-              🔍 RAG Chat
             </button>
             <button
               onClick={() => setViewMode('kg')}
@@ -1296,9 +1975,14 @@ function RightPanel({ selectedManuscript, viewMode, setViewMode }) {
         )}
         {viewMode === 'educational' && selectedManuscript && (
           <div className="h-full overflow-y-auto p-4 sm:p-6 bg-gradient-to-br from-amber-50 to-orange-50">
+            {console.log('🎓 EDUCATIONAL MODE ACTIVE - Manuscript:', selectedManuscript.id)}
             <EducationalPanel manuscript={selectedManuscript} />
             <div className="mt-6">
-              <EducationalKnowledgeGraph manuscript={selectedManuscript} />
+              {console.log('🔮 ABOUT TO RENDER EducationalKnowledgeGraph')}
+              <EducationalKnowledgeGraph 
+                key={selectedManuscript.id} 
+                manuscript={selectedManuscript} 
+              />
             </div>
           </div>
         )}
@@ -1361,6 +2045,12 @@ function App() {
     setViewMode('chat');
   };
 
+  // Handler untuk kembali ke landing page (beranda)
+  const handleGoHome = () => {
+    setSelectedManuscript(null);
+    setViewMode('welcome');
+  };
+
   // Loading state
   if (loading) {
     return (
@@ -1375,7 +2065,7 @@ function App() {
 
   return (
     <div className="min-h-screen bg-primary-50 flex flex-col">
-      <Header />
+      <Header onGoHome={handleGoHome} />
 
       {/* Deep Chat Modal */}
       {deepChatOpen && deepChatManuscript && (
@@ -1408,6 +2098,8 @@ function App() {
             selectedManuscript={selectedManuscript}
             onSelectManuscript={handleSelectManuscript}
             manuscripts={manuscripts}
+            onResearchStart={handleStartResearch}
+            setViewMode={setViewMode}
           />
         </div>
 
@@ -1418,6 +2110,7 @@ function App() {
             onSelectManuscript={handleSelectManuscript}
             manuscripts={manuscripts}
             onResearchStart={handleStartResearch}
+            setViewMode={setViewMode}
           />
         </div>
 

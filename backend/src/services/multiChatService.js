@@ -18,12 +18,13 @@ async function chatWithMultipleManuscripts(manuscripts, query, conversationHisto
     const queryEmbedding = await embeddingService.generateEmbedding(query);
     
     // Build Pinecone filter to only get chunks from selected manuscripts
-    const manuscriptIds = manuscripts.map(m => m.id);
+    // Use manuscript_id (Pinecone UUID) instead of id (Database ID)
+    const manuscriptIds = manuscripts.map(m => m.manuscript_id || m.id);
     const filter = {
       manuscriptId: { $in: manuscriptIds }
     };
     
-    logger.debug('Querying with filter for manuscriptIds: ' + manuscriptIds.join(', '));
+    logger.debug('Querying with filter for Pinecone manuscriptIds: ' + manuscriptIds.join(', '));
     
     const allResults = await vectorDB.query(queryEmbedding, {
       topK: 15, // OPTIMIZED: Reduced from 30 to save ~3000 tokens per request (50% reduction)
@@ -37,8 +38,8 @@ async function chatWithMultipleManuscripts(manuscripts, query, conversationHisto
     logger.info('=== DEBUG: Manuscripts received from frontend ===');
     manuscripts.forEach(m => {
       logger.info('  Title: ' + m.title);
-      logger.info('    Supabase ID: ' + m.id);
-      logger.info('    Pinecone ID (manuscript_id): ' + (m.manuscript_id || 'NOT SET'));
+      logger.info('    Database ID: ' + m.id);
+      logger.info('    Pinecone UUID (manuscript_id): ' + (m.manuscript_id || 'MISSING - WILL FAIL!'));
     });
     
     // DEBUG: Log sample Pinecone chunks
@@ -51,12 +52,17 @@ async function chatWithMultipleManuscripts(manuscripts, query, conversationHisto
     
     // Map chunks to their manuscripts (all results are already filtered by Pinecone)
     const relevantChunks = allResults.map(chunk => {
-      const matchedMs = manuscripts.find(m => m.id === chunk.metadata.manuscriptId);
+      // Find manuscript by matching Pinecone manuscript_id
+      const matchedMs = manuscripts.find(m => {
+        const pineconeId = m.manuscript_id || m.id;
+        return pineconeId === chunk.metadata.manuscriptId;
+      });
       
       return {
         ...chunk,
         manuscript: { 
           id: matchedMs.id, 
+          manuscript_id: matchedMs.manuscript_id || matchedMs.id,
           title: matchedMs.title, 
           author: matchedMs.author 
         }
@@ -78,9 +84,10 @@ async function chatWithMultipleManuscripts(manuscripts, query, conversationHisto
         return '===  ' + ms.title + ' (' + ms.author + ') ===\n[Tidak ditemukan informasi relevan]';
       }
       
-      const chunksText = msChunks.map((chunk, idx) => 
-        '[CHUNK_' + idx + ']\n' + chunk.metadata.chunkText
-      ).join('\n\n');
+      const chunksText = msChunks.map((chunk, idx) => {
+        const text = chunk.metadata.chunkText || chunk.metadata.text || '[Teks chunk tidak tersedia]';
+        return '[CHUNK_' + idx + ']\n' + text;
+      }).join('\n\n');
       
       return '===  ' + ms.title + ' (' + ms.author + ') ===\n' + chunksText;
     }).join('\n\n---\n\n');
@@ -165,12 +172,17 @@ Sekarang jawab pertanyaan user dengan format di atas:`;
     const duration = (Date.now() - startTime) / 1000;
     logger.info('Multi-chat completed in ' + duration.toFixed(2) + 's');
     
-    const sources = topChunks.map(chunk => ({
-      manuscriptId: chunk.manuscript.id,
-      manuscriptTitle: chunk.manuscript.title,
-      excerpt: chunk.metadata.chunkText.substring(0, 200) + '...',
-      relevance: chunk.score
-    }));
+    const sources = topChunks.map(chunk => {
+      const chunkText = chunk.metadata.chunkText || chunk.metadata.text || '[Teks tidak tersedia]';
+      const excerpt = chunkText.length > 200 ? chunkText.substring(0, 200) + '...' : chunkText;
+      
+      return {
+        manuscriptId: chunk.manuscript.id,
+        manuscriptTitle: chunk.manuscript.title,
+        excerpt: excerpt,
+        relevance: chunk.score
+      };
+    });
     
     return {
       success: true,
