@@ -1,40 +1,36 @@
 {
-  "hero": {
-    "title": "Jelajahi Khazanah Budaya Nusantara",
-    "subtitle": "Platform digital untuk melestarikan dan mengakses naskah kuno Indonesia dengan teknologi AI.",
-    "cta": "Mulai Jelajahi",
-    "secondaryCta": "Pelajari Lebih Lanjut"
+  "meta": {
+    "title": "Nala Pustaka - Digitalisasi Naskah Kuno",
+    "description": "Platform digital untuk melestarikan dan mengakses naskah kuno Indonesia dengan teknologi AI."
   },
-  "features": {
-    "title": "Fitur Unggulan",
-    "subtitle": "Teknologi canggih untuk pengalaman terbaik",
-    "search": {
-      "title": "Pencarian Cerdas",
-      "description": "Temukan naskah dengan mudah menggunakan pencarian semantik berbasis AI."
-    },
-    "chat": {
-      "title": "Tanya Naskah",
-      "description": "Berinteraksi langsung dengan konten naskah melalui fitur chat interaktif."
-    },
-    "digitization": {
-      "title": "Digitalisasi Presisi",
-      "description": "Konversi naskah fisik ke format digital dengan akurasi tinggi."
+  "hero": {
+    "badge": "DIGITALISASI NASKAH KUNO",
+    "title": "Jelajahi Khazanah",
+    "titleHighlight": "Budaya Nusantara",
+    "description": "Platform digital canggih yang menggabungkan <strong>filologi tradisional</strong> dengan <strong>kecerdasan buatan</strong> untuk melestarikan, menganalisis, dan membuka akses ke ribuan naskah kuno Indonesia.",
+    "ctaPrimary": "Mulai Jelajahi",
+    "ctaSecondary": "Lihat Katalog"
+  },
+  "academic": {
+    "title": "Pendekatan Akademis & Teknologi",
+    "subtitle": "Kami menggabungkan standar akademis yang ketat dengan teknologi mutakhir untuk memberikan pengalaman penelitian yang mendalam.",
+    "features": {
+      "rag": {
+        "title": "RAG Chatbot",
+        "description": "Tanya jawab dengan naskah menggunakan <strong>Retrieval-Augmented Generation</strong> yang memberikan jawaban akurat berdasarkan konteks naskah asli."
+      },
+      "graph": {
+        "title": "Knowledge Graph",
+        "description": "Visualisasi hubungan antar tokoh, tempat, dan peristiwa dalam naskah untuk memahami struktur narasi secara menyeluruh."
+      },
+      "catalog": {
+        "title": "Katalog Terindeks",
+        "description": "Pencarian semantik yang memungkinkan Anda menemukan naskah berdasarkan makna dan konteks, bukan hanya kata kunci."
+      }
     }
   },
-  "stats": {
-    "manuscripts": "Naskah Digital",
-    "users": "Pengguna Aktif",
-    "partners": "Mitra Budaya"
-  },
-  "partners": {
-    "title": "Mitra Kami"
-  },
-  "testimonials": {
-    "title": "Apa Kata Mereka"
-  },
-  "cta": {
-    "title": "Bergabunglah dalam Melestarikan Budaya",
-    "subtitle": "Jadilah bagian dari gerakan pelestarian warisan budaya Indonesia.",
-    "button": "Daftar Sekarang"
+  "quote": {
+    "text": "Bangsa yang besar adalah bangsa yang menghargai sejarah dan budayanya sendiri.",
+    "author": "Ir. Soekarno"
   }
 }

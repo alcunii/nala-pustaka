@@ -1,40 +1,36 @@
 {
-  "hero": {
-    "title": "Explore the Archipelago's Cultural Treasures",
-    "subtitle": "Digital platform to preserve and access ancient Indonesian manuscripts with AI technology.",
-    "cta": "Start Exploring",
-    "secondaryCta": "Learn More"
+  "meta": {
+    "title": "Nala Pustaka - Ancient Manuscript Digitization",
+    "description": "Digital platform to preserve and access ancient Indonesian manuscripts with AI technology."
   },
-  "features": {
-    "title": "Key Features",
-    "subtitle": "Advanced technology for the best experience",
-    "search": {
-      "title": "Smart Search",
-      "description": "Find manuscripts easily using AI-based semantic search."
-    },
-    "chat": {
-      "title": "Chat with Manuscripts",
-      "description": "Interact directly with manuscript content through interactive chat features."
-    },
-    "digitization": {
-      "title": "Precision Digitization",
-      "description": "Convert physical manuscripts to digital format with high accuracy."
+  "hero": {
+    "badge": "ANCIENT MANUSCRIPT DIGITIZATION",
+    "title": "Explore the Archipelago's",
+    "titleHighlight": "Cultural Treasures",
+    "description": "Advanced digital platform combining <strong>traditional philology</strong> with <strong>artificial intelligence</strong> to preserve, analyze, and open access to thousands of ancient Indonesian manuscripts.",
+    "ctaPrimary": "Start Exploring",
+    "ctaSecondary": "View Catalog"
+  },
+  "academic": {
+    "title": "Academic & Technological Approach",
+    "subtitle": "We combine rigorous academic standards with cutting-edge technology to provide an immersive research experience.",
+    "features": {
+      "rag": {
+        "title": "RAG Chatbot",
+        "description": "Chat with manuscripts using <strong>Retrieval-Augmented Generation</strong> providing accurate answers based on original manuscript context."
+      },
+      "graph": {
+        "title": "Knowledge Graph",
+        "description": "Visualize relationships between characters, places, and events in manuscripts to understand narrative structure comprehensively."
+      },
+      "catalog": {
+        "title": "Indexed Catalog",
+        "description": "Semantic search allowing you to find manuscripts based on meaning and context, not just keywords."
+      }
     }
   },
-  "stats": {
-    "manuscripts": "Digital Manuscripts",
-    "users": "Active Users",
-    "partners": "Cultural Partners"
-  },
-  "partners": {
-    "title": "Our Partners"
-  },
-  "testimonials": {
-    "title": "What They Say"
-  },
-  "cta": {
-    "title": "Join in Preserving Culture",
-    "subtitle": "Be part of the movement to preserve Indonesia's cultural heritage.",
-    "button": "Register Now"
+  "quote": {
+    "text": "A great nation is a nation that respects its history and culture.",
+    "author": "Ir. Soekarno"
   }
 }
