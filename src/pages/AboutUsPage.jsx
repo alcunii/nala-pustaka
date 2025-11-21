@@ -104,6 +104,55 @@ export default function AboutUsPage() {
                 </div>
               </div>
             </section>
+
+            {/* Tim Nala Pustaka */}
+            <section className="bg-white p-8 md:p-12 rounded-2xl shadow-sm border border-primary-100">
+              <h2 className="text-3xl font-serif font-bold text-primary-900 mb-8 text-center">Tim Nala Pustaka</h2>
+              
+              <div className="grid md:grid-cols-3 gap-8 text-center">
+                <div>
+                  <h3 className="font-bold text-lg text-primary-800 mb-3">Developer</h3>
+                  <ul className="space-y-2 text-gray-600">
+                    <li>Damar Abhinawa</li>
+                    <li>Viga Laksa Hardjanto</li>
+                  </ul>
+                </div>
+                
+                <div>
+                  <h3 className="font-bold text-lg text-primary-800 mb-3">Filolog</h3>
+                  <ul className="space-y-2 text-gray-600">
+                    <li>Aliffia Marsha Nadhira</li>
+                    <li>Amabilita Celessya Shafaswara</li>
+                  </ul>
+                </div>
+                
+                <div>
+                  <h3 className="font-bold text-lg text-primary-800 mb-3">Desain Visual</h3>
+                  <ul className="space-y-2 text-gray-600">
+                    <li>Wigyasri Titiswari</li>
+                  </ul>
+                </div>
+              </div>
+            </section>
+
+            {/* BudayaGo! Participation */}
+            <section className="text-center py-8">
+              <p className="text-gray-600 mb-6 italic">
+                Dibuat dalam rangka mengikuti lomba BudayaGo! oleh Kementerian Kebudayaan Republik Indonesia
+              </p>
+              <div className="flex justify-center items-center gap-8 flex-wrap">
+                <img
+                  src="/assets/partners/logo-kemenbud.png"
+                  alt="Logo Kementerian Kebudayaan"
+                  className="h-16 md:h-20 object-contain opacity-80 hover:opacity-100 transition-opacity"
+                />
+                <img
+                  src="/assets/partners/logo-budayago.png"
+                  alt="Logo BudayaGo!"
+                  className="h-16 md:h-20 object-contain opacity-80 hover:opacity-100 transition-opacity"
+                />
+              </div>
+            </section>
           </div>
         </div>
       </main>

@@ -1,4 +1,4 @@
-import { useState, useRef } from 'react';
+import { useState } from 'react';
 import { marked } from 'marked';
 import { MessageCircle, X, Send, Loader2, FileText, User, BookMarked } from 'lucide-react';
 
@@ -15,16 +15,7 @@ export default function MultiChatModal({ manuscripts, onClose }) {
   const [input, setInput] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
-  const messagesEndRef = useRef(null);
   const apiUrl = import.meta.env.VITE_RAG_API_URL || 'http://localhost:3001';
-
-  // const scrollToBottom = () => {
-  //   messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-  // };
-
-  // useEffect(() => {
-  //   scrollToBottom();
-  // }, [messages]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -39,13 +30,17 @@ export default function MultiChatModal({ manuscripts, onClose }) {
     setLoading(true);
 
     try {
+      // Format conversation history untuk backend (role: 'user'/'assistant', content: string)
+      // Keep last 5 exchanges for context
+      const conversationHistory = messages.slice(-5);
+
       const response = await fetch(apiUrl + '/api/chat/multi-manuscript', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           manuscripts,
           query: userMessage,
-          conversationHistory: messages
+          conversationHistory
         })
       });
 
@@ -163,7 +158,7 @@ export default function MultiChatModal({ manuscripts, onClose }) {
                   : 'bg-white border-2 border-primary-200 shadow-md'
               } rounded-2xl p-4`}>
                 {msg.role === 'assistant' ? (
-                  <div className="prose prose-base max-w-none prose-headings:text-primary-800 prose-h2:text-2xl prose-h2:font-bold prose-h2:mt-6 prose-h2:mb-4 prose-h3:text-xl prose-h3:font-semibold prose-h3:mt-4 prose-h3:mb-3 prose-strong:text-primary-700 prose-strong:font-bold prose-em:text-accent-700 prose-blockquote:border-l-4 prose-blockquote:border-accent-400 prose-blockquote:pl-4 prose-blockquote:italic prose-blockquote:text-gray-700 prose-ul:list-disc prose-ul:ml-6 prose-ol:list-decimal prose-ol:ml-6 prose-li:my-1 prose-p:my-3 prose-p:leading-relaxed prose-hr:my-6 prose-hr:border-gray-300">
+                  <div className="prose prose-base max-w-none prose-headings:text-primary-800 prose-h2:text-2xl prose-h2:font-bold prose-h2:mt-6 prose-h2:mb-4 prose-h3:text-xl prose-h3:font-semibold prose-h3:mt-4 prose-h3:mb-3 prose-strong:text-primary-700 prose-strong:font-bold prose-em:text-accent-700 prose-blockquote:bg-amber-50 prose-blockquote:border-l-4 prose-blockquote:border-amber-400 prose-blockquote:py-3 prose-blockquote:px-4 prose-blockquote:rounded-r-lg prose-blockquote:italic prose-blockquote:text-gray-800 prose-blockquote:not-italic prose-ul:list-disc prose-ul:ml-6 prose-ol:list-decimal prose-ol:ml-6 prose-li:my-1 prose-p:my-3 prose-p:leading-relaxed prose-hr:my-6 prose-hr:border-gray-300">
                     <div
                       className="text-gray-800 leading-relaxed markdown-content"
                       dangerouslySetInnerHTML={{ __html: marked.parse(msg.content || '') }}
@@ -177,15 +172,41 @@ export default function MultiChatModal({ manuscripts, onClose }) {
                           </summary>
                           <div className="mt-3 space-y-2">
                             {msg.sources.map((src, i) => (
-                              <div key={i} className="bg-accent-50 p-3 rounded-lg border border-accent-200">
-                                <div className="flex items-start justify-between gap-2 mb-1">
-                                  <strong className="text-sm text-primary-800">{src.manuscriptTitle}</strong>
-                                  <span className="text-xs bg-accent-200 px-2 py-0.5 rounded-full text-accent-800">
-                                    {(src.relevance * 100).toFixed(0)}%
-                                  </span>
+                              src.url ? (
+                                <a
+                                  key={i}
+                                  href={src.url}
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                  className="block bg-accent-50 p-3 rounded-lg border border-accent-200 hover:bg-accent-100 hover:border-accent-300 transition-all cursor-pointer group/card"
+                                  title="Klik untuk melihat sumber asli di Sastra.org"
+                                >
+                                  <div className="flex items-start justify-between gap-2 mb-1">
+                                    <div className="flex items-center gap-1.5">
+                                      <strong className="text-sm text-primary-800 group-hover/card:text-accent-700 transition-colors">
+                                        {src.manuscriptTitle}
+                                      </strong>
+                                      <svg className="w-3 h-3 text-accent-400 group-hover/card:text-accent-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                                      </svg>
+                                    </div>
+                                    <span className="text-xs bg-accent-200 px-2 py-0.5 rounded-full text-accent-800">
+                                      {(src.relevance * 100).toFixed(0)}%
+                                    </span>
+                                  </div>
+                                  <p className="text-xs text-gray-700 leading-relaxed">{src.excerpt}</p>
+                                </a>
+                              ) : (
+                                <div key={i} className="bg-accent-50 p-3 rounded-lg border border-accent-200">
+                                  <div className="flex items-start justify-between gap-2 mb-1">
+                                    <strong className="text-sm text-primary-800">{src.manuscriptTitle}</strong>
+                                    <span className="text-xs bg-accent-200 px-2 py-0.5 rounded-full text-accent-800">
+                                      {(src.relevance * 100).toFixed(0)}%
+                                    </span>
+                                  </div>
+                                  <p className="text-xs text-gray-700 leading-relaxed">{src.excerpt}</p>
                                 </div>
-                                <p className="text-xs text-gray-700 leading-relaxed">{src.excerpt}</p>
-                              </div>
+                              )
                             ))}
                           </div>
                         </details>
@@ -220,8 +241,6 @@ export default function MultiChatModal({ manuscripts, onClose }) {
               </div>
             </div>
           )}
-          
-          <div ref={messagesEndRef} />
         </div>
         
         {/* Input Box */}

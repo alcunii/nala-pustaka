@@ -20,13 +20,28 @@ class DeepChatService {
    */
   detectLanguage(query) {
     const patterns = {
-      id: /\b(siapa|apa|bagaimana|mengapa|kapan|dimana|adalah|yang|dan|dari|dengan|untuk)\b/i,
-      en: /\b(who|what|how|why|when|where|is|are|was|were|the|and|from|with|for)\b/i,
+      // Indonesian keywords - expanded
+      id: /\b(siapa|apa|apakah|bagaimana|mengapa|kenapa|kapan|dimana|mana|adalah|ialah|yang|dan|atau|dari|dengan|untuk|pada|dalam|oleh|tentang|terhadap|naskah|jawa|kuno|kepemimpinan|ceritakan|jelaskan|beritahu|tolong)\b/i,
+      // English keywords - significantly expanded
+      en: /\b(who|what|where|when|why|which|whose|whom|how|is|are|was|were|be|been|being|am|has|have|had|do|does|did|will|would|could|should|can|may|might|must|the|a|an|this|that|these|those|and|or|but|from|with|for|about|by|in|on|at|to|of|tell|me|you|i|we|they|he|she|it|explain|describe|show|give|please|leadership|manuscript|example|concept)\b/i,
     };
     
-    if (patterns.id.test(query)) return 'id';
-    if (patterns.en.test(query)) return 'en';
-    return 'id'; // default Indonesian
+    // Count matches for each language
+    const idMatches = (query.match(patterns.id) || []).length;
+    const enMatches = (query.match(patterns.en) || []).length;
+    
+    // If English has more matches, return 'en'
+    if (enMatches > idMatches) return 'en';
+    // If Indonesian has more matches, return 'id'
+    if (idMatches > enMatches) return 'id';
+    
+    // If equal or no matches, check for character patterns
+    // Indonesian often uses 'ng', 'ny', 'dh', 'th' combinations
+    const hasIndonesianPattern = /\b\w*(ng|ny|dh|th)\w*\b/i.test(query);
+    if (hasIndonesianPattern) return 'id';
+    
+    // Default to English if uncertain (better for international audience)
+    return 'en';
   }
 
   /**

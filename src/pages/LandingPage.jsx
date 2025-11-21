@@ -1,15 +1,18 @@
 import { Link } from 'react-router-dom';
 import { Helmet } from 'react-helmet-async';
 import { Search, Network, BookOpen } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import Navbar from '../components/layout/Navbar';
 import Footer from '../components/layout/Footer';
 
 export default function LandingPage() {
+  const { t } = useTranslation('landing');
+  
   return (
     <div className="min-h-screen flex flex-col bg-primary-50 font-sans text-gray-800">
       <Helmet>
-        <title>Nala Pustaka - Digitalisasi & Analisis Naskah Kuno Jawa</title>
-        <meta name="description" content="Platform akademis untuk pelestarian dan analisis naskah kuno Jawa menggunakan teknologi Artificial Intelligence dan Retrieval-Augmented Generation (RAG)." />
+        <title>{t('meta.title')}</title>
+        <meta name="description" content={t('meta.description')} />
       </Helmet>
 
       <Navbar />
@@ -22,32 +25,30 @@ export default function LandingPage() {
           
           <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
             <div className="inline-block mb-6 px-4 py-1.5 rounded-full border border-accent-400/30 bg-accent-900/30 backdrop-blur-sm">
-              <span className="text-accent-300 text-sm font-medium tracking-widest uppercase">Preservasi Digital Berbasis AI</span>
+              <span className="text-accent-300 text-sm font-medium tracking-widest uppercase">{t('hero.badge')}</span>
             </div>
             
             <h1 className="text-4xl md:text-6xl font-serif font-bold tracking-tight mb-6 leading-tight">
-              Menghidupkan Kembali <br />
+              {t('hero.title')} <br />
               <span className="text-transparent bg-clip-text bg-gradient-to-r from-accent-200 to-accent-500">
-                Khazanah Naskah Nusantara
+                {t('hero.titleHighlight')}
               </span>
             </h1>
             
-            <p className="max-w-2xl mx-auto text-lg md:text-xl text-primary-100 mb-10 leading-relaxed font-light">
-              Nala Pustaka menggabungkan ketelitian filologi tradisional dengan kecanggihan teknologi <em>Artificial Intelligence</em> untuk membuka tabir pengetahuan masa lampau.
-            </p>
+            <p className="max-w-2xl mx-auto text-lg md:text-xl text-primary-100 mb-10 leading-relaxed font-light" dangerouslySetInnerHTML={{ __html: t('hero.description') }} />
             
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <Link
                 to="/app"
                 className="px-8 py-4 bg-accent-600 text-primary-900 rounded-lg font-bold text-lg hover:bg-accent-500 transition-all shadow-lg hover:shadow-xl transform hover:-translate-y-1"
               >
-                Mulai Riset & Eksplorasi
+                {t('hero.ctaPrimary')}
               </Link>
               <Link
                 to="/catalog"
                 className="px-8 py-4 bg-transparent border-2 border-white/30 text-white rounded-lg font-bold text-lg hover:bg-white/10 transition-all backdrop-blur-sm"
               >
-                Lihat Katalog Naskah
+                {t('hero.ctaSecondary')}
               </Link>
             </div>
           </div>
@@ -57,10 +58,10 @@ export default function LandingPage() {
         <section className="py-20 bg-white">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="text-center mb-16">
-              <h2 className="text-3xl font-serif font-bold text-primary-900 mb-4">Pendekatan Akademis Modern</h2>
+              <h2 className="text-3xl font-serif font-bold text-primary-900 mb-4">{t('academic.title')}</h2>
               <div className="w-24 h-1 bg-accent-500 mx-auto rounded-full"></div>
               <p className="mt-4 text-gray-600 max-w-2xl mx-auto">
-                Kami menyediakan perangkat analisis komprehensif bagi peneliti, mahasiswa, dan pegiat budaya.
+                {t('academic.subtitle')}
               </p>
             </div>
 
@@ -70,10 +71,8 @@ export default function LandingPage() {
                 <div className="w-14 h-14 bg-white rounded-lg flex items-center justify-center shadow-sm mb-6 group-hover:scale-110 transition-transform duration-300">
                   <Search className="w-8 h-8 text-primary-600" />
                 </div>
-                <h3 className="text-xl font-bold text-primary-900 mb-3">Analisis Semantik (RAG)</h3>
-                <p className="text-gray-600 leading-relaxed">
-                  Temukan makna kontekstual dalam naskah menggunakan teknologi <em>Retrieval-Augmented Generation</em> yang mampu menjawab pertanyaan kompleks berdasarkan isi naskah.
-                </p>
+                <h3 className="text-xl font-bold text-primary-900 mb-3">{t('academic.features.rag.title')}</h3>
+                <p className="text-gray-600 leading-relaxed" dangerouslySetInnerHTML={{ __html: t('academic.features.rag.description') }} />
               </div>
 
               {/* Feature 2 */}
@@ -81,9 +80,9 @@ export default function LandingPage() {
                 <div className="w-14 h-14 bg-white rounded-lg flex items-center justify-center shadow-sm mb-6 group-hover:scale-110 transition-transform duration-300">
                   <Network className="w-8 h-8 text-primary-600" />
                 </div>
-                <h3 className="text-xl font-bold text-primary-900 mb-3">Knowledge Graph</h3>
+                <h3 className="text-xl font-bold text-primary-900 mb-3">{t('academic.features.graph.title')}</h3>
                 <p className="text-gray-600 leading-relaxed">
-                  Visualisasikan hubungan antar tokoh, tempat, dan konsep dalam naskah melalui jejaring pengetahuan interaktif yang memetakan struktur naratif secara mendalam.
+                  {t('academic.features.graph.description')}
                 </p>
               </div>
 
@@ -92,9 +91,9 @@ export default function LandingPage() {
                 <div className="w-14 h-14 bg-white rounded-lg flex items-center justify-center shadow-sm mb-6 group-hover:scale-110 transition-transform duration-300">
                   <BookOpen className="w-8 h-8 text-primary-600" />
                 </div>
-                <h3 className="text-xl font-bold text-primary-900 mb-3">Katalog Terkurasi</h3>
+                <h3 className="text-xl font-bold text-primary-900 mb-3">{t('academic.features.catalog.title')}</h3>
                 <p className="text-gray-600 leading-relaxed">
-                  Akses ke database naskah yang telah dikurasi dan didigitalkan dengan standar akademis, lengkap dengan metadata dan transliterasi yang akurat.
+                  {t('academic.features.catalog.description')}
                 </p>
               </div>
             </div>
@@ -109,10 +108,10 @@ export default function LandingPage() {
           <div className="max-w-4xl mx-auto px-4 text-center relative z-10">
             <span className="text-6xl font-serif text-accent-500/30 absolute top-0 left-0 -translate-x-4 -translate-y-8">"</span>
             <blockquote className="text-2xl md:text-3xl font-serif italic leading-relaxed mb-6">
-              Bangsa yang besar adalah bangsa yang menghargai sejarah dan kebudayaannya sendiri. Naskah kuno adalah jembatan emas menuju kebijaksanaan leluhur.
+              {t('quote.text')}
             </blockquote>
             <cite className="text-accent-300 font-medium not-italic tracking-wider uppercase text-sm">
-              — Filosofi Nala Pustaka
+              {t('quote.author')}
             </cite>
           </div>
         </section>

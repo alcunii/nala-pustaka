@@ -2,6 +2,7 @@ import { Link, useLocation } from 'react-router-dom';
 import { useState } from 'react';
 import { Menu, X, Heart } from 'lucide-react';
 import Logo from '../common/Logo';
+import LanguageSwitcher from '../common/LanguageSwitcher';
 
 export default function Navbar() {
   const location = useLocation();
@@ -13,9 +14,9 @@ export default function Navbar() {
 
   const navLinks = [
     { path: '/', label: 'Beranda' },
-    { path: '/app', label: 'Aplikasi Utama' },
-    { path: '/catalog', label: 'Katalog Naskah' },
-    { path: '/about', label: 'Tentang Kami' },
+    { path: '/app', label: 'Aplikasi' },
+    { path: '/catalog', label: 'Katalog' },
+    { path: '/about', label: 'Tentang' },
   ];
 
   return (
@@ -29,7 +30,7 @@ export default function Navbar() {
               </div>
               <div className="flex flex-col">
                 <span className="font-serif text-xl font-bold tracking-wide text-accent-100 group-hover:text-white transition-colors">
-                  NALA PUSTAKA
+                  Nala Pustaka
                 </span>
                 <span className="text-[10px] uppercase tracking-widest text-primary-200">
                   Digitalisasi Naskah Kuno
@@ -39,7 +40,7 @@ export default function Navbar() {
           </div>
 
           {/* Desktop Menu */}
-          <div className="hidden md:flex items-center space-x-8">
+          <div className="hidden md:flex items-center space-x-4">
             {navLinks.map((link) => (
               <Link
                 key={link.path}
@@ -49,6 +50,10 @@ export default function Navbar() {
                 {link.label}
               </Link>
             ))}
+            
+            {/* Language Switcher */}
+            <LanguageSwitcher />
+            
             <Link
               to="/donation"
               className="px-4 py-2 bg-accent-600 text-primary-900 rounded-md font-bold text-sm hover:bg-accent-500 transition-all shadow-md hover:shadow-lg transform hover:-translate-y-0.5 flex items-center gap-2"
@@ -92,10 +97,14 @@ export default function Navbar() {
                 {link.label}
               </Link>
             ))}
+            
+            {/* Language Switcher Mobile */}
+            <LanguageSwitcher isMobile={true} />
+            
             <Link
               to="/donation"
               onClick={() => setIsMobileMenuOpen(false)}
-              className="flex items-center justify-center gap-2 px-3 py-2 mt-4 text-center bg-accent-600 text-primary-900 rounded-md font-bold hover:bg-accent-500"
+              className="flex items-center justify-center gap-2 px-3 py-2 mx-3 text-center bg-accent-600 text-primary-900 rounded-md font-bold hover:bg-accent-500"
             >
               <Heart className="w-4 h-4" fill="currentColor" />
               Dukung Kami

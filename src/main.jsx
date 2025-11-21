@@ -3,6 +3,7 @@ import { createRoot } from 'react-dom/client'
 import { BrowserRouter, Routes, Route } from 'react-router-dom'
 import { HelmetProvider } from 'react-helmet-async'
 import './index.css'
+import './i18n/config' // Keep for components that still use useTranslation
 import App from './App.jsx'
 import LandingPage from './pages/LandingPage.jsx'
 import CatalogPage from './pages/CatalogPage.jsx'

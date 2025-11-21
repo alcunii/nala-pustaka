@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect } from 'react';
 import { marked } from 'marked';
 import { MessageCircle, X, Send, Loader2, FileText, User } from 'lucide-react';
 import Logo from './common/Logo';
@@ -17,7 +17,6 @@ export default function DeepChatModal({ manuscript, initialQuery, onClose }) {
   const [isLoading, setIsLoading] = useState(false);
   const [fullContext, setFullContext] = useState(null);
   const [loadingContext, setLoadingContext] = useState(true);
-  const chatEndRef = useRef(null);
 
   // Load full manuscript on mount
   useEffect(() => {
@@ -71,9 +70,11 @@ export default function DeepChatModal({ manuscript, initialQuery, onClose }) {
     setIsLoading(true);
 
     try {
-      const conversationHistory = messages.filter(m => 
-        !m.text.includes('Saya sudah memuat')
-      );
+      // Format conversation history untuk backend (sender: 'user'/'ai', text: string)
+      // Keep last 5 exchanges for context
+      const conversationHistory = messages
+        .filter(m => !m.text.includes('Saya sudah memuat')) // Exclude welcome message
+        .slice(-5); // Keep last 5 exchanges
 
       const result = await ragApi.deepChat(
         manuscript.manuscriptId,
@@ -102,10 +103,6 @@ export default function DeepChatModal({ manuscript, initialQuery, onClose }) {
       setIsLoading(false);
     }
   };
-
-  // useEffect(() => {
-  //   chatEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-  // }, [messages]);
 
   return (
     <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
@@ -250,7 +247,6 @@ export default function DeepChatModal({ manuscript, initialQuery, onClose }) {
                   </div>
                 </div>
               )}
-              <div ref={chatEndRef} />
             </>
           )}
         </div>

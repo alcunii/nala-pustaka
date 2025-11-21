@@ -1,8 +1,9 @@
 import { Link } from 'react-router-dom';
-import { MapPin, Mail, Heart, ChevronRight } from 'lucide-react';
+import { MapPin, Mail, ChevronRight } from 'lucide-react';
 import Logo from '../common/Logo';
 
 export default function Footer() {
+  
   return (
     <footer className="bg-primary-900 text-primary-100 border-t-4 border-accent-600">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
@@ -14,12 +15,12 @@ export default function Footer() {
                 <Logo location="footer" size="lg" />
               </div>
               <div>
-                <h3 className="font-serif text-xl font-bold text-accent-100 tracking-wide">NALA PUSTAKA</h3>
+                <h3 className="font-serif text-xl font-bold text-accent-100 tracking-wide">Nala Pustaka</h3>
                 <p className="text-[10px] uppercase tracking-widest text-primary-300">Digitalisasi Naskah Kuno</p>
               </div>
             </div>
             <p className="text-sm text-primary-200 leading-relaxed">
-              Platform digital yang didedikasikan untuk pelestarian, penelitian, dan penyebaran pengetahuan dari naskah-naskah kuno Nusantara melalui teknologi kecerdasan buatan.
+              Platform digitalisasi dan analisis naskah kuno Jawa dengan teknologi AI dan RAG untuk penelitian filologi modern.
             </p>
           </div>
 
@@ -34,17 +35,17 @@ export default function Footer() {
               </li>
               <li>
                 <Link to="/app" className="hover:text-accent-400 transition-colors flex items-center gap-2">
-                  <ChevronRight className="w-4 h-4" /> Aplikasi Utama
+                  <ChevronRight className="w-4 h-4" /> Aplikasi
                 </Link>
               </li>
               <li>
                 <Link to="/catalog" className="hover:text-accent-400 transition-colors flex items-center gap-2">
-                  <ChevronRight className="w-4 h-4" /> Katalog Naskah
+                  <ChevronRight className="w-4 h-4" /> Katalog
                 </Link>
               </li>
               <li>
                 <Link to="/about" className="hover:text-accent-400 transition-colors flex items-center gap-2">
-                  <ChevronRight className="w-4 h-4" /> Tentang Kami
+                  <ChevronRight className="w-4 h-4" /> Tentang
                 </Link>
               </li>
             </ul>
@@ -52,13 +53,13 @@ export default function Footer() {
 
           {/* Contact & Academic Info */}
           <div>
-            <h4 className="text-lg font-bold text-white mb-4 border-b border-primary-700 pb-2 inline-block">Informasi Akademis</h4>
+            <h4 className="text-lg font-bold text-white mb-4 border-b border-primary-700 pb-2 inline-block">Informasi Akademik</h4>
             <div className="space-y-3 text-sm text-primary-200">
               <p className="flex items-start gap-3">
                 <MapPin className="w-5 h-5 text-accent-500 mt-0.5 flex-shrink-0" />
                 <span>
-                  Pusat Studi Naskah Kuno<br />
-                  Yogyakarta, Indonesia
+                  Nala Pustaka<br />
+                  Platform Digitalisasi Naskah Kuno
                 </span>
               </p>
               <p className="flex items-center gap-3">
@@ -66,16 +67,16 @@ export default function Footer() {
                 <a href="mailto:info@nalapustaka.org" className="hover:text-white transition-colors">info@nalapustaka.org</a>
               </p>
               <p className="text-xs mt-4 italic opacity-70">
-                "Nguri-uri Kabudayan Jawi"
+                "Melestarikan warisan budaya melalui teknologi modern"
               </p>
             </div>
           </div>
         </div>
 
         <div className="mt-12 pt-8 border-t border-primary-800 text-center text-xs text-primary-400">
-          <p>&copy; {new Date().getFullYear()} Nala Pustaka. All rights reserved.</p>
+          <p>&copy; {new Date().getFullYear()} Nala Pustaka. Hak Cipta Dilindungi.</p>
           <p className="mt-1 flex items-center justify-center gap-1">
-            Dikembangkan dengan <Heart className="w-3 h-3 text-red-400" fill="currentColor" /> untuk Kebudayaan Indonesia.
+            Dikembangkan dengan ❤️ untuk pelestarian budaya
           </p>
         </div>
       </div>
