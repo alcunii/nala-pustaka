@@ -101,9 +101,9 @@ export default function DeepChatModal({ manuscript, initialQuery, onClose }) {
     }
   };
 
-  useEffect(() => {
-    chatEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-  }, [messages]);
+  // useEffect(() => {
+  //   chatEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+  // }, [messages]);
 
   return (
     <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">

@@ -1,8 +1,12 @@
 import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
 import { BrowserRouter, Routes, Route } from 'react-router-dom'
+import { HelmetProvider } from 'react-helmet-async'
 import './index.css'
 import App from './App.jsx'
+import LandingPage from './pages/LandingPage.jsx'
+import CatalogPage from './pages/CatalogPage.jsx'
+import AboutUsPage from './pages/AboutUsPage.jsx'
 import AdminLogin from './pages/AdminLogin.jsx'
 import AdminDashboard from './pages/AdminDashboard.jsx'
 import DonationPage from './pages/DonationPage.jsx'
@@ -10,14 +14,19 @@ import DonationPage from './pages/DonationPage.jsx'
 // Wrapper component untuk handle routing
 function AppRouter() {
   return (
-    <BrowserRouter>
-      <Routes>
-        <Route path="/" element={<App />} />
-        <Route path="/admin" element={<AdminLogin />} />
-        <Route path="/admin/dashboard" element={<AdminDashboard />} />
-        <Route path="/donation" element={<DonationPage />} />
-      </Routes>
-    </BrowserRouter>
+    <HelmetProvider>
+      <BrowserRouter>
+        <Routes>
+          <Route path="/" element={<LandingPage />} />
+          <Route path="/app" element={<App />} />
+          <Route path="/catalog" element={<CatalogPage />} />
+          <Route path="/about" element={<AboutUsPage />} />
+          <Route path="/admin" element={<AdminLogin />} />
+          <Route path="/admin/dashboard" element={<AdminDashboard />} />
+          <Route path="/donation" element={<DonationPage />} />
+        </Routes>
+      </BrowserRouter>
+    </HelmetProvider>
   );
 }
 

@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef } from 'react';
 import { marked } from 'marked';
 
 // Configure marked for better rendering
@@ -17,13 +17,13 @@ export default function MultiChatModal({ manuscripts, onClose }) {
   const messagesEndRef = useRef(null);
   const apiUrl = import.meta.env.VITE_RAG_API_URL || 'http://localhost:3001';
 
-  const scrollToBottom = () => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-  };
+  // const scrollToBottom = () => {
+  //   messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+  // };
 
-  useEffect(() => {
-    scrollToBottom();
-  }, [messages]);
+  // useEffect(() => {
+  //   scrollToBottom();
+  // }, [messages]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();

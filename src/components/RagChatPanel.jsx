@@ -1,4 +1,4 @@
-﻿import { useState, useRef, useEffect } from 'react';
+﻿import { useState, useRef } from 'react';
 import { marked } from 'marked';
 import { ragApi } from '../lib/ragApi';
 
@@ -12,9 +12,9 @@ export default function RagChatPanel() {
   const [isLoading, setIsLoading] = useState(false);
   const chatEndRef = useRef(null);
 
-  useEffect(() => {
-    chatEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-  }, [messages]);
+  // useEffect(() => {
+  //   chatEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+  // }, [messages]);
 
   const handleSend = async (e) => {
     e.preventDefault();

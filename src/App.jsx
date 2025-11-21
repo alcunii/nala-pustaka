@@ -1,7 +1,8 @@
 import { useState, useEffect, useRef } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 import * as d3 from 'd3';
 import { marked } from 'marked';
+import { Helmet } from 'react-helmet-async';
 import { MANUSCRIPT_DATA } from './data/manuscripts';
 import { manuscriptService } from './lib/supabase';
 import RagChatPanel from './components/RagChatPanel';
@@ -9,6 +10,7 @@ import DeepChatModal from './components/DeepChatModal';
 import EducationalPanel from './components/EducationalPanel';
 import EducationalKnowledgeGraph from './components/EducationalKnowledgeGraph';
 import MultiChatModal from './components/MultiChatModal';
+import Navbar from './components/layout/Navbar';
 
 // Configure marked for better Markdown rendering
 marked.setOptions({
@@ -19,41 +21,6 @@ marked.setOptions({
 // Data naskah sekarang di-fetch dari Supabase (database)
 // Gunakan admin panel di /admin untuk menambah naskah baru
 // Fallback ke data hardcoded jika Supabase gagal
-
-// Komponen Header
-function Header({ onGoHome }) {
-  return (
-    <header className="bg-gradient-to-r from-primary-700 via-primary-600 to-accent-500 text-white shadow-lg">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 py-4 sm:py-6">
-        <div className="flex items-center justify-between gap-4">
-          <button 
-            onClick={onGoHome}
-            className="flex items-center gap-4 hover:opacity-80 transition-opacity cursor-pointer group"
-            title="Kembali ke Beranda"
-          >
-            <div className="w-12 h-12 bg-white/20 backdrop-blur-sm rounded-xl flex items-center justify-center border border-white/30 group-hover:bg-white/30 transition-colors">
-              <svg className="w-7 h-7 text-white" fill="currentColor" viewBox="0 0 20 20">
-                <path d="M9 4.804A7.968 7.968 0 005.5 4c-1.255 0-2.443.29-3.5.804v10A7.969 7.969 0 015.5 14c1.669 0 3.218.51 4.5 1.385A7.962 7.962 0 0114.5 14c1.255 0 2.443.29 3.5.804v-10A7.968 7.968 0 0014.5 4c-1.255 0-2.443.29-3.5.804V12a1 1 0 11-2 0V4.804z" />
-              </svg>
-            </div>
-            <div className="text-left">
-              <h1 className="text-2xl sm:text-3xl font-bold tracking-tight group-hover:text-primary-100 transition-colors">Nala Pustaka</h1>
-              <p className="text-xs sm:text-sm text-primary-100">AI untuk Digitalisasi Naskah Kuno Jawa</p>
-            </div>
-          </button>
-
-          <Link
-            to="/donation"
-            className="flex items-center gap-2 px-3 sm:px-4 py-2 bg-white/10 hover:bg-white/20 text-white rounded-lg border border-white/30 transition-all backdrop-blur-sm font-semibold text-sm sm:text-base shadow-sm hover:shadow-md flex-shrink-0"
-          >
-            <span>💝</span>
-            <span className="hidden sm:inline">Dukung Kami</span>
-          </Link>
-        </div>
-      </div>
-    </header>
-  );
-}
 
 // Komponen Manuscript Card - Modern Golden Style with Mobile Optimization
 function ManuscriptCard({ manuscript, isSelected, onClick, selectionMode, isSelectedForResearch, onToggleSelection, disableSelection }) {
@@ -143,7 +110,7 @@ function WelcomeScreen() {
             </svg>
           </div>
           
-          <h1 className="text-4xl sm:text-5xl font-bold mb-6 bg-gradient-to-r from-primary-700 to-accent-600 bg-clip-text text-transparent">
+          <h1 className="text-4xl sm:text-5xl font-bold mb-6 bg-gradient-to-r from-primary-700 to-accent-600 bg-clip-text text-transparent pb-2">
             Selamat Datang di Nala Pustaka
           </h1>
           
@@ -390,14 +357,14 @@ function ChatPanel({ manuscript }) {
     }
   };
 
-  // Auto-scroll ke bawah saat ada pesan baru
-  const scrollToBottom = () => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-  };
+  // Auto-scroll ke bawah saat ada pesan baru (DINONAKTIFKAN)
+  // const scrollToBottom = () => {
+  //   messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+  // };
 
-  useEffect(() => {
-    scrollToBottom();
-  }, [messages]);
+  // useEffect(() => {
+  //   scrollToBottom();
+  // }, [messages]);
 
   // NEW: Save messages to localStorage whenever they change
   useEffect(() => {
@@ -1993,6 +1960,7 @@ function RightPanel({ selectedManuscript, viewMode, setViewMode }) {
 
 // Komponen App Utama
 function App() {
+  const location = useLocation();
   const [selectedManuscript, setSelectedManuscript] = useState(null);
   const [viewMode, setViewMode] = useState('welcome');
   const [manuscripts, setManuscripts] = useState([]); // State untuk data dari Supabase
@@ -2007,6 +1975,19 @@ function App() {
   useEffect(() => {
     loadManuscripts();
   }, []);
+
+  // Handle navigation from Catalog Page
+  useEffect(() => {
+    if (location.state?.selectedManuscriptId && manuscripts.length > 0) {
+      const manuscript = manuscripts.find(m => m.id === location.state.selectedManuscriptId);
+      if (manuscript) {
+        setSelectedManuscript(manuscript);
+        setViewMode('chat');
+        // Clear state to prevent reopening on refresh (optional, but good UX)
+        window.history.replaceState({}, document.title);
+      }
+    }
+  }, [location.state, manuscripts]);
 
   // Handler untuk start research dari multi-manuscript selection
   const handleStartResearch = (manuscripts) => {
@@ -2045,12 +2026,6 @@ function App() {
     setViewMode('chat');
   };
 
-  // Handler untuk kembali ke landing page (beranda)
-  const handleGoHome = () => {
-    setSelectedManuscript(null);
-    setViewMode('welcome');
-  };
-
   // Loading state
   if (loading) {
     return (
@@ -2065,7 +2040,12 @@ function App() {
 
   return (
     <div className="min-h-screen bg-primary-50 flex flex-col">
-      <Header onGoHome={handleGoHome} />
+      <Helmet>
+        <title>Aplikasi Utama - Nala Pustaka</title>
+        <meta name="description" content="Aplikasi analisis naskah kuno dengan fitur Chat AI, Knowledge Graph, dan Mode Edukatif." />
+      </Helmet>
+      
+      <Navbar />
 
       {/* Deep Chat Modal */}
       {deepChatOpen && deepChatManuscript && (
