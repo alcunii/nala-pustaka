@@ -15,7 +15,6 @@ async function clearCache(options = {}) {
   const { manuscriptId, olderThanDays, dryRun = false } = options;
 
   try {
-    await db.connect();
     logger.info('Connected to database');
 
     let query;
@@ -77,7 +76,7 @@ async function clearCache(options = {}) {
     logger.error('Failed to clear cache:', error);
     throw error;
   } finally {
-    await db.end();
+    await db.pool.end();
   }
 }
 
