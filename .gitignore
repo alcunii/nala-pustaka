@@ -43,11 +43,12 @@ scraping/
 *.txt
 *.md
 !README.md
-!guide/
 !backend/README.md
-!backend/.env.example
 
-# Development scripts (not needed in production)
+# Ignore guide directory as requested
+guide/
+
+# Development scripts and tools (not needed in production)
 backend/src/scripts/
 backend/*.js
 backend/*.cjs
@@ -57,6 +58,18 @@ backend/*.cjs
 *.json
 *.bak
 *.backup
+
+# Specific dev scripts in root
+analysis.cjs
+analyze-data.cjs
+check-ids.cjs
+check-manuscripts.cjs
+check-schema.cjs
+AUTO_CREATE_FORM_FIXED.js
+AUTO_CREATE_FORM.js
+debug_response.html
+
+# Exceptions (Files we WANT to keep)
 !package.json
 !package-lock.json
 !jsconfig.json
@@ -66,3 +79,4 @@ backend/*.cjs
 !backend/package.json
 !backend/package-lock.json
 !src/data/manuscripts.js
+!nixpacks.toml

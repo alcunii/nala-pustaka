@@ -1,5 +1,20 @@
 import { useState, useEffect } from 'react';
 import { marked } from 'marked';
+import { 
+  BookOpen, 
+  Lightbulb, 
+  Users, 
+  Star, 
+  Target, 
+  Sparkles, 
+  GraduationCap, 
+  Loader2, 
+  ChevronDown, 
+  AlertCircle,
+  CheckCircle,
+  XCircle
+} from 'lucide-react';
+import Logo from './common/Logo';
 
 // Configure marked for better rendering
 marked.setOptions({
@@ -102,19 +117,14 @@ function EducationalPanel({ manuscript }) {
           className="w-full px-5 py-4 flex items-center justify-between bg-gradient-to-r from-primary-50 to-accent-50 hover:from-primary-100 hover:to-accent-100 transition-all group"
         >
           <div className="flex items-center gap-4">
-            <div className={`w-12 h-12 rounded-full bg-gradient-to-br ${gradient} flex items-center justify-center text-white text-2xl shadow-md group-hover:scale-110 transition-transform`}>
+            <div className={`w-12 h-12 rounded-full bg-gradient-to-br ${gradient} flex items-center justify-center text-white shadow-md group-hover:scale-110 transition-transform`}>
               {icon}
             </div>
             <h3 className="text-lg sm:text-xl font-bold text-primary-900">{title}</h3>
           </div>
-          <svg
+          <ChevronDown
             className={`w-6 h-6 text-primary-600 transition-transform ${isExpanded ? 'rotate-180' : ''} group-hover:text-accent-600`}
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
-          >
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-          </svg>
+          />
         </button>
         
         {isExpanded && (
@@ -131,26 +141,33 @@ function EducationalPanel({ manuscript }) {
       <div className="bg-gradient-to-br from-gray-50 to-white rounded-2xl p-8 sm:p-12 text-center border-2 border-primary-200 shadow-xl">
         <div className="mb-6 animate-bounce">
           <div className="inline-flex p-5 bg-gradient-to-br from-accent-500 to-primary-600 rounded-full shadow-2xl">
-            <svg className="w-12 h-12 text-white" fill="currentColor" viewBox="0 0 20 20">
-              <path d="M9 4.804A7.968 7.968 0 005.5 4c-1.255 0-2.443.29-3.5.804v10A7.969 7.969 0 015.5 14c1.669 0 3.218.51 4.5 1.385A7.962 7.962 0 0114.5 14c1.255 0 2.443.29 3.5.804v-10A7.968 7.968 0 0014.5 4c-1.255 0-2.443.29-3.5.804V12a1 1 0 11-2 0V4.804z" />
-            </svg>
+            <Logo location="educational" size="lg" />
           </div>
         </div>
-        <h3 className="text-2xl sm:text-3xl font-bold text-gray-800 mb-3">📚 Mode Belajar Interaktif</h3>
+        <h3 className="text-2xl sm:text-3xl font-bold text-gray-800 mb-3 flex items-center justify-center gap-2">
+          <GraduationCap className="w-8 h-8 text-primary-700" />
+          Mode Belajar Interaktif
+        </h3>
         <p className="text-gray-600 mb-2 text-lg">
           Generate konten edukatif untuk memahami naskah ini dengan mudah!
         </p>
-        <p className="text-sm text-gray-500 mb-8">
-          ✨ Ringkasan • 💡 Kearifan Lokal • 🎭 Tokoh • 🌟 Kenapa Keren • 🎯 Quiz
+        <p className="text-sm text-gray-500 mb-8 flex items-center justify-center gap-3 flex-wrap">
+          <span className="flex items-center gap-1"><Sparkles className="w-4 h-4" /> Ringkasan</span>
+          <span className="flex items-center gap-1"><Lightbulb className="w-4 h-4" /> Kearifan Lokal</span>
+          <span className="flex items-center gap-1"><Users className="w-4 h-4" /> Tokoh</span>
+          <span className="flex items-center gap-1"><Star className="w-4 h-4" /> Kenapa Keren</span>
+          <span className="flex items-center gap-1"><Target className="w-4 h-4" /> Quiz</span>
         </p>
         <button
           onClick={generateContent}
-          className="px-8 py-4 bg-gradient-to-r from-primary-600 to-accent-500 text-white rounded-xl font-bold hover:from-primary-700 hover:to-accent-600 transition-all shadow-lg hover:shadow-xl text-lg"
+          className="px-8 py-4 bg-gradient-to-r from-primary-600 to-accent-500 text-white rounded-xl font-bold hover:from-primary-700 hover:to-accent-600 transition-all shadow-lg hover:shadow-xl text-lg flex items-center gap-2 mx-auto"
         >
-          🎓 Generate Konten Edukatif
+          <GraduationCap className="w-6 h-6" />
+          Generate Konten Edukatif
         </button>
-        <p className="text-xs text-gray-500 mt-4">
-          ⚡ AI akan menganalisis naskah (~10 detik)
+        <p className="text-xs text-gray-500 mt-4 flex items-center justify-center gap-1">
+          <Sparkles className="w-3 h-3" />
+          AI akan menganalisis naskah (~10 detik)
         </p>
       </div>
     );
@@ -159,15 +176,21 @@ function EducationalPanel({ manuscript }) {
   if (loading) {
     return (
       <div className="bg-gradient-to-br from-white to-gray-50 rounded-2xl p-12 text-center border-2 border-primary-200 shadow-lg">
-        <div className="animate-spin rounded-full h-16 w-16 border-b-4 border-primary-600 mx-auto mb-6"></div>
-        <p className="text-gray-800 font-bold text-xl mb-2">🤖 AI Sedang Bekerja...</p>
+        <Loader2 className="animate-spin h-16 w-16 text-primary-600 mx-auto mb-6" />
+        <p className="text-gray-800 font-bold text-xl mb-2 flex items-center justify-center gap-2">
+          <GraduationCap className="w-6 h-6" />
+          AI Sedang Bekerja...
+        </p>
         <p className="text-gray-600 mb-4">Generating konten edukatif untuk Anda</p>
         <div className="flex items-center justify-center gap-2 text-sm text-gray-500">
           <div className="w-2 h-2 bg-primary-500 rounded-full animate-bounce"></div>
           <div className="w-2 h-2 bg-accent-500 rounded-full animate-bounce" style={{ animationDelay: '150ms' }}></div>
           <div className="w-2 h-2 bg-primary-500 rounded-full animate-bounce" style={{ animationDelay: '300ms' }}></div>
         </div>
-        <p className="text-xs text-gray-500 mt-4">⏱️ Biasanya memakan waktu ~10 detik</p>
+        <p className="text-xs text-gray-500 mt-4 flex items-center justify-center gap-1">
+          <Loader2 className="w-3 h-3 animate-spin" />
+          Biasanya memakan waktu ~10 detik
+        </p>
       </div>
     );
   }
@@ -175,12 +198,14 @@ function EducationalPanel({ manuscript }) {
   if (error) {
     return (
       <div className="bg-red-50 border-2 border-red-300 rounded-2xl p-6 text-center">
-        <p className="text-red-800 font-semibold mb-2">⚠️ Error</p>
+        <AlertCircle className="w-12 h-12 text-red-600 mx-auto mb-3" />
+        <p className="text-red-800 font-semibold mb-2">Error</p>
         <p className="text-red-600">{error}</p>
         <button
           onClick={generateContent}
-          className="mt-4 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700"
+          className="mt-4 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 flex items-center gap-2 mx-auto"
         >
+          <Loader2 className="w-4 h-4" />
           Coba Lagi
         </button>
       </div>
@@ -192,8 +217,8 @@ function EducationalPanel({ manuscript }) {
       {/* Enhanced Header */}
       <div className="bg-gradient-to-r from-primary-600 to-accent-500 rounded-2xl px-6 py-5 text-white shadow-lg">
         <div className="flex items-start gap-4">
-          <div className="w-14 h-14 bg-white/20 backdrop-blur-sm rounded-full flex items-center justify-center text-3xl flex-shrink-0 shadow-md">
-            🎓
+          <div className="w-14 h-14 bg-white/20 backdrop-blur-sm rounded-full flex items-center justify-center flex-shrink-0 shadow-md">
+            <GraduationCap className="w-8 h-8" />
           </div>
           <div className="flex-1">
             <h2 className="text-2xl font-bold mb-2">
@@ -202,8 +227,9 @@ function EducationalPanel({ manuscript }) {
             <p className="text-sm text-white/90 mb-2">
               {manuscript.title} • {manuscript.author}
             </p>
-            <p className="text-xs text-white/80">
-              💡 Konten edukatif khusus untuk memudahkan pemahaman naskah kuno Jawa
+            <p className="text-xs text-white/80 flex items-center gap-1">
+              <Lightbulb className="w-3 h-3" />
+              Konten edukatif khusus untuk memudahkan pemahaman naskah kuno Jawa
             </p>
           </div>
         </div>
@@ -212,7 +238,7 @@ function EducationalPanel({ manuscript }) {
       {/* 4 Educational Cards with Different Gradients */}
       <div className="flex flex-col gap-6">
         {/* Card 1: Ringkasan */}
-        <EducationalCard icon="📖" title="Ringkasan Mudah" cardName="summary" gradient="from-blue-500 to-cyan-500">
+        <EducationalCard icon={<BookOpen className="w-7 h-7" />} title="Ringkasan Mudah" cardName="summary" gradient="from-blue-500 to-cyan-500">
           <div 
             className="prose prose-base max-w-none
               prose-headings:text-primary-900 prose-headings:font-bold
@@ -235,14 +261,14 @@ function EducationalPanel({ manuscript }) {
         </EducationalCard>
 
         {/* Card 2: Kearifan Lokal */}
-        <EducationalCard icon="💡" title="Kearifan Lokal (Relate with You)" cardName="wisdom" gradient="from-amber-500 to-orange-500">
+        <EducationalCard icon={<Lightbulb className="w-7 h-7" />} title="Kearifan Lokal (Relate with You)" cardName="wisdom" gradient="from-amber-500 to-orange-500">
           <div className="space-y-4">
             {content.wisdom && content.wisdom.length > 0 ? (
               content.wisdom.map((item, index) => (
                 <div key={index} className="bg-gradient-to-r from-amber-50 to-orange-50 rounded-xl p-5 border-l-4 border-amber-500 shadow-sm hover:shadow-md transition-shadow">
                   <div className="flex items-start gap-3">
-                    <div className="w-10 h-10 bg-gradient-to-br from-amber-500 to-orange-500 rounded-full flex items-center justify-center text-white text-lg flex-shrink-0 shadow-md">
-                      💫
+                    <div className="w-10 h-10 bg-gradient-to-br from-amber-500 to-orange-500 rounded-full flex items-center justify-center text-white flex-shrink-0 shadow-md">
+                      <Sparkles className="w-5 h-5" />
                     </div>
                     <div className="flex-1">
                       <h4 className="font-bold text-primary-900 text-lg mb-2">{item.nilai}</h4>
@@ -272,7 +298,7 @@ function EducationalPanel({ manuscript }) {
         </EducationalCard>
 
         {/* Card 3: Tokoh & Cerita */}
-        <EducationalCard icon="🎭" title="Tokoh & Cerita (Character Check)" cardName="characters" gradient="from-purple-500 to-pink-500">
+        <EducationalCard icon={<Users className="w-7 h-7" />} title="Tokoh & Cerita (Character Check)" cardName="characters" gradient="from-purple-500 to-pink-500">
           <div className="space-y-4">
             {content.characters && content.characters.length > 0 ? (
               content.characters.map((char, index) => (
@@ -306,7 +332,7 @@ function EducationalPanel({ manuscript }) {
         </EducationalCard>
 
         {/* Card 4: Mengapa Penting */}
-        <EducationalCard icon="🌟" title="Kenapa Naskah Ini Keren? (Significance)" cardName="significance" gradient="from-emerald-500 to-teal-500">
+        <EducationalCard icon={<Star className="w-7 h-7" />} title="Kenapa Naskah Ini Keren? (Significance)" cardName="significance" gradient="from-emerald-500 to-teal-500">
           <div 
             className="prose prose-base max-w-none
               prose-headings:text-primary-900 prose-headings:font-bold
@@ -334,8 +360,8 @@ function EducationalPanel({ manuscript }) {
         <div className="bg-white rounded-2xl shadow-lg border-2 border-primary-200 overflow-hidden animate-fadeIn">
           <div className="bg-gradient-to-r from-accent-500 to-yellow-500 px-6 py-5 flex items-center justify-between">
             <div className="flex items-center gap-4">
-              <div className="w-12 h-12 bg-white/20 backdrop-blur-sm rounded-full flex items-center justify-center text-2xl shadow-md">
-                🎯
+              <div className="w-12 h-12 bg-white/20 backdrop-blur-sm rounded-full flex items-center justify-center shadow-md">
+                <Target className="w-7 h-7 text-white" />
               </div>
               <div>
                 <h3 className="text-xl font-bold text-white">Quiz Pemahaman</h3>
@@ -345,9 +371,10 @@ function EducationalPanel({ manuscript }) {
             {!showQuiz && (
               <button
                 onClick={() => setShowQuiz(true)}
-                className="px-6 py-3 bg-white text-accent-600 rounded-xl hover:bg-gray-50 font-bold shadow-md hover:shadow-lg transition-all"
+                className="px-6 py-3 bg-white text-accent-600 rounded-xl hover:bg-gray-50 font-bold shadow-md hover:shadow-lg transition-all flex items-center gap-2"
               >
-                🚀 Mulai Quiz
+                <Target className="w-5 h-5" />
+                Mulai Quiz
               </button>
             )}
           </div>
@@ -394,17 +421,18 @@ function EducationalPanel({ manuscript }) {
                               className="w-4 h-4"
                             />
                             <span className="text-gray-800">{option}</span>
-                            {showResult && isCorrect && <span className="ml-auto">✅</span>}
-                            {showResult && isSelected && !isCorrect && <span className="ml-auto">❌</span>}
+                            {showResult && isCorrect && <CheckCircle className="w-5 h-5 text-green-600 ml-auto" />}
+                            {showResult && isSelected && !isCorrect && <XCircle className="w-5 h-5 text-red-600 ml-auto" />}
                           </div>
                         </div>
                       );
                     })}
                   </div>
                   {quizSubmitted && question.explanation && (
-                    <div className="mt-3 bg-blue-50 border-l-4 border-blue-500 px-4 py-3 rounded">
+                    <div className="mt-3 bg-blue-50 border-l-4 border-blue-500 px-4 py-3 rounded flex gap-2">
+                      <Lightbulb className="w-5 h-5 text-blue-600 flex-shrink-0 mt-0.5" />
                       <p className="text-sm text-blue-900">
-                        <strong>💡 Penjelasan:</strong> {question.explanation}
+                        <strong>Penjelasan:</strong> {question.explanation}
                       </p>
                     </div>
                   )}
@@ -415,28 +443,27 @@ function EducationalPanel({ manuscript }) {
                 <button
                   onClick={submitQuiz}
                   disabled={Object.keys(quizAnswers).length !== content.quiz.length}
-                  className="w-full px-6 py-4 bg-gradient-to-r from-primary-600 to-accent-500 text-white rounded-xl font-bold hover:from-primary-700 hover:to-accent-600 transition-all shadow-lg hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed text-lg"
+                  className="w-full px-6 py-4 bg-gradient-to-r from-primary-600 to-accent-500 text-white rounded-xl font-bold hover:from-primary-700 hover:to-accent-600 transition-all shadow-lg hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed text-lg flex items-center justify-center gap-2"
                 >
-                  ✅ Submit Jawaban
+                  <CheckCircle className="w-6 h-6" />
+                  Submit Jawaban
                 </button>
               ) : (
                 <div className="bg-gradient-to-r from-primary-50 to-accent-50 rounded-2xl px-6 py-6 text-center border-2 border-primary-300 shadow-md">
                   <div className="mb-4">
                     <div className="inline-flex p-4 bg-gradient-to-br from-primary-500 to-accent-500 rounded-full shadow-lg mb-3">
-                      <span className="text-4xl">
-                        {calculateScore() === 100 && "🎉"}
-                        {calculateScore() >= 60 && calculateScore() < 100 && "👍"}
-                        {calculateScore() < 60 && "💪"}
-                      </span>
+                      {calculateScore() === 100 && <Star className="w-10 h-10 text-white" />}
+                      {calculateScore() >= 60 && calculateScore() < 100 && <Target className="w-10 h-10 text-white" />}
+                      {calculateScore() < 60 && <GraduationCap className="w-10 h-10 text-white" />}
                     </div>
                   </div>
                   <p className="text-3xl font-bold text-primary-900 mb-2">
                     Skor: {calculateScore()}%
                   </p>
-                  <p className="text-base text-gray-700 font-medium">
-                    {calculateScore() === 100 && "🎉 Sempurna! Anda memahami naskah dengan baik!"}
-                    {calculateScore() >= 60 && calculateScore() < 100 && "👍 Bagus! Terus belajar!"}
-                    {calculateScore() < 60 && "💪 Terus semangat! Baca lagi untuk pemahaman lebih baik."}
+                  <p className="text-base text-gray-700 font-medium flex items-center justify-center gap-2">
+                    {calculateScore() === 100 && <><Star className="w-5 h-5 text-yellow-500" /> Sempurna! Anda memahami naskah dengan baik!</>}
+                    {calculateScore() >= 60 && calculateScore() < 100 && <><Target className="w-5 h-5 text-green-500" /> Bagus! Terus belajar!</>}
+                    {calculateScore() < 60 && <><GraduationCap className="w-5 h-5 text-blue-500" /> Terus semangat! Baca lagi untuk pemahaman lebih baik.</>}
                   </p>
                 </div>
               )}

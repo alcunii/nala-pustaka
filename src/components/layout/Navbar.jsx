@@ -1,5 +1,7 @@
 import { Link, useLocation } from 'react-router-dom';
 import { useState } from 'react';
+import { Menu, X, Heart } from 'lucide-react';
+import Logo from '../common/Logo';
 
 export default function Navbar() {
   const location = useLocation();
@@ -22,8 +24,8 @@ export default function Navbar() {
         <div className="flex justify-between h-16">
           <div className="flex items-center">
             <Link to="/" className="flex-shrink-0 flex items-center gap-3 group">
-              <div className="w-10 h-10 bg-white/10 rounded-lg flex items-center justify-center border border-white/20 group-hover:bg-white/20 transition-all">
-                <span className="text-2xl">📜</span>
+              <div className="w-14 h-14 bg-white/10 rounded-lg flex items-center justify-center border border-white/20 group-hover:bg-white/20 transition-all">
+                <Logo location="navbar" size="lg" />
               </div>
               <div className="flex flex-col">
                 <span className="font-serif text-xl font-bold tracking-wide text-accent-100 group-hover:text-white transition-colors">
@@ -49,9 +51,10 @@ export default function Navbar() {
             ))}
             <Link
               to="/donation"
-              className="px-4 py-2 bg-accent-600 text-primary-900 rounded-md font-bold text-sm hover:bg-accent-500 transition-all shadow-md hover:shadow-lg transform hover:-translate-y-0.5"
+              className="px-4 py-2 bg-accent-600 text-primary-900 rounded-md font-bold text-sm hover:bg-accent-500 transition-all shadow-md hover:shadow-lg transform hover:-translate-y-0.5 flex items-center gap-2"
             >
-              Dukung Kami 💝
+              <Heart className="w-4 h-4" fill="currentColor" />
+              Dukung Kami
             </Link>
           </div>
 
@@ -61,18 +64,11 @@ export default function Navbar() {
               onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
               className="inline-flex items-center justify-center p-2 rounded-md text-primary-200 hover:text-white hover:bg-primary-800 focus:outline-none"
             >
-              <svg
-                className="h-6 w-6"
-                stroke="currentColor"
-                fill="none"
-                viewBox="0 0 24 24"
-              >
-                {isMobileMenuOpen ? (
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
-                ) : (
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 6h16M4 12h16M4 18h16" />
-                )}
-              </svg>
+              {isMobileMenuOpen ? (
+                <X className="h-6 w-6" />
+              ) : (
+                <Menu className="h-6 w-6" />
+              )}
             </button>
           </div>
         </div>
@@ -99,9 +95,10 @@ export default function Navbar() {
             <Link
               to="/donation"
               onClick={() => setIsMobileMenuOpen(false)}
-              className="block px-3 py-2 mt-4 text-center bg-accent-600 text-primary-900 rounded-md font-bold hover:bg-accent-500"
+              className="flex items-center justify-center gap-2 px-3 py-2 mt-4 text-center bg-accent-600 text-primary-900 rounded-md font-bold hover:bg-accent-500"
             >
-              Dukung Kami 💝
+              <Heart className="w-4 h-4" fill="currentColor" />
+              Dukung Kami
             </Link>
           </div>
         </div>

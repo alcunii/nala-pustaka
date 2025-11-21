@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { authService } from '../lib/supabase';
+import Logo from '../components/common/Logo';
 
 export default function AdminLogin() {
   const [email, setEmail] = useState('');
@@ -31,9 +32,7 @@ export default function AdminLogin() {
         {/* Logo & Title */}
         <div className="text-center mb-8">
           <div className="inline-flex p-4 bg-gradient-to-br from-primary-500 to-accent-500 rounded-2xl shadow-xl mb-4">
-            <svg className="w-12 h-12 text-white" fill="currentColor" viewBox="0 0 20 20">
-              <path d="M9 4.804A7.968 7.968 0 005.5 4c-1.255 0-2.443.29-3.5.804v10A7.969 7.969 0 015.5 14c1.669 0 3.218.51 4.5 1.385A7.962 7.962 0 0114.5 14c1.255 0 2.443.29 3.5.804v-10A7.968 7.968 0 0014.5 4c-1.255 0-2.443.29-3.5.804V12a1 1 0 11-2 0V4.804z" />
-            </svg>
+            <Logo location="admin" size="lg" />
           </div>
           <h1 className="text-3xl font-bold bg-gradient-to-r from-primary-700 to-accent-600 bg-clip-text text-transparent mb-2">
             Admin Panel

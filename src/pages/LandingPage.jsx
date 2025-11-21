@@ -1,5 +1,6 @@
 import { Link } from 'react-router-dom';
 import { Helmet } from 'react-helmet-async';
+import { Search, Network, BookOpen } from 'lucide-react';
 import Navbar from '../components/layout/Navbar';
 import Footer from '../components/layout/Footer';
 
@@ -67,7 +68,7 @@ export default function LandingPage() {
               {/* Feature 1 */}
               <div className="p-8 bg-primary-50 rounded-xl border border-primary-100 hover:shadow-lg transition-shadow group">
                 <div className="w-14 h-14 bg-white rounded-lg flex items-center justify-center shadow-sm mb-6 group-hover:scale-110 transition-transform duration-300">
-                  <span className="text-3xl">🔍</span>
+                  <Search className="w-8 h-8 text-primary-600" />
                 </div>
                 <h3 className="text-xl font-bold text-primary-900 mb-3">Analisis Semantik (RAG)</h3>
                 <p className="text-gray-600 leading-relaxed">
@@ -78,7 +79,7 @@ export default function LandingPage() {
               {/* Feature 2 */}
               <div className="p-8 bg-primary-50 rounded-xl border border-primary-100 hover:shadow-lg transition-shadow group">
                 <div className="w-14 h-14 bg-white rounded-lg flex items-center justify-center shadow-sm mb-6 group-hover:scale-110 transition-transform duration-300">
-                  <span className="text-3xl">🕸️</span>
+                  <Network className="w-8 h-8 text-primary-600" />
                 </div>
                 <h3 className="text-xl font-bold text-primary-900 mb-3">Knowledge Graph</h3>
                 <p className="text-gray-600 leading-relaxed">
@@ -89,7 +90,7 @@ export default function LandingPage() {
               {/* Feature 3 */}
               <div className="p-8 bg-primary-50 rounded-xl border border-primary-100 hover:shadow-lg transition-shadow group">
                 <div className="w-14 h-14 bg-white rounded-lg flex items-center justify-center shadow-sm mb-6 group-hover:scale-110 transition-transform duration-300">
-                  <span className="text-3xl">📚</span>
+                  <BookOpen className="w-8 h-8 text-primary-600" />
                 </div>
                 <h3 className="text-xl font-bold text-primary-900 mb-3">Katalog Terkurasi</h3>
                 <p className="text-gray-600 leading-relaxed">

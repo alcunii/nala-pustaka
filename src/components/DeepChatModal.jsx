@@ -1,5 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { marked } from 'marked';
+import { MessageCircle, X, Send, Loader2, FileText, User } from 'lucide-react';
+import Logo from './common/Logo';
 // Configure marked for better rendering
 marked.setOptions({
   breaks: true,
@@ -113,15 +115,18 @@ export default function DeepChatModal({ manuscript, initialQuery, onClose }) {
           <div className="flex justify-between items-start">
             <div className="flex-1">
               <h2 className="text-2xl font-bold mb-2 flex items-center gap-2">
-                🔥 Deep Chat: {manuscript.title}
+                <MessageCircle className="w-7 h-7" />
+                Deep Chat: {manuscript.title}
               </h2>
               <div className="flex gap-2 flex-wrap mb-2">
-                <span className="bg-white/20 px-3 py-1 rounded-lg text-sm backdrop-blur-sm">
-                  📝 {manuscript.author}
+                <span className="bg-white/20 px-3 py-1 rounded-lg text-sm backdrop-blur-sm flex items-center gap-1">
+                  <FileText className="w-4 h-4" />
+                  {manuscript.author}
                 </span>
                 {fullContext && (
-                  <span className="bg-white/20 px-3 py-1 rounded-lg text-sm backdrop-blur-sm">
-                    📚 {fullContext.chunkCount} bagian dimuat
+                  <span className="bg-white/20 px-3 py-1 rounded-lg text-sm backdrop-blur-sm flex items-center gap-1">
+                    <Logo location="modal" size="sm" />
+                    {fullContext.chunkCount} bagian dimuat
                   </span>
                 )}
               </div>
@@ -134,9 +139,7 @@ export default function DeepChatModal({ manuscript, initialQuery, onClose }) {
               className="p-2 hover:bg-white/20 rounded-lg transition-colors ml-4"
               title="Tutup"
             >
-              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-              </svg>
+              <X className="w-6 h-6" />
             </button>
           </div>
         </div>
@@ -145,7 +148,7 @@ export default function DeepChatModal({ manuscript, initialQuery, onClose }) {
         <div className="flex-1 overflow-y-auto p-6 space-y-4 bg-gradient-to-b from-gray-50 to-white">
           {loadingContext ? (
             <div className="text-center py-12">
-              <div className="animate-spin h-10 w-10 border-4 border-primary-600 border-t-transparent rounded-full mx-auto mb-4"></div>
+              <Loader2 className="animate-spin h-10 w-10 text-primary-600 mx-auto mb-4" />
               <p className="text-gray-600 text-lg font-semibold">Memuat naskah lengkap...</p>
               <p className="text-gray-500 text-sm mt-2">Harap tunggu sebentar</p>
             </div>
@@ -153,7 +156,9 @@ export default function DeepChatModal({ manuscript, initialQuery, onClose }) {
             <>
               {messages.length === 1 && messages[0].text.includes('Saya sudah memuat') && (
                 <div className="text-center py-12">
-                  <div className="text-6xl mb-4 animate-bounce">💭</div>
+                  <div className="mb-4 animate-bounce">
+                    <MessageCircle className="w-16 h-16 text-primary-600 mx-auto" />
+                  </div>
                   <h3 className="text-xl font-bold text-gray-700 mb-2">
                     Mulai Percakapan Deep Chat
                   </h3>
@@ -190,7 +195,7 @@ export default function DeepChatModal({ manuscript, initialQuery, onClose }) {
                 <div key={msg.id} className={`flex ${msg.sender === 'user' ? 'justify-end' : 'justify-start'} animate-fadeIn`}>
                   {msg.sender === 'assistant' && (
                     <div className="flex-shrink-0 w-10 h-10 rounded-full bg-gradient-to-br from-primary-500 to-accent-500 flex items-center justify-center text-white font-bold mr-3 shadow-md">
-                      🤖
+                      <MessageCircle className="w-6 h-6" />
                     </div>
                   )}
                   
@@ -224,7 +229,7 @@ export default function DeepChatModal({ manuscript, initialQuery, onClose }) {
 
                   {msg.sender === 'user' && (
                     <div className="flex-shrink-0 w-10 h-10 rounded-full bg-gradient-to-br from-green-500 to-emerald-500 flex items-center justify-center text-white font-bold ml-3 shadow-md">
-                      👤
+                      <User className="w-6 h-6" />
                     </div>
                   )}
                 </div>
@@ -233,11 +238,11 @@ export default function DeepChatModal({ manuscript, initialQuery, onClose }) {
               {isLoading && (
                 <div className="flex justify-start animate-fadeIn">
                   <div className="flex-shrink-0 w-10 h-10 rounded-full bg-gradient-to-br from-primary-500 to-accent-500 flex items-center justify-center text-white font-bold mr-3 shadow-md">
-                    🤖
+                    <MessageCircle className="w-6 h-6" />
                   </div>
                   <div className="bg-white border-2 border-primary-200 rounded-2xl p-4 shadow-md">
                     <div className="flex items-center gap-3">
-                      <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-primary-600"></div>
+                      <Loader2 className="animate-spin h-5 w-5 text-primary-600" />
                       <span className="text-gray-600 text-sm">
                         AI sedang membaca naskah secara mendalam...
                       </span>
@@ -265,9 +270,10 @@ export default function DeepChatModal({ manuscript, initialQuery, onClose }) {
             <button
               type="submit"
               disabled={!input.trim() || isLoading || loadingContext}
-              className="px-6 py-3 bg-gradient-to-r from-primary-600 to-accent-500 text-white font-bold rounded-xl hover:from-primary-700 hover:to-accent-600 disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-lg hover:shadow-xl disabled:shadow-none"
+              className="px-6 py-3 bg-gradient-to-r from-primary-600 to-accent-500 text-white font-bold rounded-xl hover:from-primary-700 hover:to-accent-600 disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-lg hover:shadow-xl disabled:shadow-none flex items-center gap-2"
             >
-              {isLoading ? '⏳' : '📤'} Kirim
+              {isLoading ? <Loader2 className="w-5 h-5 animate-spin" /> : <Send className="w-5 h-5" />}
+              Kirim
             </button>
           </div>
           <p className="text-xs text-gray-500 mt-2 text-center">

@@ -1,6 +1,8 @@
 ﻿import { useState, useRef } from 'react';
 import { marked } from 'marked';
+import { MessageCircle, Send, Loader2, User } from 'lucide-react';
 import { ragApi } from '../lib/ragApi';
+import Logo from './common/Logo';
 
 export default function RagChatPanel() {
   const [messages, setMessages] = useState([{
@@ -59,7 +61,7 @@ export default function RagChatPanel() {
       {/* Enhanced Header with Bold Gradient */}
       <div className="px-6 py-5 bg-gradient-to-r from-primary-600 to-accent-500 text-white flex-shrink-0">
         <h3 className="text-2xl font-bold flex items-center gap-2 mb-2">
-          <span className="text-3xl">🔍</span>
+          <MessageCircle className="w-8 h-8" />
           Chat Semua Naskah
         </h3>
         <p className="text-sm text-white/90">
@@ -71,7 +73,9 @@ export default function RagChatPanel() {
       <div className="flex-1 overflow-y-auto p-6 space-y-4 bg-gradient-to-b from-gray-50 to-white">
         {messages.length === 1 && messages[0].text.includes('Selamat datang') && (
           <div className="text-center py-12">
-            <div className="text-6xl mb-4 animate-bounce">📚</div>
+            <div className="mb-4 animate-bounce flex justify-center">
+              <Logo location="chat" size="xl" className="mx-auto" />
+            </div>
             <h3 className="text-xl font-bold text-gray-700 mb-2">
               Selamat datang di Chat Semua Naskah
             </h3>
@@ -112,7 +116,7 @@ export default function RagChatPanel() {
           <div key={msg.id} className={`flex ${msg.sender === 'user' ? 'justify-end' : 'justify-start'} animate-fadeIn`}>
             {msg.sender === 'ai' && (
               <div className="flex-shrink-0 w-10 h-10 rounded-full bg-gradient-to-br from-primary-500 to-accent-500 flex items-center justify-center text-white font-bold mr-3 shadow-md">
-                🤖
+                <MessageCircle className="w-6 h-6" />
               </div>
             )}
             
@@ -151,7 +155,7 @@ export default function RagChatPanel() {
 
             {msg.sender === 'user' && (
               <div className="flex-shrink-0 w-10 h-10 rounded-full bg-gradient-to-br from-green-500 to-emerald-500 flex items-center justify-center text-white font-bold ml-3 shadow-md">
-                👤
+                <User className="w-6 h-6" />
               </div>
             )}
           </div>
@@ -160,11 +164,11 @@ export default function RagChatPanel() {
         {isLoading && (
           <div className="flex justify-start animate-fadeIn">
             <div className="flex-shrink-0 w-10 h-10 rounded-full bg-gradient-to-br from-primary-500 to-accent-500 flex items-center justify-center text-white font-bold mr-3 shadow-md">
-              🤖
+              <MessageCircle className="w-6 h-6" />
             </div>
             <div className="bg-white border-2 border-primary-200 rounded-2xl p-4 shadow-md">
               <div className="flex items-center gap-3">
-                <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-primary-600"></div>
+                <Loader2 className="animate-spin h-5 w-5 text-primary-600" />
                 <span className="text-gray-600 text-sm">
                   Mencari dan menganalisis 121 naskah...
                 </span>
@@ -190,9 +194,10 @@ export default function RagChatPanel() {
           <button
             type="submit"
             disabled={!input.trim() || isLoading}
-            className="px-6 py-3 bg-gradient-to-r from-primary-600 to-accent-500 text-white font-bold rounded-xl hover:from-primary-700 hover:to-accent-600 disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-lg hover:shadow-xl disabled:shadow-none"
+            className="px-6 py-3 bg-gradient-to-r from-primary-600 to-accent-500 text-white font-bold rounded-xl hover:from-primary-700 hover:to-accent-600 disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-lg hover:shadow-xl disabled:shadow-none flex items-center gap-2"
           >
-            {isLoading ? '⏳' : '📤'} Kirim
+            {isLoading ? <Loader2 className="w-5 h-5 animate-spin" /> : <Send className="w-5 h-5" />}
+            Kirim
           </button>
         </div>
         <p className="text-xs text-gray-500 mt-2 text-center">

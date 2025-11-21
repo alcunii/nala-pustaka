@@ -11,6 +11,7 @@ import EducationalPanel from './components/EducationalPanel';
 import EducationalKnowledgeGraph from './components/EducationalKnowledgeGraph';
 import MultiChatModal from './components/MultiChatModal';
 import Navbar from './components/layout/Navbar';
+import Logo from './components/common/Logo';
 
 // Configure marked for better Markdown rendering
 marked.setOptions({
@@ -104,10 +105,8 @@ function WelcomeScreen() {
       <div className="max-w-4xl mx-auto px-6 sm:px-8 py-12">
         {/* Hero Section */}
         <div className="text-center mb-16">
-          <div className="mb-8 inline-flex p-6 bg-gradient-to-br from-primary-500 to-accent-500 rounded-3xl shadow-xl">
-            <svg className="w-16 h-16 text-white" fill="currentColor" viewBox="0 0 20 20">
-              <path d="M9 4.804A7.968 7.968 0 005.5 4c-1.255 0-2.443.29-3.5.804v10A7.969 7.969 0 015.5 14c1.669 0 3.218.51 4.5 1.385A7.962 7.962 0 0114.5 14c1.255 0 2.443.29 3.5.804v-10A7.968 7.968 0 0014.5 4c-1.255 0-2.443.29-3.5.804V12a1 1 0 11-2 0V4.804z" />
-            </svg>
+          <div className="mb-8 flex justify-center">
+            <Logo location="welcome" size="3xl" className="drop-shadow-2xl" />
           </div>
           
           <h1 className="text-4xl sm:text-5xl font-bold mb-6 bg-gradient-to-r from-primary-700 to-accent-600 bg-clip-text text-transparent pb-2">

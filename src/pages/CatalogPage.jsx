@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { Helmet } from 'react-helmet-async';
+import { Search, ExternalLink, Pin, Loader2 } from 'lucide-react';
 import Navbar from '../components/layout/Navbar';
 import Footer from '../components/layout/Footer';
 import { manuscriptService } from '../lib/supabase';
@@ -67,9 +68,7 @@ export default function CatalogPage() {
                 className="w-full pl-12 pr-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-accent-500 focus:border-accent-500 transition-shadow shadow-sm"
               />
               <div className="absolute left-4 top-3.5 text-gray-400">
-                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-                </svg>
+                <Search className="w-5 h-5" />
               </div>
             </div>
           </div>
@@ -78,7 +77,7 @@ export default function CatalogPage() {
           <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
             {loading ? (
               <div className="p-12 text-center">
-                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-600 mx-auto mb-4"></div>
+                <Loader2 className="animate-spin h-12 w-12 text-primary-600 mx-auto mb-4" />
                 <p className="text-gray-500">Memuat data katalog...</p>
               </div>
             ) : (
@@ -101,8 +100,9 @@ export default function CatalogPage() {
                               {manuscript.title}
                             </div>
                             {manuscript.is_pinned && (
-                              <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-yellow-100 text-yellow-800 mt-1">
-                                📌 Unggulan
+                              <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded text-xs font-medium bg-yellow-100 text-yellow-800 mt-1">
+                                <Pin className="w-3 h-3" />
+                                Unggulan
                               </span>
                             )}
                           </td>
@@ -116,9 +116,10 @@ export default function CatalogPage() {
                             <Link
                               to="/app"
                               state={{ selectedManuscriptId: manuscript.id }}
-                              className="inline-flex items-center justify-center px-3 py-1.5 border border-transparent text-xs font-bold rounded text-accent-700 bg-accent-100 hover:bg-accent-200 transition-colors"
+                              className="inline-flex items-center justify-center gap-1 px-3 py-1.5 border border-transparent text-xs font-bold rounded text-accent-700 bg-accent-100 hover:bg-accent-200 transition-colors"
                             >
-                              Buka ↗
+                              Buka
+                              <ExternalLink className="w-3 h-3" />
                             </Link>
                           </td>
                         </tr>

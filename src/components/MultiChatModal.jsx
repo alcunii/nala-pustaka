@@ -1,5 +1,6 @@
 import { useState, useRef } from 'react';
 import { marked } from 'marked';
+import { MessageCircle, X, Send, Loader2, FileText, User, BookMarked } from 'lucide-react';
 
 // Configure marked for better rendering
 marked.setOptions({
@@ -80,11 +81,15 @@ export default function MultiChatModal({ manuscripts, onClose }) {
         <div className="bg-gradient-to-r from-primary-600 to-accent-500 p-5 rounded-t-2xl text-white flex-shrink-0">
           <div className="flex justify-between items-start">
             <div className="flex-1">
-              <h2 className="text-2xl font-bold mb-2">💬 Chat dengan {manuscripts.length} Naskah</h2>
+              <h2 className="text-2xl font-bold mb-2 flex items-center gap-2">
+                <MessageCircle className="w-7 h-7" />
+                Chat dengan {manuscripts.length} Naskah
+              </h2>
               <div className="flex gap-2 flex-wrap mb-2">
                 {manuscripts.map((m, i) => (
-                  <span key={i} className="bg-white/20 px-3 py-1 rounded-lg text-sm backdrop-blur-sm">
-                    📜 {m.title}
+                  <span key={i} className="bg-white/20 px-3 py-1 rounded-lg text-sm backdrop-blur-sm flex items-center gap-1">
+                    <BookMarked className="w-4 h-4" />
+                    {m.title}
                   </span>
                 ))}
               </div>
@@ -97,9 +102,7 @@ export default function MultiChatModal({ manuscripts, onClose }) {
               className="p-2 hover:bg-white/20 rounded-lg transition-colors ml-4"
               title="Tutup"
             >
-              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-              </svg>
+              <X className="w-6 h-6" />
             </button>
           </div>
         </div>
@@ -108,7 +111,9 @@ export default function MultiChatModal({ manuscripts, onClose }) {
         <div className="flex-1 overflow-y-auto p-6 space-y-4 bg-gradient-to-b from-gray-50 to-white">
           {messages.length === 0 && (
             <div className="text-center py-12">
-              <div className="text-6xl mb-4 animate-bounce">💭</div>
+              <div className="mb-4 animate-bounce">
+                <MessageCircle className="w-16 h-16 text-primary-600 mx-auto" />
+              </div>
               <h3 className="text-xl font-bold text-gray-700 mb-2">
                 Mulai Percakapan
               </h3>
@@ -148,7 +153,7 @@ export default function MultiChatModal({ manuscripts, onClose }) {
             >
               {msg.role === 'assistant' && (
                 <div className="flex-shrink-0 w-10 h-10 rounded-full bg-gradient-to-br from-primary-500 to-accent-500 flex items-center justify-center text-white font-bold mr-3 shadow-md">
-                  🤖
+                  <MessageCircle className="w-6 h-6" />
                 </div>
               )}
               
@@ -194,7 +199,7 @@ export default function MultiChatModal({ manuscripts, onClose }) {
               
               {msg.role === 'user' && (
                 <div className="flex-shrink-0 w-10 h-10 rounded-full bg-gradient-to-br from-green-500 to-emerald-500 flex items-center justify-center text-white font-bold ml-3 shadow-md">
-                  👤
+                  <User className="w-6 h-6" />
                 </div>
               )}
             </div>
@@ -203,11 +208,11 @@ export default function MultiChatModal({ manuscripts, onClose }) {
           {loading && (
             <div className="flex justify-start animate-fadeIn">
               <div className="flex-shrink-0 w-10 h-10 rounded-full bg-gradient-to-br from-primary-500 to-accent-500 flex items-center justify-center text-white font-bold mr-3 shadow-md">
-                🤖
+                <MessageCircle className="w-6 h-6" />
               </div>
               <div className="bg-white border-2 border-primary-200 rounded-2xl p-4 shadow-md">
                 <div className="flex items-center gap-3">
-                  <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-primary-600"></div>
+                  <Loader2 className="animate-spin h-5 w-5 text-primary-600" />
                   <span className="text-gray-600 text-sm">
                     Mencari informasi di {manuscripts.length} naskah...
                   </span>
@@ -240,9 +245,10 @@ export default function MultiChatModal({ manuscripts, onClose }) {
             <button
               type="submit"
               disabled={!input.trim() || loading}
-              className="px-6 py-3 bg-gradient-to-r from-primary-600 to-accent-500 text-white font-bold rounded-xl hover:from-primary-700 hover:to-accent-600 disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-lg hover:shadow-xl disabled:shadow-none"
+              className="px-6 py-3 bg-gradient-to-r from-primary-600 to-accent-500 text-white font-bold rounded-xl hover:from-primary-700 hover:to-accent-600 disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-lg hover:shadow-xl disabled:shadow-none flex items-center gap-2"
             >
-              {loading ? '⏳' : '📤'} Kirim
+              {loading ? <Loader2 className="w-5 h-5 animate-spin" /> : <Send className="w-5 h-5" />}
+              Kirim
             </button>
           </form>
           
