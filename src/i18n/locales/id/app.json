@@ -1,0 +1,11 @@
+{
+  "title": "Aplikasi Nala Pustaka",
+  "welcome": "Selamat Datang di Nala Pustaka",
+  "description": "Platform digital untuk pelestarian naskah kuno.",
+  "features": {
+    "catalog": "Katalog Naskah",
+    "search": "Pencarian",
+    "chat": "Chat AI",
+    "upload": "Unggah Naskah"
+  }
+}

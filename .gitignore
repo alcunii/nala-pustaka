@@ -80,3 +80,4 @@ debug_response.html
 !backend/package-lock.json
 !src/data/manuscripts.js
 !nixpacks.toml
+!src/i18n/locales/**/*.json

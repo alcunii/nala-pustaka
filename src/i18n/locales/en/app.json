@@ -1,0 +1,11 @@
+{
+  "title": "Nala Pustaka App",
+  "welcome": "Welcome to Nala Pustaka",
+  "description": "Digital platform for ancient manuscript preservation.",
+  "features": {
+    "catalog": "Manuscript Catalog",
+    "search": "Search",
+    "chat": "AI Chat",
+    "upload": "Upload Manuscript"
+  }
+}

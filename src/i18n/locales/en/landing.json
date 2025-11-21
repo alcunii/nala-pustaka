@@ -1,0 +1,40 @@
+{
+  "hero": {
+    "title": "Explore the Archipelago's Cultural Treasures",
+    "subtitle": "Digital platform to preserve and access ancient Indonesian manuscripts with AI technology.",
+    "cta": "Start Exploring",
+    "secondaryCta": "Learn More"
+  },
+  "features": {
+    "title": "Key Features",
+    "subtitle": "Advanced technology for the best experience",
+    "search": {
+      "title": "Smart Search",
+      "description": "Find manuscripts easily using AI-based semantic search."
+    },
+    "chat": {
+      "title": "Chat with Manuscripts",
+      "description": "Interact directly with manuscript content through interactive chat features."
+    },
+    "digitization": {
+      "title": "Precision Digitization",
+      "description": "Convert physical manuscripts to digital format with high accuracy."
+    }
+  },
+  "stats": {
+    "manuscripts": "Digital Manuscripts",
+    "users": "Active Users",
+    "partners": "Cultural Partners"
+  },
+  "partners": {
+    "title": "Our Partners"
+  },
+  "testimonials": {
+    "title": "What They Say"
+  },
+  "cta": {
+    "title": "Join in Preserving Culture",
+    "subtitle": "Be part of the movement to preserve Indonesia's cultural heritage.",
+    "button": "Register Now"
+  }
+}
