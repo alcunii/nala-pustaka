@@ -115,6 +115,13 @@ app.get('/api/cache/stats', (req, res) => {
   res.json(stats);
 });
 
+// Clear cache endpoint (for debugging/updates)
+app.post('/api/cache/clear', (req, res) => {
+  cache.clear();
+  logger.info('🧹 Cache cleared manually via API');
+  res.json({ success: true, message: 'Cache cleared successfully' });
+});
+
 // Semantic search endpoint
 app.post('/api/search', async (req, res) => {
   try {
@@ -418,10 +425,10 @@ app.post('/api/chat/multi-manuscript', async (req, res) => {
 });
 
 // Manuscript CRUD endpoints (OPTIMIZED with caching)
-app.get('/api/manuscripts', cache.middleware({ ttl: 3600, keyPrefix: 'manuscripts' }), async (req, res) => {
+app.get('/api/manuscripts', cache.middleware({ ttl: 300, keyPrefix: 'manuscripts' }), async (req, res) => {
   try {
     const manuscripts = await manuscriptService.getAll();
-    logger.info(`📚 Fetched ${manuscripts.length} manuscripts (without full_text) - Cached for 1 hour`);
+    logger.info(`📚 Fetched ${manuscripts.length} manuscripts (without full_text) - Cached for 5 minutes`);
     res.json(manuscripts);
   } catch (error) {
     logger.error('Get all manuscripts error:', error);
