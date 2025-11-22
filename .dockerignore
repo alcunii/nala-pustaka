@@ -98,7 +98,7 @@ nala-pustaka.code-workspace
 *.spec.js
 __tests__/
 
-# Config files tidak perlu di production
+# Config files tidak perlu di production (frontend build tools)
 .editorconfig
 .prettierignore
 .prettierrc
@@ -109,5 +109,6 @@ tailwind.config.js
 tsconfig.node.json
 vite.config.js
 docker-compose.yml
-railway.json
 vercel.json
+
+# Keep railway.json and nixpacks.toml (needed for Railway deployment)

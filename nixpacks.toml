@@ -2,10 +2,10 @@
 nixPkgs = ["nodejs_22"]
 
 [phases.install]
-cmds = ["cd backend && npm ci --only=production --no-audit"]
+cmds = ["cd backend && npm ci --omit=dev --no-audit"]
 
+# Disable build phase completely (backend doesn't need build step)
 [phases.build]
-cmds = ["echo 'Build complete - Backend only needs npm install'"]
 
 [start]
 cmd = "cd backend && node src/server.js"
