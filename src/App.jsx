@@ -20,9 +20,9 @@ marked.setOptions({
   gfm: true,     // GitHub Flavored Markdown
 });
 
-// Data naskah sekarang di-fetch dari Supabase (database)
+// Data naskah sekarang di-fetch dari PostgreSQL database via Backend API
 // Gunakan admin panel di /admin untuk menambah naskah baru
-// Fallback ke data hardcoded jika Supabase gagal
+// Fallback ke data hardcoded jika Backend API gagal
 
 // Komponen Manuscript Card - Modern Golden Style with Mobile Optimization
 function ManuscriptCard({ manuscript, isSelected, onClick, selectionMode, isSelectedForResearch, onToggleSelection, disableSelection }) {
@@ -2093,11 +2093,11 @@ function App() {
 
   const loadManuscripts = async () => {
     try {
-      // Coba fetch dari Supabase
+      // Coba fetch dari Backend API
       const data = await manuscriptService.getAll();
 
       if (data && data.length > 0) {
-        // Jika ada data di Supabase, gunakan itu
+        // Jika ada data di database, gunakan itu
         setManuscripts(data);
       } else {
         // Jika database kosong, gunakan hardcoded data sebagai fallback
@@ -2105,17 +2105,33 @@ function App() {
         setManuscripts(Object.values(MANUSCRIPT_DATA));
       }
     } catch (error) {
-      // Jika Supabase error, fallback ke hardcoded data
-      console.warn('⚠️ Gagal fetch dari Supabase, menggunakan data hardcoded:', error);
+      // Jika Backend API error, fallback ke hardcoded data
+      console.warn('⚠️ Gagal fetch dari Backend API, menggunakan data hardcoded:', error);
       setManuscripts(Object.values(MANUSCRIPT_DATA));
     } finally {
       setLoading(false);
     }
   };
 
-  const handleSelectManuscript = (manuscript) => {
-    setSelectedManuscript(manuscript);
+  // OPTIMIZED: Lazy load full_text when manuscript is selected
+  const handleSelectManuscript = async (manuscript) => {
     setViewMode('chat');
+    
+    // If manuscript already has full_text, use it
+    if (manuscript.full_text) {
+      setSelectedManuscript(manuscript);
+      return;
+    }
+    
+    // Otherwise, fetch full manuscript data with full_text
+    try {
+      const fullManuscript = await manuscriptService.getBySlug(manuscript.slug);
+      setSelectedManuscript(fullManuscript);
+    } catch (error) {
+      console.error('Failed to load manuscript detail:', error);
+      // Fallback to manuscript without full_text
+      setSelectedManuscript(manuscript);
+    }
   };
 
   // Loading state

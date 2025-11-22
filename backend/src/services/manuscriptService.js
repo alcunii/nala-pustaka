@@ -13,7 +13,30 @@ function calculateContentQuality(fullText) {
 
 const manuscriptService = {
   async getAll() {
-    // Sort by content quality (rich first), then by display_order, then by created_at
+    // OPTIMIZED: List view WITHOUT full_text (untuk Catalog, Homepage)
+    // Saves 95%+ network transfer!
+    const query = `
+      SELECT id, manuscript_id, title, author, year, description, slug, source_url,
+             is_pinned, display_order, category, content_quality, created_at, updated_at 
+      FROM manuscripts 
+      ORDER BY 
+        CASE content_quality
+          WHEN 'rich' THEN 1
+          WHEN 'medium' THEN 2
+          WHEN 'short' THEN 3
+          WHEN 'very_short' THEN 4
+          WHEN 'empty' THEN 5
+          ELSE 6
+        END,
+        display_order ASC,
+        created_at DESC
+    `;
+    const { rows } = await db.query(query);
+    return rows;
+  },
+
+  // Get all manuscripts WITH full_text (for admin/special use only)
+  async getAllWithFullText() {
     const query = `
       SELECT id, manuscript_id, title, author, year, description, slug, source_url, full_text, 
              is_pinned, display_order, category, content_quality, created_at, updated_at 
@@ -157,3 +180,4 @@ const manuscriptService = {
 };
 
 module.exports = manuscriptService;
+

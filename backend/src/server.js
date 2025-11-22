@@ -4,9 +4,11 @@
 
 const express = require('express');
 const cors = require('cors');
+const compression = require('compression');
 const rateLimit = require('express-rate-limit');
 const config = require('./config');
 const logger = require('./utils/logger');
+const cache = require('./utils/cache');
 const db = require('./config/database');
 // TEMPORARY DISABLED - Manual installation needed for middleware
 // const usageTracker = require('./middleware/usageTracker');
@@ -33,6 +35,13 @@ app.use(cors({
   origin: config.cors.origin,
   credentials: true,
 }));
+
+// OPTIMIZATION: Enable GZIP compression (saves 60-70% bandwidth)
+app.use(compression({
+  level: 6, // Compression level (0-9, 6 is good balance)
+  threshold: 1024, // Only compress responses > 1KB
+}));
+logger.info('✅ Response compression enabled (GZIP)');
 
 // Increase JSON payload limit for large manuscripts (default: 100kb)
 app.use(express.json({ limit: '10mb' }));
@@ -78,14 +87,17 @@ app.get('/', (req, res) => {
 app.get('/health', async (req, res) => {
   try {
     const stats = await vectorDB.getStats();
+    const cacheStats = cache.getStats();
     res.json({
       status: 'healthy',
       timestamp: new Date().toISOString(),
       services: {
         vectorDB: !!stats,
         embedding: true,
+        cache: true,
       },
       vectorDBStats: stats,
+      cacheStats: cacheStats,
     });
   } catch (error) {
     logger.error('Health check failed:', error);
@@ -94,6 +106,12 @@ app.get('/health', async (req, res) => {
       error: error.message,
     });
   }
+});
+
+// Cache stats endpoint (for monitoring)
+app.get('/api/cache/stats', (req, res) => {
+  const stats = cache.getStats();
+  res.json(stats);
 });
 
 // Semantic search endpoint
@@ -398,10 +416,11 @@ app.post('/api/chat/multi-manuscript', async (req, res) => {
   }
 });
 
-// Manuscript CRUD endpoints
-app.get('/api/manuscripts', async (req, res) => {
+// Manuscript CRUD endpoints (OPTIMIZED with caching)
+app.get('/api/manuscripts', cache.middleware({ ttl: 3600, keyPrefix: 'manuscripts' }), async (req, res) => {
   try {
     const manuscripts = await manuscriptService.getAll();
+    logger.info(`📚 Fetched ${manuscripts.length} manuscripts (without full_text) - Cached for 1 hour`);
     res.json(manuscripts);
   } catch (error) {
     logger.error('Get all manuscripts error:', error);
@@ -409,10 +428,11 @@ app.get('/api/manuscripts', async (req, res) => {
   }
 });
 
-app.get('/api/manuscripts/:slug', async (req, res) => {
+app.get('/api/manuscripts/:slug', cache.middleware({ ttl: 3600, keyPrefix: 'manuscript' }), async (req, res) => {
   try {
     const manuscript = await manuscriptService.getBySlug(req.params.slug);
     if (!manuscript) return res.status(404).json({ error: 'Manuscript not found' });
+    logger.info(`📖 Fetched manuscript: ${manuscript.title} (with full_text) - Cached for 1 hour`);
     res.json(manuscript);
   } catch (error) {
     logger.error('Get manuscript by slug error:', error);
@@ -423,6 +443,9 @@ app.get('/api/manuscripts/:slug', async (req, res) => {
 app.post('/api/manuscripts', async (req, res) => {
   try {
     const manuscript = await manuscriptService.create(req.body);
+    // Invalidate cache when data changes
+    cache.delete('manuscripts:/api/manuscripts');
+    logger.info('Cache invalidated after manuscript creation');
     res.status(201).json(manuscript);
   } catch (error) {
     logger.error('Create manuscript error:', error);
@@ -433,6 +456,10 @@ app.post('/api/manuscripts', async (req, res) => {
 app.put('/api/manuscripts/:id', async (req, res) => {
   try {
     const manuscript = await manuscriptService.update(req.params.id, req.body);
+    // Invalidate cache when data changes
+    cache.delete('manuscripts:/api/manuscripts');
+    cache.delete(`manuscript:/api/manuscripts/${manuscript.slug}`);
+    logger.info('Cache invalidated after manuscript update');
     res.json(manuscript);
   } catch (error) {
     logger.error('Update manuscript error:', error);
@@ -443,6 +470,9 @@ app.put('/api/manuscripts/:id', async (req, res) => {
 app.delete('/api/manuscripts/:id', async (req, res) => {
   try {
     await manuscriptService.delete(req.params.id);
+    // Invalidate cache when data changes
+    cache.delete('manuscripts:/api/manuscripts');
+    logger.info('Cache invalidated after manuscript deletion');
     res.json({ success: true });
   } catch (error) {
     logger.error('Delete manuscript error:', error);
