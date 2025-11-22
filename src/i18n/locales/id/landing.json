@@ -30,8 +30,29 @@
       }
     }
   },
+  "insights": {
+    "title": "Wawasan Nala",
+    "subtitle": "Menelusuri kedalaman teknologi dan budaya melalui pemikiran terbaru kami.",
+    "articles": {
+      "digitalSilence": {
+        "title": "Mengatasi 'Kebisuan Digital'",
+        "description": "Bagaimana AI memecahkan masalah 'Kuburan Data' pada ribuan naskah kuno yang terdigitalisasi.",
+        "readMore": "Baca Artikel"
+      },
+      "philology": {
+        "title": "Revolusi Riset Filologi",
+        "description": "Akselerasi riset dari hitungan bulan menjadi menit dengan bantuan teknologi Multi-Chat.",
+        "readMore": "Baca Artikel"
+      },
+      "genz": {
+        "title": "Kearifan Jawa untuk Gen Z",
+        "description": "Menghidupkan kembali relevansi naskah kuno bagi generasi muda melalui pendekatan interaktif.",
+        "readMore": "Baca Artikel"
+      }
+    }
+  },
   "quote": {
-    "text": "Bangsa yang besar adalah bangsa yang menghargai sejarah dan budayanya sendiri.",
-    "author": "Ir. Soekarno"
+    "text": "Teknologi tidak diciptakan untuk menggantikan kearifan masa lalu, melainkan untuk menjadi jembatan yang menghubungkannya dengan masa depan.",
+    "author": "Filosofi Nala Pustaka"
   }
 }

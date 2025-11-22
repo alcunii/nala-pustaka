@@ -30,8 +30,29 @@
       }
     }
   },
+  "insights": {
+    "title": "Nala Insights",
+    "subtitle": "Exploring the depths of technology and culture through our latest thoughts.",
+    "articles": {
+      "digitalSilence": {
+        "title": "Overcoming 'Digital Silence'",
+        "description": "How AI solves the 'Data Graveyard' problem in thousands of digitized ancient manuscripts.",
+        "readMore": "Read Article"
+      },
+      "philology": {
+        "title": "Philology Research Revolution",
+        "description": "Accelerating research from months to minutes with the help of Multi-Chat technology.",
+        "readMore": "Read Article"
+      },
+      "genz": {
+        "title": "Javanese Wisdom for Gen Z",
+        "description": "Reviving the relevance of ancient manuscripts for the younger generation through an interactive approach.",
+        "readMore": "Read Article"
+      }
+    }
+  },
   "quote": {
-    "text": "A great nation is a nation that respects its history and culture.",
-    "author": "Ir. Soekarno"
+    "text": "Technology was not created to replace the wisdom of the past, but to be a bridge connecting it to the future.",
+    "author": "Nala Pustaka Philosophy"
   }
 }

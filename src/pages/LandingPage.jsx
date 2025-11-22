@@ -124,6 +124,75 @@ export default function LandingPage() {
           </div>
         </section>
 
+        {/* Insights Section */}
+        <section className="py-20 bg-primary-50">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="text-center mb-16">
+              <h2 className="text-3xl font-serif font-bold text-primary-900 mb-4">{t('insights.title')}</h2>
+              <div className="w-24 h-1 bg-accent-500 mx-auto rounded-full"></div>
+              <p className="mt-4 text-gray-600 max-w-2xl mx-auto">
+                {t('insights.subtitle')}
+              </p>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+              {/* Article 1 */}
+              <Link to="/articles/digital-silence" className="group relative bg-white rounded-xl border border-gray-100 p-8 hover:shadow-lg transition-all duration-300 hover:-translate-y-1">
+                <div className="mb-4">
+                  <span className="inline-block px-3 py-1 text-xs font-bold tracking-wider text-primary-700 uppercase bg-primary-50 rounded-full">
+                    Teknologi
+                  </span>
+                </div>
+                <h3 className="text-xl font-bold text-primary-900 mb-3 group-hover:text-accent-600 transition-colors">
+                  {t('insights.articles.digitalSilence.title')}
+                </h3>
+                <p className="text-gray-600 mb-6 line-clamp-3 text-sm leading-relaxed">
+                  {t('insights.articles.digitalSilence.description')}
+                </p>
+                <span className="inline-flex items-center text-accent-600 font-semibold text-sm group-hover:translate-x-1 transition-transform">
+                  {t('insights.articles.digitalSilence.readMore')} →
+                </span>
+              </Link>
+
+              {/* Article 2 */}
+              <Link to="/articles/philology-revolution" className="group relative bg-white rounded-xl border border-gray-100 p-8 hover:shadow-lg transition-all duration-300 hover:-translate-y-1">
+                <div className="mb-4">
+                  <span className="inline-block px-3 py-1 text-xs font-bold tracking-wider text-accent-700 uppercase bg-accent-50 rounded-full">
+                    Riset
+                  </span>
+                </div>
+                <h3 className="text-xl font-bold text-primary-900 mb-3 group-hover:text-accent-600 transition-colors">
+                  {t('insights.articles.philology.title')}
+                </h3>
+                <p className="text-gray-600 mb-6 line-clamp-3 text-sm leading-relaxed">
+                  {t('insights.articles.philology.description')}
+                </p>
+                <span className="inline-flex items-center text-accent-600 font-semibold text-sm group-hover:translate-x-1 transition-transform">
+                  {t('insights.articles.philology.readMore')} →
+                </span>
+              </Link>
+
+              {/* Article 3 */}
+              <Link to="/articles/gen-z-wisdom" className="group relative bg-white rounded-xl border border-gray-100 p-8 hover:shadow-lg transition-all duration-300 hover:-translate-y-1">
+                <div className="mb-4">
+                  <span className="inline-block px-3 py-1 text-xs font-bold tracking-wider text-emerald-700 uppercase bg-emerald-50 rounded-full">
+                    Edukasi
+                  </span>
+                </div>
+                <h3 className="text-xl font-bold text-primary-900 mb-3 group-hover:text-accent-600 transition-colors">
+                  {t('insights.articles.genz.title')}
+                </h3>
+                <p className="text-gray-600 mb-6 line-clamp-3 text-sm leading-relaxed">
+                  {t('insights.articles.genz.description')}
+                </p>
+                <span className="inline-flex items-center text-accent-600 font-semibold text-sm group-hover:translate-x-1 transition-transform">
+                  {t('insights.articles.genz.readMore')} →
+                </span>
+              </Link>
+            </div>
+          </div>
+        </section>
+
         {/* Quote Section */}
         <section className="py-16 bg-primary-800 text-white relative overflow-hidden">
           <div className="absolute top-0 left-0 w-32 h-32 bg-accent-500/10 rounded-full -translate-x-1/2 -translate-y-1/2"></div>
