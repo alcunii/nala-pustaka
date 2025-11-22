@@ -33,9 +33,12 @@ export default function CatalogPage() {
     const fetchManuscripts = async () => {
       try {
         const data = await manuscriptService.getAll();
+        console.log('[DEBUG] Manuscripts received:', data);
         if (data && data.length > 0) {
+          console.log('[DEBUG] First manuscript sample:', data[0]);
           setManuscripts(data);
         } else {
+          console.warn('[DEBUG] No manuscripts found from API, using fallback data');
           setManuscripts(Object.values(MANUSCRIPT_DATA));
         }
       } catch (error) {
@@ -242,14 +245,14 @@ export default function CatalogPage() {
             {/* Filters & Sort */}
             <div className="flex flex-wrap gap-3 w-full md:w-auto items-center">
               {/* Category Filter */}
-              <div className="relative">
+              <div className="relative w-full md:w-auto">
                 <div className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500 pointer-events-none">
                   <Filter className="w-4 h-4" />
                 </div>
                 <select
                   value={selectedCategory}
                   onChange={(e) => setSelectedCategory(e.target.value)}
-                  className="pl-9 pr-8 py-2.5 bg-white border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-accent-500 focus:border-accent-500 appearance-none cursor-pointer hover:bg-gray-50 transition-colors"
+                  className="w-full md:w-auto pl-9 pr-8 py-2.5 bg-white border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-accent-500 focus:border-accent-500 appearance-none cursor-pointer hover:bg-gray-50 transition-colors"
                 >
                   <option value="all">Semua Kategori</option>
                   {categories.filter(c => c !== 'all').map(category => (
@@ -259,10 +262,10 @@ export default function CatalogPage() {
               </div>
 
               {/* Tag Filter (Multi-select Checkbox) */}
-              <div className="relative">
+              <div className="relative w-full md:w-auto">
                 <button
                   onClick={() => setIsTagDropdownOpen(!isTagDropdownOpen)}
-                  className="flex items-center gap-2 pl-3 pr-4 py-2.5 bg-white border border-gray-300 rounded-lg text-sm hover:bg-gray-50 transition-colors min-w-[200px] justify-between"
+                  className="w-full md:w-auto flex items-center gap-2 pl-3 pr-4 py-2.5 bg-white border border-gray-300 rounded-lg text-sm hover:bg-gray-50 transition-colors min-w-[200px] justify-between"
                 >
                   <div className="flex items-center gap-2 text-gray-700">
                     <Filter className="w-4 h-4 text-gray-500" />
@@ -281,7 +284,7 @@ export default function CatalogPage() {
                       className="fixed inset-0 z-10"
                       onClick={() => setIsTagDropdownOpen(false)}
                     />
-                    <div className="absolute top-full left-0 mt-1 w-64 max-h-80 overflow-y-auto bg-white border border-gray-200 rounded-xl shadow-lg z-20 p-2">
+                    <div className="absolute top-full left-0 mt-1 w-full md:w-64 max-h-80 overflow-y-auto bg-white border border-gray-200 rounded-xl shadow-lg z-20 p-2">
                       {availableTags.length > 0 ? (
                         <div className="space-y-1">
                           {availableTags.map(({ tag, count }) => {
@@ -344,14 +347,14 @@ export default function CatalogPage() {
               {/* Apply Filter Button */}
               <button
                 onClick={handleApplyFilter}
-                className="px-4 py-2.5 bg-accent-600 text-white rounded-lg text-sm font-semibold hover:bg-accent-700 transition-colors shadow-sm flex items-center gap-2"
+                className="w-full md:w-auto justify-center px-4 py-2.5 bg-accent-600 text-white rounded-lg text-sm font-semibold hover:bg-accent-700 transition-colors shadow-sm flex items-center gap-2"
               >
                 <Filter className="w-4 h-4" />
                 Terapkan Filter
               </button>
 
               {/* Sort Dropdown */}
-              <div className="relative">
+              <div className="relative w-full md:w-auto">
                 <div className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500 pointer-events-none">
                   {sortOption === 'az' || sortOption === 'za' ? (
                     <SortAsc className="w-4 h-4" />
@@ -362,7 +365,7 @@ export default function CatalogPage() {
                 <select
                   value={sortOption}
                   onChange={(e) => setSortOption(e.target.value)}
-                  className="pl-9 pr-8 py-2.5 bg-white border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-accent-500 focus:border-accent-500 appearance-none cursor-pointer hover:bg-gray-50 transition-colors"
+                  className="w-full md:w-auto pl-9 pr-8 py-2.5 bg-white border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-accent-500 focus:border-accent-500 appearance-none cursor-pointer hover:bg-gray-50 transition-colors"
                 >
                   <option value="newest">Terbaru</option>
                   <option value="oldest">Terlama</option>
@@ -381,10 +384,12 @@ export default function CatalogPage() {
                 <p className="text-gray-500">Memuat data katalog...</p>
               </div>
             ) : (
-              <div className="overflow-x-auto">
-                <table className="w-full text-left border-collapse">
-                  <thead>
-                    <tr className="bg-primary-50 border-b border-primary-100 text-primary-900">
+              <>
+                {/* Desktop Table View */}
+                <div className="hidden md:block overflow-x-auto">
+                  <table className="w-full text-left border-collapse">
+                    <thead>
+                      <tr className="bg-primary-50 border-b border-primary-100 text-primary-900">
                       <th className="px-6 py-4 font-bold text-sm uppercase tracking-wider w-1/4">Judul Naskah</th>
                       <th className="px-6 py-4 font-bold text-sm uppercase tracking-wider w-1/6">Kategori</th>
                       <th className="px-6 py-4 font-bold text-sm uppercase tracking-wider w-1/5">Pengarang</th>
@@ -452,9 +457,75 @@ export default function CatalogPage() {
                     )}
                   </tbody>
                 </table>
-              </div>
-            )}
-          </div>
+                  </div>
+
+                  {/* Mobile Card View */}
+                  <div className="md:hidden divide-y divide-gray-100">
+                    {paginatedManuscripts.length > 0 ? (
+                      paginatedManuscripts.map((manuscript) => (
+                        <div key={manuscript.id} className="p-4 space-y-3">
+                          {/* Header: Title & Pin */}
+                          <div className="flex justify-between items-start gap-2">
+                            <h3 className="font-bold text-primary-900 text-lg leading-tight">
+                              {manuscript.title}
+                            </h3>
+                            {manuscript.is_pinned && (
+                              <span className="flex-shrink-0 inline-flex items-center gap-1 px-2 py-0.5 rounded text-xs font-medium bg-yellow-100 text-yellow-800">
+                                <Pin className="w-3 h-3" />
+                              </span>
+                            )}
+                          </div>
+
+                          {/* Meta: Category & Author */}
+                          <div className="flex flex-wrap items-center gap-x-4 gap-y-2 text-sm">
+                            {manuscript.category && (
+                              <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                                {manuscript.category}
+                              </span>
+                            )}
+                            <span className="text-gray-700 font-medium flex items-center gap-1">
+                              <span className="text-gray-400">Oleh:</span> {manuscript.author}
+                            </span>
+                          </div>
+
+                          {/* Description */}
+                          <p className="text-gray-600 text-sm leading-relaxed line-clamp-3">
+                            {manuscript.description}
+                          </p>
+
+                          {/* Tags */}
+                          {manuscript.tags && manuscript.tags.length > 0 && (
+                            <div className="flex flex-wrap gap-1">
+                              {manuscript.tags.map((tag, idx) => (
+                                <span key={idx} className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-gray-100 text-gray-600">
+                                  #{tag}
+                                </span>
+                              ))}
+                            </div>
+                          )}
+
+                          {/* Action */}
+                          <div className="pt-2">
+                            <Link
+                              to="/app"
+                              state={{ selectedManuscriptId: manuscript.id }}
+                              className="w-full inline-flex items-center justify-center gap-2 px-4 py-2 border border-transparent text-sm font-bold rounded-lg text-accent-700 bg-accent-100 hover:bg-accent-200 transition-colors"
+                            >
+                              Buka Naskah
+                              <ExternalLink className="w-4 h-4" />
+                            </Link>
+                          </div>
+                        </div>
+                      ))
+                    ) : (
+                      <div className="p-8 text-center text-gray-500">
+                        Tidak ada naskah yang ditemukan.
+                      </div>
+                    )}
+                  </div>
+                </>
+              )}
+            </div>
           
           {/* Pagination & Stats */}
           <div className="mt-6 flex flex-col sm:flex-row justify-between items-center gap-4">

@@ -34,6 +34,9 @@ const manuscriptService = {
         created_at DESC
     `;
     const { rows } = await db.query(query);
+    if (rows.length > 0) {
+      logger.info(`[DEBUG] First manuscript fetched: ${rows[0].title}, Category: ${rows[0].category}, Tags: ${rows[0].tags}, Desc Len: ${rows[0].description?.length}`);
+    }
     return rows;
   },
 
