@@ -1,3 +1,7 @@
+# Frontend files (only backend is deployed to Railway)
+/package.json
+/package-lock.json
+
 # Dependencies
 node_modules/
 npm-debug.log*
