@@ -2175,6 +2175,18 @@ function App() {
       <Helmet>
         <title>Aplikasi Utama - Nala Pustaka</title>
         <meta name="description" content="Aplikasi analisis naskah kuno dengan fitur Chat AI, Knowledge Graph, dan Mode Edukatif." />
+        <link rel="canonical" href="https://nalapustaka.com/app" />
+
+        {/* Open Graph */}
+        <meta property="og:title" content="Aplikasi Utama - Nala Pustaka" />
+        <meta property="og:description" content="Aplikasi analisis naskah kuno dengan fitur Chat AI, Knowledge Graph, dan Mode Edukatif." />
+        <meta property="og:url" content="https://nalapustaka.com/app" />
+        <meta property="og:type" content="website" />
+
+        {/* Twitter */}
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:title" content="Aplikasi Utama - Nala Pustaka" />
+        <meta name="twitter:description" content="Aplikasi analisis naskah kuno dengan fitur Chat AI, Knowledge Graph, dan Mode Edukatif." />
       </Helmet>
       
       <Navbar />

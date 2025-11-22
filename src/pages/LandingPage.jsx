@@ -13,6 +13,18 @@ export default function LandingPage() {
       <Helmet>
         <title>{t('meta.title')}</title>
         <meta name="description" content={t('meta.description')} />
+        <link rel="canonical" href="https://nalapustaka.com/" />
+        
+        {/* Open Graph */}
+        <meta property="og:title" content={t('meta.title')} />
+        <meta property="og:description" content={t('meta.description')} />
+        <meta property="og:url" content="https://nalapustaka.com/" />
+        <meta property="og:type" content="website" />
+        
+        {/* Twitter */}
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:title" content={t('meta.title')} />
+        <meta name="twitter:description" content={t('meta.description')} />
       </Helmet>
 
       <Navbar />
@@ -60,42 +72,54 @@ export default function LandingPage() {
             <div className="text-center mb-16">
               <h2 className="text-3xl font-serif font-bold text-primary-900 mb-4">{t('academic.title')}</h2>
               <div className="w-24 h-1 bg-accent-500 mx-auto rounded-full"></div>
-              <p className="mt-4 text-gray-600 max-w-2xl mx-auto">
+              <p className="mt-4 text-gray-600 max-w-2xl mx-auto mb-6">
                 {t('academic.subtitle')}
               </p>
+              <Link to="/about" className="text-accent-600 font-semibold hover:text-accent-700 hover:underline inline-flex items-center gap-1">
+                {t('academic.learnMore') || 'Pelajari Lebih Lanjut'} →
+              </Link>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-10">
               {/* Feature 1 */}
-              <div className="p-8 bg-primary-50 rounded-xl border border-primary-100 hover:shadow-lg transition-shadow group">
+              <Link to="/app" className="block p-8 bg-primary-50 rounded-xl border border-primary-100 hover:shadow-lg transition-all hover:-translate-y-1 group">
                 <div className="w-14 h-14 bg-white rounded-lg flex items-center justify-center shadow-sm mb-6 group-hover:scale-110 transition-transform duration-300">
                   <Search className="w-8 h-8 text-primary-600" />
                 </div>
-                <h3 className="text-xl font-bold text-primary-900 mb-3">{t('academic.features.rag.title')}</h3>
+                <h3 className="text-xl font-bold text-primary-900 mb-3 flex items-center gap-2">
+                  {t('academic.features.rag.title')}
+                  <span className="opacity-0 group-hover:opacity-100 transition-opacity text-accent-500">→</span>
+                </h3>
                 <p className="text-gray-600 leading-relaxed" dangerouslySetInnerHTML={{ __html: t('academic.features.rag.description') }} />
-              </div>
+              </Link>
 
               {/* Feature 2 */}
-              <div className="p-8 bg-primary-50 rounded-xl border border-primary-100 hover:shadow-lg transition-shadow group">
+              <Link to="/app" className="block p-8 bg-primary-50 rounded-xl border border-primary-100 hover:shadow-lg transition-all hover:-translate-y-1 group">
                 <div className="w-14 h-14 bg-white rounded-lg flex items-center justify-center shadow-sm mb-6 group-hover:scale-110 transition-transform duration-300">
                   <Network className="w-8 h-8 text-primary-600" />
                 </div>
-                <h3 className="text-xl font-bold text-primary-900 mb-3">{t('academic.features.graph.title')}</h3>
+                <h3 className="text-xl font-bold text-primary-900 mb-3 flex items-center gap-2">
+                  {t('academic.features.graph.title')}
+                  <span className="opacity-0 group-hover:opacity-100 transition-opacity text-accent-500">→</span>
+                </h3>
                 <p className="text-gray-600 leading-relaxed">
                   {t('academic.features.graph.description')}
                 </p>
-              </div>
+              </Link>
 
               {/* Feature 3 */}
-              <div className="p-8 bg-primary-50 rounded-xl border border-primary-100 hover:shadow-lg transition-shadow group">
+              <Link to="/catalog" className="block p-8 bg-primary-50 rounded-xl border border-primary-100 hover:shadow-lg transition-all hover:-translate-y-1 group">
                 <div className="w-14 h-14 bg-white rounded-lg flex items-center justify-center shadow-sm mb-6 group-hover:scale-110 transition-transform duration-300">
                   <BookOpen className="w-8 h-8 text-primary-600" />
                 </div>
-                <h3 className="text-xl font-bold text-primary-900 mb-3">{t('academic.features.catalog.title')}</h3>
+                <h3 className="text-xl font-bold text-primary-900 mb-3 flex items-center gap-2">
+                  {t('academic.features.catalog.title')}
+                  <span className="opacity-0 group-hover:opacity-100 transition-opacity text-accent-500">→</span>
+                </h3>
                 <p className="text-gray-600 leading-relaxed">
                   {t('academic.features.catalog.description')}
                 </p>
-              </div>
+              </Link>
             </div>
           </div>
         </section>

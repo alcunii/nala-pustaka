@@ -7,7 +7,7 @@ export default function Footer() {
   return (
     <footer className="bg-primary-900 text-primary-100 border-t-4 border-accent-600">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
           {/* Brand Section */}
           <div className="space-y-4">
             <div className="flex items-center gap-3">
@@ -46,6 +46,28 @@ export default function Footer() {
               <li>
                 <Link to="/about" className="hover:text-accent-400 transition-colors flex items-center gap-2">
                   <ChevronRight className="w-4 h-4" /> Tentang
+                </Link>
+              </li>
+            </ul>
+          </div>
+
+          {/* Articles / Insights */}
+          <div>
+            <h4 className="text-lg font-bold text-white mb-4 border-b border-primary-700 pb-2 inline-block">Wawasan</h4>
+            <ul className="space-y-2 text-sm">
+              <li>
+                <Link to="/articles/digital-silence" className="hover:text-accent-400 transition-colors flex items-center gap-2">
+                  <ChevronRight className="w-4 h-4" /> Kebisuan Digital
+                </Link>
+              </li>
+              <li>
+                <Link to="/articles/philology-revolution" className="hover:text-accent-400 transition-colors flex items-center gap-2">
+                  <ChevronRight className="w-4 h-4" /> Revolusi Filologi
+                </Link>
+              </li>
+              <li>
+                <Link to="/articles/gen-z-wisdom" className="hover:text-accent-400 transition-colors flex items-center gap-2">
+                  <ChevronRight className="w-4 h-4" /> Gen Z & Budaya
                 </Link>
               </li>
             </ul>

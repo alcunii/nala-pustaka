@@ -571,6 +571,161 @@ Response must start with { and end with }`;
 
     return results;
   }
+  /**
+   * Generate a short catalog description (1-2 paragraphs)
+   */
+  async generateCatalogDescription(manuscript) {
+    try {
+      logger.info(`Generating catalog description for: ${manuscript.title}`);
+
+      const prompt = `
+        Bertindaklah sebagai pustakawan ahli naskah kuno Jawa.
+        Tugasmu adalah membuat deskripsi katalog yang menarik dan akurat untuk naskah berikut.
+
+        INFORMASI NASKAH:
+        Judul: ${manuscript.title}
+        Penulis: ${manuscript.author || 'Tidak diketahui'}
+        
+        TEKS (Cuplikan):
+        """
+        ${(manuscript.full_text || manuscript.fullText || '').substring(0, 5000)}
+        """
+
+        INSTRUKSI:
+        1. Buat deskripsi singkat (maksimal 3-4 kalimat, sekitar 50-80 kata).
+        2. Fokus pada: Genre/jenis naskah, tema utama, dan nilai pentingnya.
+        3. Gaya bahasa: Formal, informatif, dan mengundang minat baca.
+        4. Jangan gunakan markdown heading, hanya teks paragraf biasa.
+        5. Output HANYA teks deskripsi, tanpa pembuka/penutup lain.
+      `;
+
+      const description = await this.callGemini(prompt);
+      return description.trim();
+    } catch (error) {
+      logger.error(`Failed to generate catalog description for ${manuscript.title}:`, error);
+      return null;
+    }
+  }
+
+  /**
+   * Generate tags for a manuscript
+   */
+  async generateTags(manuscript) {
+    try {
+      logger.info(`Generating tags for: ${manuscript.title}`);
+
+      const prompt = `
+        Bertindaklah sebagai ahli taksonomi naskah kuno Jawa.
+        Tugasmu adalah membuat daftar tag (kata kunci) yang relevan untuk naskah berikut.
+
+        INFORMASI NASKAH:
+        Judul: ${manuscript.title}
+        Penulis: ${manuscript.author || 'Tidak diketahui'}
+        Deskripsi: ${manuscript.description || ''}
+        
+        TEKS (Cuplikan):
+        """
+        ${(manuscript.full_text || manuscript.fullText || '').substring(0, 3000)}
+        """
+
+        INSTRUKSI:
+        1. Identifikasi 5-8 kata kunci (tags) yang paling relevan.
+        2. Tags harus mencakup: Genre, Tema Utama, Nilai/Konsep, dan Jenis Sastra.
+        3. Gunakan bahasa Indonesia, lowercase, satu kata per tag (jika memungkinkan).
+        4. Contoh tags: moral, kepemimpinan, sejarah, islam, wayang, tembang, filsafat.
+        5. Output HANYA array JSON berisi string tags. Contoh: ["tag1", "tag2", "tag3"]
+        6. Jangan tambahkan teks lain selain JSON array.
+      `;
+
+      const response = await this.callGemini(prompt);
+      
+      // Parse JSON response
+      let tags = [];
+      try {
+        // Try to find JSON array in response
+        const match = response.match(/\[.*\]/s);
+        if (match) {
+          tags = JSON.parse(match[0]);
+        } else {
+          // Fallback: split by comma if not JSON
+          tags = response.split(',').map(t => t.trim().toLowerCase().replace(/['"\[\]]/g, ''));
+        }
+      } catch (e) {
+        logger.warn(`Failed to parse tags JSON for ${manuscript.title}, using fallback parsing`);
+        tags = response.split(',').map(t => t.trim().toLowerCase().replace(/['"\[\]]/g, ''));
+      }
+
+      // Clean tags
+      tags = tags.map(t => t.toLowerCase().trim()).filter(t => t.length > 2 && t.length < 20);
+      
+      // Ensure unique tags
+      return [...new Set(tags)];
+    } catch (error) {
+      logger.error(`Failed to generate tags for ${manuscript.title}:`, error);
+      return ['other'];
+    }
+  }
+
+  /**
+   * Determine the best category for a manuscript
+   */
+  determineCategory(manuscript, tags = []) {
+    const CATEGORIES = [
+      {
+        id: 'Sejarah & Babad',
+        keywords: ['sejarah', 'babad', 'kronik', 'silsilah', 'riwayat', 'biografi', 'kerajaan', 'dinasti', 'perang', 'pemberontakan', 'mataram', 'majapahit', 'demak', 'pajang', 'kartasura', 'yogyakarta', 'surakarta']
+      },
+      {
+        id: 'Sastra & Budaya',
+        keywords: ['sastra', 'budaya', 'prosa', 'puisi', 'tembang', 'macapat', 'geguritan', 'wangsalan', 'parikan', 'dongeng', 'cerita rakyat', 'legenda', 'mitos', 'wayang', 'pedhalangan', 'lakon', 'seni', 'tari', 'batik', 'keris', 'busana', 'adat', 'istiadat', 'upacara', 'tradisi']
+      },
+      {
+        id: 'Agama & Spiritual',
+        keywords: ['agama', 'spiritual', 'islam', 'tasawuf', 'sufi', 'makrifat', 'hakekat', 'tarekat', 'fiqih', 'tauhid', 'quran', 'hadits', 'doa', 'wirid', 'muji', 'puji', 'suluk', 'primbon', 'kebatinan', 'mistik', 'gaib', 'petung', 'pawukon', 'ngelmu', 'rasa']
+      },
+      {
+        id: 'Moral & Etika',
+        keywords: ['moral', 'etika', 'piwulang', 'wulang', 'pitutur', 'nasehat', 'ajaran', 'budi pekerti', 'tata krama', 'sopan santun', 'unggah-ungguh', 'pendidikan', 'pengajaran', 'pedoman', 'panduan', 'laku', 'prihatin', 'tapa', 'brata']
+      },
+      {
+        id: 'Hukum & Pemerintahan',
+        keywords: ['hukum', 'undang-undang', 'peraturan', 'pranatan', 'angger-angger', 'pemerintahan', 'politik', 'administrasi', 'birokrasi', 'surat', 'arsip', 'dokumen', 'laporan', 'catatan', 'notulen', 'perjanjian', 'kontrak', 'sengketa', 'pengadilan']
+      },
+      {
+        id: 'Bahasa & Linguistik',
+        keywords: ['bahasa', 'linguistik', 'kamus', 'bausastra', 'leksikon', 'kosakata', 'paramasastra', 'tata bahasa', 'aksara', 'huruf', 'tulisan', 'ejaan', 'carakan', 'hanacaraka', 'kawi', 'sansekerta', 'arab', 'belanda', 'melayu']
+      },
+      {
+        id: 'Seni & Karawitan',
+        keywords: ['karawitan', 'gamelan', 'gending', 'gendhing', 'notasi', 'titilaras', 'laras', 'pelog', 'slendro', 'pathet', 'irama', 'lagu', 'musik', 'instrumen', 'rebab', 'kendhang', 'gender', 'bonang', 'saron', 'gong']
+      },
+      {
+        id: 'Pengetahuan & Teknis',
+        keywords: ['pengetahuan', 'ilmu', 'sains', 'teknologi', 'teknik', 'pertanian', 'peternakan', 'perikanan', 'kesehatan', 'pengobatan', 'jamu', 'obat', 'resep', 'kuliner', 'masakan', 'bangunan', 'arsitektur', 'astronomi', 'perbintangan', 'geografi', 'peta']
+      },
+      {
+        id: 'Kolonial & Eropa',
+        keywords: ['kolonial', 'belanda', 'eropa', 'barat', 'asing', 'kompeni', 'voc', 'hindia', 'residen', 'gubernur', 'jenderal', 'raffles', 'daendels', 'jansen', 'napoleon', 'inggris', 'prancis', 'portugis', 'spanyol']
+      },
+      {
+        id: 'Lain-lain',
+        keywords: [] // Fallback category
+      }
+    ];
+
+    const text = `${manuscript.title} ${manuscript.description || ''} ${tags.join(' ')}`.toLowerCase();
+
+    for (const category of CATEGORIES) {
+      if (category.id === 'Lain-lain') continue;
+      
+      const hasMatch = category.keywords.some(keyword => text.includes(keyword));
+      if (hasMatch) {
+        return category.id;
+      }
+    }
+
+    return 'Lain-lain';
+  }
 }
 
 // Singleton instance

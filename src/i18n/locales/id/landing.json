@@ -1,7 +1,7 @@
 {
   "meta": {
-    "title": "Nala Pustaka - Digitalisasi Naskah Kuno",
-    "description": "Platform digital untuk melestarikan dan mengakses naskah kuno Indonesia dengan teknologi AI."
+    "title": "Nala Pustaka: Platform Digitalisasi & Analisis AI Naskah Kuno Jawa",
+    "description": "Platform digital terdepan untuk melestarikan, menganalisis, dan mengakses naskah kuno Jawa menggunakan teknologi AI, RAG, dan Knowledge Graph."
   },
   "hero": {
     "badge": "DIGITALISASI NASKAH KUNO",
@@ -14,6 +14,7 @@
   "academic": {
     "title": "Pendekatan Akademis & Teknologi",
     "subtitle": "Kami menggabungkan standar akademis yang ketat dengan teknologi mutakhir untuk memberikan pengalaman penelitian yang mendalam.",
+    "learnMore": "Pelajari Lebih Lanjut Tentang Kami",
     "features": {
       "rag": {
         "title": "RAG Chatbot",

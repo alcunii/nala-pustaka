@@ -1,8 +1,25 @@
 import React from 'react';
+import { Helmet } from 'react-helmet-async';
 
 const DonationPage = () => {
   return (
     <div className="min-h-screen bg-primary-50 py-12 px-4 sm:px-6 lg:px-8 font-serif">
+      <Helmet>
+        <title>Dukung Kami - Nala Pustaka</title>
+        <meta name="description" content="Dukung pelestarian naskah kuno Jawa melalui donasi untuk pengembangan teknologi AI dan infrastruktur Nala Pustaka." />
+        <link rel="canonical" href="https://nalapustaka.com/donation" />
+
+        {/* Open Graph */}
+        <meta property="og:title" content="Dukung Kami - Nala Pustaka" />
+        <meta property="og:description" content="Dukung pelestarian naskah kuno Jawa melalui donasi untuk pengembangan teknologi AI dan infrastruktur Nala Pustaka." />
+        <meta property="og:url" content="https://nalapustaka.com/donation" />
+        <meta property="og:type" content="website" />
+
+        {/* Twitter */}
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:title" content="Dukung Kami - Nala Pustaka" />
+        <meta name="twitter:description" content="Dukung pelestarian naskah kuno Jawa melalui donasi untuk pengembangan teknologi AI dan infrastruktur Nala Pustaka." />
+      </Helmet>
       <div className="max-w-3xl mx-auto">
         {/* Header */}
         <div className="text-center mb-12">

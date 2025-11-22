@@ -8,6 +8,18 @@ export default function AboutUsPage() {
       <Helmet>
         <title>Tentang Kami - Nala Pustaka</title>
         <meta name="description" content="Mengenal lebih dekat Nala Pustaka, inisiatif pelestarian budaya Jawa melalui digitalisasi naskah kuno dan kecerdasan buatan." />
+        <link rel="canonical" href="https://nalapustaka.com/about" />
+
+        {/* Open Graph */}
+        <meta property="og:title" content="Tentang Kami - Nala Pustaka" />
+        <meta property="og:description" content="Mengenal lebih dekat Nala Pustaka, inisiatif pelestarian budaya Jawa melalui digitalisasi naskah kuno dan kecerdasan buatan." />
+        <meta property="og:url" content="https://nalapustaka.com/about" />
+        <meta property="og:type" content="website" />
+
+        {/* Twitter */}
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:title" content="Tentang Kami - Nala Pustaka" />
+        <meta name="twitter:description" content="Mengenal lebih dekat Nala Pustaka, inisiatif pelestarian budaya Jawa melalui digitalisasi naskah kuno dan kecerdasan buatan." />
       </Helmet>
 
       <Navbar />

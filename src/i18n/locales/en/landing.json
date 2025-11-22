@@ -1,7 +1,7 @@
 {
   "meta": {
-    "title": "Nala Pustaka - Ancient Manuscript Digitization",
-    "description": "Digital platform to preserve and access ancient Indonesian manuscripts with AI technology."
+    "title": "Nala Pustaka: Javanese Ancient Manuscript Digitization & AI Analysis Platform",
+    "description": "Leading digital platform to preserve, analyze, and access ancient Javanese manuscripts using AI, RAG, and Knowledge Graph technology."
   },
   "hero": {
     "badge": "ANCIENT MANUSCRIPT DIGITIZATION",
@@ -14,6 +14,7 @@
   "academic": {
     "title": "Academic & Technological Approach",
     "subtitle": "We combine rigorous academic standards with cutting-edge technology to provide an immersive research experience.",
+    "learnMore": "Learn More About Us",
     "features": {
       "rag": {
         "title": "RAG Chatbot",

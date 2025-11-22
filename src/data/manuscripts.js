@@ -16,6 +16,8 @@ export const MANUSCRIPT_DATA = {
     id: 'wulangreh',
     title: 'Serat Wulangreh',
     author: 'Pakubuwana IV',
+    category: 'Moral',
+    tags: ['moral', 'etika', 'kepemimpinan', 'sastra'],
     description: 'Ajaran moral dan etika kepemimpinan Jawa.',
     fullText: `PUPUH I: DHANDHANGGULA
 
@@ -34,6 +36,8 @@ export const MANUSCRIPT_DATA = {
     id: 'centhini',
     title: 'Serat Centhini',
     author: 'Tim Penulis Istana',
+    category: 'Budaya',
+    tags: ['budaya', 'ensiklopedia', 'perjalanan', 'sastra', 'sejarah'],
     description: 'Ensiklopedia kebudayaan Jawa yang komprehensif.',
     fullText: `SERAT CENTHINI - Perjalanan Sèh Amongraga
 
@@ -52,6 +56,8 @@ Kabudayan Jawi ingkang kacritakaken ing Serat Centhini punika nyakup sanget wiya
     id: 'kalatidha',
     title: 'Serat Kalatidha',
     author: 'Ranggawarsita',
+    category: 'Filsafat',
+    tags: ['filsafat', 'refleksi', 'sosial', 'kritik', 'sastra'],
     description: 'Refleksi atas zaman yang penuh ketidakpastian.',
     fullText: `SERAT KALATIDHA - Ranggawarsita
 
@@ -74,6 +80,8 @@ Wong anom anggone kelakon, angayuh kasektene, ing wekasan samya kesed, sarehne t
     id: 'wedhatama',
     title: 'Serat Wedhatama',
     author: 'KGPAA Mangkunegara IV',
+    category: 'Spiritual',
+    tags: ['spiritual', 'kebijaksanaan', 'ngelmu', 'sastra', 'tembang'],
     description: 'Ajaran tertinggi tentang kebijaksanaan dan kehidupan spiritual.',
     fullText: `SERAT WEDHATAMA - KGPAA Mangkunegara IV
 
