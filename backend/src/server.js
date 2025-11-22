@@ -24,6 +24,7 @@ const knowledgeGraphService = require('./services/knowledgeGraph');
 const multiChatService = require('./services/multiChatService');
 const manuscriptService = require('./services/manuscriptService');
 const authService = require('./services/authService'); // Add Auth Service
+const { runMigrations } = require('./utils/migrations');
 
 const app = express();
 
@@ -552,6 +553,9 @@ async function startServer() {
     const countResult = await db.query('SELECT COUNT(*) as count FROM manuscripts');
     logger.info(`Manuscripts in database: ${countResult.rows[0].count}`);
     
+    // Run database migrations
+    await runMigrations();
+
     // Initialize vector DB connection
     await vectorDB.initialize();
     logger.info('Vector DB initialized');
