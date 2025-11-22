@@ -135,14 +135,14 @@ function EducationalKnowledgeGraph({ manuscript }) {
     }
 
     return (
-      <div className="mb-6">
+      <div className="mb-6 notranslate" translate="no">
         <h3 className="text-xl font-bold text-primary-900 mb-4 flex items-center gap-2">
           ✨ Kearifan Lokal & Nilai Moral
           <span className="text-sm font-normal text-gray-500">({relationships.values.length})</span>
         </h3>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
           {relationships.values.map((value, index) => (
-            <div key={index} className={`bg-gradient-to-br ${value.importance === 'high' ? 'from-amber-50 to-yellow-50 border-amber-300' : 'from-gray-50 to-white border-gray-200'} rounded-lg p-4 border-2`}>
+            <div key={`value-${index}-${value.label}`} className={`bg-gradient-to-br ${value.importance === 'high' ? 'from-amber-50 to-yellow-50 border-amber-300' : 'from-gray-50 to-white border-gray-200'} rounded-lg p-4 border-2 notranslate`} translate="no">
               <div className="flex items-start gap-2">
                 <span className="text-2xl">💎</span>
                 <div className="flex-1">
@@ -171,14 +171,14 @@ function EducationalKnowledgeGraph({ manuscript }) {
     }
 
     return (
-      <div className="mb-6">
+      <div className="mb-6 notranslate" translate="no">
         <h3 className="text-xl font-bold text-primary-900 mb-4 flex items-center gap-2">
           👤 Tokoh
           <span className="text-sm font-normal text-gray-500">({relationships.persons.length})</span>
         </h3>
         <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
           {relationships.persons.map((person, index) => (
-            <div key={index} className="bg-blue-50 rounded-lg p-3 border-2 border-blue-200">
+            <div key={`person-${index}-${person.label}`} className="bg-blue-50 rounded-lg p-3 border-2 border-blue-200 notranslate" translate="no">
               <p className="font-semibold text-blue-900">{person.label}</p>
               {person.description && (
                 <p className="text-xs text-blue-700 mt-1">{person.description}</p>
@@ -208,7 +208,7 @@ function EducationalKnowledgeGraph({ manuscript }) {
             </h3>
             <div className="space-y-2">
               {relationships.locations.map((loc, index) => (
-                <div key={index} className="bg-green-50 rounded-lg p-3 border border-green-200">
+                <div key={`location-${index}-${loc.label}`} className="bg-green-50 rounded-lg p-3 border border-green-200 notranslate" translate="no">
                   <p className="font-semibold text-green-900">{loc.label}</p>
                 </div>
               ))}
@@ -222,7 +222,7 @@ function EducationalKnowledgeGraph({ manuscript }) {
             </h3>
             <div className="space-y-2">
               {relationships.concepts.map((concept, index) => (
-                <div key={index} className="bg-purple-50 rounded-lg p-3 border border-purple-200">
+                <div key={`concept-${index}-${concept.label}`} className="bg-purple-50 rounded-lg p-3 border border-purple-200 notranslate" translate="no">
                   <p className="font-semibold text-purple-900">{concept.label}</p>
                 </div>
               ))}
@@ -313,9 +313,9 @@ function EducationalKnowledgeGraph({ manuscript }) {
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 notranslate" translate="no">
       {/* Header */}
-      <div className="bg-gradient-to-r from-amber-500 to-orange-500 rounded-xl px-5 py-4 text-white">
+      <div className="bg-gradient-to-r from-amber-500 to-orange-500 rounded-xl px-5 py-4 text-white notranslate" translate="no">
         <h2 className="text-xl font-bold flex items-center gap-2">
           <span>🔮</span>
           Knowledge Graph

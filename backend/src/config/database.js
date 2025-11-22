@@ -9,6 +9,10 @@ const pool = new Pool({
   password: config.postgres.password,
   port: config.postgres.port,
   ssl: config.postgres.ssl,
+  // Longer timeouts for Neon database (handles auto-suspend/wake)
+  connectionTimeoutMillis: 30000, // 30 seconds to establish connection
+  idleTimeoutMillis: 30000, // 30 seconds before idle connection closes
+  max: 20, // Maximum pool size
 });
 
 pool.on('connect', () => {

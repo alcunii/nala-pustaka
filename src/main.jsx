@@ -1,3 +1,4 @@
+import './lib/googleTranslateSafety'; // Import crash fix before anything else
 import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
 import { BrowserRouter, Routes, Route } from 'react-router-dom'

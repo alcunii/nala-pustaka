@@ -106,7 +106,7 @@ export default function DeepChatModal({ manuscript, initialQuery, onClose }) {
 
   return (
     <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-      <div className="bg-white rounded-2xl shadow-2xl w-full max-w-4xl h-[85vh] flex flex-col">
+      <div className="bg-white rounded-2xl shadow-2xl w-full max-w-4xl h-[85vh] flex flex-col notranslate" translate="no">
         {/* Header with enhanced styling */}
         <div className="bg-gradient-to-r from-primary-600 to-accent-500 p-5 rounded-t-2xl text-white flex-shrink-0">
           <div className="flex justify-between items-start">
@@ -145,7 +145,6 @@ export default function DeepChatModal({ manuscript, initialQuery, onClose }) {
         <div className="flex-1 overflow-y-auto p-6 space-y-4 bg-gradient-to-b from-gray-50 to-white">
           {loadingContext ? (
             <div className="text-center py-12">
-              <Loader2 className="animate-spin h-10 w-10 text-primary-600 mx-auto mb-4" />
               <p className="text-gray-600 text-lg font-semibold">Memuat naskah lengkap...</p>
               <p className="text-gray-500 text-sm mt-2">Harap tunggu sebentar</p>
             </div>
@@ -238,12 +237,9 @@ export default function DeepChatModal({ manuscript, initialQuery, onClose }) {
                     <MessageCircle className="w-6 h-6" />
                   </div>
                   <div className="bg-white border-2 border-primary-200 rounded-2xl p-4 shadow-md">
-                    <div className="flex items-center gap-3">
-                      <Loader2 className="animate-spin h-5 w-5 text-primary-600" />
-                      <span className="text-gray-600 text-sm">
-                        AI sedang membaca naskah secara mendalam...
-                      </span>
-                    </div>
+                    <span className="text-gray-600 text-sm">
+                      AI sedang membaca naskah secara mendalam...
+                    </span>
                   </div>
                 </div>
               )}
@@ -268,8 +264,8 @@ export default function DeepChatModal({ manuscript, initialQuery, onClose }) {
               disabled={!input.trim() || isLoading || loadingContext}
               className="px-6 py-3 bg-gradient-to-r from-primary-600 to-accent-500 text-white font-bold rounded-xl hover:from-primary-700 hover:to-accent-600 disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-lg hover:shadow-xl disabled:shadow-none flex items-center gap-2"
             >
-              {isLoading ? <Loader2 className="w-5 h-5 animate-spin" /> : <Send className="w-5 h-5" />}
-              Kirim
+              {!isLoading && <Send className="w-5 h-5" />}
+              {isLoading ? 'Loading...' : 'Kirim'}
             </button>
           </div>
           <p className="text-xs text-gray-500 mt-2 text-center">

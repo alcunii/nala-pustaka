@@ -111,7 +111,7 @@ function EducationalPanel({ manuscript }) {
     const isExpanded = expandedCard === cardName;
     
     return (
-      <div className="bg-white rounded-2xl shadow-lg border-2 border-primary-200 overflow-hidden hover:shadow-xl transition-all animate-fadeIn">
+      <div className="bg-white rounded-2xl shadow-lg border-2 border-primary-200 overflow-hidden hover:shadow-xl transition-all animate-fadeIn notranslate" translate="no">
         <button
           onClick={() => toggleCard(cardName)}
           className="w-full px-5 py-4 flex items-center justify-between bg-gradient-to-r from-primary-50 to-accent-50 hover:from-primary-100 hover:to-accent-100 transition-all group"
@@ -176,7 +176,6 @@ function EducationalPanel({ manuscript }) {
   if (loading) {
     return (
       <div className="bg-gradient-to-br from-white to-gray-50 rounded-2xl p-12 text-center border-2 border-primary-200 shadow-lg">
-        <Loader2 className="animate-spin h-16 w-16 text-primary-600 mx-auto mb-6" />
         <p className="text-gray-800 font-bold text-xl mb-2 flex items-center justify-center gap-2">
           <GraduationCap className="w-6 h-6" />
           AI Sedang Bekerja...
@@ -187,8 +186,7 @@ function EducationalPanel({ manuscript }) {
           <div className="w-2 h-2 bg-accent-500 rounded-full animate-bounce" style={{ animationDelay: '150ms' }}></div>
           <div className="w-2 h-2 bg-primary-500 rounded-full animate-bounce" style={{ animationDelay: '300ms' }}></div>
         </div>
-        <p className="text-xs text-gray-500 mt-4 flex items-center justify-center gap-1">
-          <Loader2 className="w-3 h-3 animate-spin" />
+        <p className="text-xs text-gray-500 mt-4">
           Biasanya memakan waktu ~10 detik
         </p>
       </div>
@@ -213,9 +211,9 @@ function EducationalPanel({ manuscript }) {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 notranslate" translate="no">
       {/* Enhanced Header */}
-      <div className="bg-gradient-to-r from-primary-600 to-accent-500 rounded-2xl px-6 py-5 text-white shadow-lg">
+      <div className="bg-gradient-to-r from-primary-600 to-accent-500 rounded-2xl px-6 py-5 text-white shadow-lg notranslate" translate="no">
         <div className="flex items-start gap-4">
           <div className="w-14 h-14 bg-white/20 backdrop-blur-sm rounded-full flex items-center justify-center flex-shrink-0 shadow-md">
             <GraduationCap className="w-8 h-8" />
@@ -265,7 +263,7 @@ function EducationalPanel({ manuscript }) {
           <div className="space-y-4">
             {content.wisdom && content.wisdom.length > 0 ? (
               content.wisdom.map((item, index) => (
-                <div key={index} className="bg-gradient-to-r from-amber-50 to-orange-50 rounded-xl p-5 border-l-4 border-amber-500 shadow-sm hover:shadow-md transition-shadow">
+                <div key={`wisdom-${index}-${item.nilai}`} className="bg-gradient-to-r from-amber-50 to-orange-50 rounded-xl p-5 border-l-4 border-amber-500 shadow-sm hover:shadow-md transition-shadow notranslate" translate="no">
                   <div className="flex items-start gap-3">
                     <div className="w-10 h-10 bg-gradient-to-br from-amber-500 to-orange-500 rounded-full flex items-center justify-center text-white flex-shrink-0 shadow-md">
                       <Sparkles className="w-5 h-5" />
@@ -302,7 +300,7 @@ function EducationalPanel({ manuscript }) {
           <div className="space-y-4">
             {content.characters && content.characters.length > 0 ? (
               content.characters.map((char, index) => (
-                <div key={index} className="bg-gradient-to-r from-purple-50 to-pink-50 rounded-xl p-5 shadow-sm hover:shadow-md transition-shadow">
+                <div key={`char-${index}-${char.nama}`} className="bg-gradient-to-r from-purple-50 to-pink-50 rounded-xl p-5 shadow-sm hover:shadow-md transition-shadow notranslate" translate="no">
                   <div className="flex items-start gap-4">
                     <div className="w-12 h-12 bg-gradient-to-br from-purple-500 to-pink-500 rounded-full flex items-center justify-center text-white font-bold text-xl shrink-0 shadow-md">
                       {char.nama.charAt(0)}
@@ -357,7 +355,7 @@ function EducationalPanel({ manuscript }) {
 
       {/* Quiz Section - Enhanced */}
       {content.quiz && content.quiz.length > 0 && (
-        <div className="bg-white rounded-2xl shadow-lg border-2 border-primary-200 overflow-hidden animate-fadeIn">
+        <div className="bg-white rounded-2xl shadow-lg border-2 border-primary-200 overflow-hidden animate-fadeIn notranslate" translate="no">
           <div className="bg-gradient-to-r from-accent-500 to-yellow-500 px-6 py-5 flex items-center justify-between">
             <div className="flex items-center gap-4">
               <div className="w-12 h-12 bg-white/20 backdrop-blur-sm rounded-full flex items-center justify-center shadow-md">

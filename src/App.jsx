@@ -13,6 +13,7 @@ import EducationalKnowledgeGraph from './components/EducationalKnowledgeGraph';
 import MultiChatModal from './components/MultiChatModal';
 import Navbar from './components/layout/Navbar';
 import Logo from './components/common/Logo';
+import ErrorBoundary from './components/ErrorBoundary';
 
 // Configure marked for better Markdown rendering
 marked.setOptions({
@@ -330,6 +331,7 @@ function ChatPanel({ manuscript }) {
   const [isLoading, setIsLoading] = useState(false);
   const [showHistoryModal, setShowHistoryModal] = useState(false); // NEW: History modal state
   const messagesEndRef = useRef(null);
+  const isMountedRef = useRef(true);
 
   // TODO: Isi dengan API Key Anda dari https://aistudio.google.com/app/apikey
   // JANGAN commit API key ke GitHub! Gunakan environment variable
@@ -379,6 +381,8 @@ function ChatPanel({ manuscript }) {
 
   // FIXED: Reset chat when switching manuscripts (session management)
   useEffect(() => {
+    isMountedRef.current = true;
+    
     // Always start fresh session when switching manuscripts
     // Chat history is still preserved in localStorage (accessible via History button)
     const welcomeMessage = {
@@ -387,6 +391,10 @@ function ChatPanel({ manuscript }) {
       text: t('chat.greeting', { title: manuscript.title })
     };
     setMessages([welcomeMessage]);
+
+    return () => {
+      isMountedRef.current = false;
+    };
   }, [manuscript.id, t]);
 
   // Detect language from query
@@ -442,7 +450,7 @@ You can refer to previous questions if relevant to provide coherent answers.`
     const manuscriptText = manuscriptData.full_text || manuscriptData.fullText || '';
 
     // NEW: Build conversation context (last 5 messages, excluding welcome)
-    const welcomeGreeting = t('chat.greeting', { title: manuscriptData.title });
+    // const welcomeGreeting = t('chat.greeting', { title: manuscriptData.title });
     const contextMessages = conversationHistory
       .filter(msg => !msg.text.includes('Pustakawan AI') && !msg.text.includes('AI librarian'))
       .slice(-5); // Last 5 messages only
@@ -564,6 +572,9 @@ ${language === 'id' ? 'INSTRUKSI' : 'INSTRUCTION'}: ${l.instruction}${contextMes
       // NEW: Pass conversation history for context
       const aiText = await getGroundedAiResponse(userQuery, manuscript, messages);
 
+      // Only update state if component is still mounted
+      if (!isMountedRef.current) return;
+
       // Tambahkan respons AI
       const aiMessage = {
         id: Date.now(),
@@ -573,6 +584,9 @@ ${language === 'id' ? 'INSTRUKSI' : 'INSTRUCTION'}: ${l.instruction}${contextMes
       setMessages(prev => [...prev, aiMessage]);
     } catch (error) {
       console.error('Error calling Gemini API:', error);
+
+      // Only update state if component is still mounted
+      if (!isMountedRef.current) return;
 
       // Tambahkan pesan error
       const errorMessage = {
@@ -585,7 +599,9 @@ ${language === 'id' ? 'INSTRUKSI' : 'INSTRUCTION'}: ${l.instruction}${contextMes
       };
       setMessages(prev => [...prev, errorMessage]);
     } finally {
-      setIsLoading(false);
+      if (isMountedRef.current) {
+        setIsLoading(false);
+      }
     }
   };
 
@@ -2027,20 +2043,28 @@ function RightPanel({ selectedManuscript, viewMode, setViewMode }) {
         {viewMode === 'chat' && selectedManuscript && (
           <ChatPanel manuscript={selectedManuscript} />
         )}
-        {viewMode === 'ragchat' && <RagChatPanel />}
+        {viewMode === 'ragchat' && (
+          <ErrorBoundary>
+            <RagChatPanel />
+          </ErrorBoundary>
+        )}
         {viewMode === 'kg' && selectedManuscript && (
           <KnowledgeGraphPanel manuscript={selectedManuscript} />
         )}
         {viewMode === 'educational' && selectedManuscript && (
           <div className="h-full overflow-y-auto p-4 sm:p-6 bg-gradient-to-br from-amber-50 to-orange-50">
             {console.log('🎓 EDUCATIONAL MODE ACTIVE - Manuscript:', selectedManuscript.id)}
-            <EducationalPanel manuscript={selectedManuscript} />
+            <ErrorBoundary>
+              <EducationalPanel manuscript={selectedManuscript} />
+            </ErrorBoundary>
             <div className="mt-6">
               {console.log('🔮 ABOUT TO RENDER EducationalKnowledgeGraph')}
-              <EducationalKnowledgeGraph 
-                key={selectedManuscript.id} 
-                manuscript={selectedManuscript} 
-              />
+              <ErrorBoundary>
+                <EducationalKnowledgeGraph 
+                  key={selectedManuscript.id} 
+                  manuscript={selectedManuscript} 
+                />
+              </ErrorBoundary>
             </div>
           </div>
         )}
@@ -2051,7 +2075,7 @@ function RightPanel({ selectedManuscript, viewMode, setViewMode }) {
 
 // Komponen App Utama
 function App() {
-  const { t } = useTranslation('app');
+  const { i18n } = useTranslation('app');
   const location = useLocation();
   const [selectedManuscript, setSelectedManuscript] = useState(null);
   const [viewMode, setViewMode] = useState('welcome');
@@ -2157,32 +2181,37 @@ function App() {
 
       {/* Deep Chat Modal */}
       {deepChatOpen && deepChatManuscript && (
-        <DeepChatModal
-          manuscript={deepChatManuscript}
-          initialQuery={deepChatInitialQuery}
-          onClose={() => {
-            setDeepChatOpen(false);
-            setDeepChatManuscript(null);
-            setDeepChatInitialQuery('');
-          }}
-        />
+        <ErrorBoundary>
+          <DeepChatModal
+            manuscript={deepChatManuscript}
+            initialQuery={deepChatInitialQuery}
+            onClose={() => {
+              setDeepChatOpen(false);
+              setDeepChatManuscript(null);
+              setDeepChatInitialQuery('');
+            }}
+          />
+        </ErrorBoundary>
       )}
 
       {/* Multi-Chat Modal */}
       {multiChatOpen && multiChatManuscripts.length >= 2 && multiChatManuscripts.length <= 3 && (
-        <MultiChatModal
-          manuscripts={multiChatManuscripts}
-          onClose={() => {
-            setMultiChatOpen(false);
-            setMultiChatManuscripts([]);
-          }}
-        />
+        <ErrorBoundary>
+          <MultiChatModal
+            manuscripts={multiChatManuscripts}
+            onClose={() => {
+              setMultiChatOpen(false);
+              setMultiChatManuscripts([]);
+            }}
+          />
+        </ErrorBoundary>
       )}
 
       <main className="flex-1 flex flex-col lg:flex-row overflow-hidden">
         {/* Mobile Selector */}
         <div className="lg:hidden">
           <MobileManuscriptSelector
+            key={`mobile-selector-${i18n.language}`} // Force remount on language change to prevent DOM mismatch
             selectedManuscript={selectedManuscript}
             onSelectManuscript={handleSelectManuscript}
             manuscripts={manuscripts}
@@ -2194,6 +2223,7 @@ function App() {
         {/* Left Panel - Manuscript List (Desktop) */}
         <div className="hidden lg:block w-full lg:w-1/3 h-full max-h-full">
           <LeftPanel
+            key={`desktop-panel-${i18n.language}`} // Force remount on language change
             selectedManuscript={selectedManuscript}
             onSelectManuscript={handleSelectManuscript}
             manuscripts={manuscripts}

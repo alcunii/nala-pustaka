@@ -1,21 +1,34 @@
 ﻿import { useState, useRef, useEffect } from 'react';
 import { marked } from 'marked';
-import { MessageCircle, Send, Loader2, User } from 'lucide-react';
+import { MessageCircle, Send, User } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { ragApi } from '../lib/ragApi';
 import Logo from './common/Logo';
 
 export default function RagChatPanel() {
   const { t } = useTranslation('app');
-  const [messages, setMessages] = useState([{
-    id: Date.now(),
-    sender: 'ai',
-    text: t('ragChat.greeting'),
-  }]);
+  const [messages, setMessages] = useState([]);
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const chatContainerRef = useRef(null);
   const scrollPositionRef = useRef(0);
+  const isMountedRef = useRef(true);
+
+  // Initialize greeting message on mount
+  useEffect(() => {
+    isMountedRef.current = true;
+    
+    // Set initial greeting message
+    setMessages([{
+      id: Date.now(),
+      sender: 'ai',
+      text: t('ragChat.greeting'),
+    }]);
+
+    return () => {
+      isMountedRef.current = false;
+    };
+  }, [t]);
 
   // Preserve scroll position when messages change
   useEffect(() => {
@@ -57,6 +70,9 @@ export default function RagChatPanel() {
 
       const result = await ragApi.ragChat(userQuery, conversationHistory);
       
+      // Only update state if component is still mounted
+      if (!isMountedRef.current) return;
+      
       const aiMessage = {
         id: Date.now() + 1,
         sender: 'ai',
@@ -66,6 +82,9 @@ export default function RagChatPanel() {
       
       setMessages(prev => [...prev, aiMessage]);
     } catch (error) {
+      // Only update state if component is still mounted
+      if (!isMountedRef.current) return;
+      
       const errorMessage = {
         id: Date.now() + 1,
         sender: 'ai',
@@ -73,12 +92,14 @@ export default function RagChatPanel() {
       };
       setMessages(prev => [...prev, errorMessage]);
     } finally {
-      setIsLoading(false);
+      if (isMountedRef.current) {
+        setIsLoading(false);
+      }
     }
   };
 
   return (
-    <div className="flex flex-col h-full bg-white rounded-2xl shadow-xl overflow-hidden">
+    <div className="flex flex-col h-full bg-white rounded-2xl shadow-xl overflow-hidden notranslate" translate="no">
       {/* Enhanced Header with Bold Gradient */}
       <div className="px-6 py-5 bg-gradient-to-r from-primary-600 to-accent-500 text-white flex-shrink-0">
         <h3 className="text-2xl font-bold flex items-center gap-2 mb-2">
@@ -214,17 +235,14 @@ export default function RagChatPanel() {
         ))}
 
         {isLoading && (
-          <div className="flex justify-start animate-fadeIn">
+          <div className="flex justify-start">
             <div className="flex-shrink-0 w-10 h-10 rounded-full bg-gradient-to-br from-primary-500 to-accent-500 flex items-center justify-center text-white font-bold mr-3 shadow-md">
               <MessageCircle className="w-6 h-6" />
             </div>
             <div className="bg-white border-2 border-primary-200 rounded-2xl p-4 shadow-md">
-              <div className="flex items-center gap-3">
-                <Loader2 className="animate-spin h-5 w-5 text-primary-600" />
-                <span className="text-gray-600 text-sm">
-                  {t('multiChat.analyzing', { count: 'all' })}
-                </span>
-              </div>
+              <span className="text-gray-600 text-sm">
+                {t('multiChat.analyzing', { count: 'all' })}
+              </span>
             </div>
           </div>
         )}
@@ -246,8 +264,8 @@ export default function RagChatPanel() {
             disabled={!input.trim() || isLoading}
             className="px-6 py-3 bg-gradient-to-r from-primary-600 to-accent-500 text-white font-bold rounded-xl hover:from-primary-700 hover:to-accent-600 disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-lg hover:shadow-xl disabled:shadow-none flex items-center gap-2"
           >
-            {isLoading ? <Loader2 className="w-5 h-5 animate-spin" /> : <Send className="w-5 h-5" />}
-            {t('ragChat.send')}
+            {!isLoading && <Send className="w-5 h-5" />}
+            {isLoading ? 'Loading...' : t('ragChat.send')}
           </button>
         </div>
         <p className="text-xs text-gray-500 mt-2 text-center">
