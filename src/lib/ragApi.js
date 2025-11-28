@@ -143,6 +143,35 @@ class RagApiService {
   }
 
   /**
+   * Grounded Chat - Conversational AI with full manuscript context (Gemini)
+   * Replaces direct frontend calls to Google API
+   */
+  async chatGrounded(userQuery, manuscriptData, conversationHistory = []) {
+    try {
+      const response = await fetch(`${this.baseUrl}/api/chat/gemini`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          userQuery,
+          manuscriptData,
+          conversationHistory
+        })
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Grounded chat failed');
+      }
+
+      const data = await response.json();
+      return data.answer;
+    } catch (error) {
+      console.error('Grounded chat error:', error);
+      throw error;
+    }
+  }
+
+  /**
    * Test if backend is available
    */
   async isAvailable() {

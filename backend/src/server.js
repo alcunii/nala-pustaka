@@ -18,6 +18,7 @@ const vectorDB = require('./services/vectorDB');
 // Use OpenAI embedding (matches Pinecone dimension 1536)
 const embeddingService = require('./services/embeddingOpenAI');
 const ragChatService = require('./services/ragChat');
+const geminiChatService = require('./services/geminiChatService');
 const deepChatService = require('./services/deepChatService');
 const educationalAIService = require('./services/educationalAI');
 const knowledgeGraphService = require('./services/knowledgeGraph');
@@ -88,6 +89,7 @@ app.get('/', (req, res) => {
       manuscripts: '/api/manuscripts',
       search: 'POST /api/search',
       ragChat: 'POST /api/rag-chat',
+      chatGrounded: 'POST /api/chat/gemini',
       deepChat: 'POST /api/deep-chat',
       multiChat: 'POST /api/chat/multi-manuscript',
       knowledgeGraph: 'POST /api/knowledge-graph',
@@ -190,9 +192,32 @@ app.post('/api/rag-chat', async (req, res) => {
     });
   } catch (error) {
     logger.error('RAG Chat error:', error);
-    res.status(500).json({ 
-      error: 'RAG Chat failed', 
-      message: error.message 
+    res.status(500).json({
+      error: 'RAG Chat failed',
+      message: error.message
+    });
+  }
+});
+
+// Grounded Chat endpoint (Gemini) - Replaces direct frontend calls
+app.post('/api/chat/gemini', async (req, res) => {
+  try {
+    const { userQuery, manuscriptData, conversationHistory } = req.body;
+
+    if (!userQuery || !manuscriptData) {
+      return res.status(400).json({ error: 'userQuery and manuscriptData are required' });
+    }
+
+    logger.info(`Grounded Chat request: "${userQuery}" for manuscript: ${manuscriptData.title}`);
+
+    const answer = await geminiChatService.chatGrounded(userQuery, manuscriptData, conversationHistory || []);
+
+    res.json({ answer });
+  } catch (error) {
+    logger.error('Grounded Chat error:', error);
+    res.status(500).json({
+      error: 'Grounded Chat failed',
+      message: error.message
     });
   }
 });
