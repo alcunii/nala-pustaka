@@ -1,0 +1,58 @@
+{
+  "meta": {
+    "title": "Nala Pustaka: Platform Digitalisasi & Analisis AI Naskah Kuno Jawa",
+    "description": "Platform digital terdepan untuk melestarikan, menganalisis, dan mengakses naskah kuno Jawa menggunakan teknologi AI, RAG, dan Knowledge Graph."
+  },
+  "hero": {
+    "badge": "DIGITALISASI NASKAH KUNO",
+    "title": "Jelajahi Khazanah",
+    "titleHighlight": "Budaya Nusantara",
+    "description": "Platform digital canggih yang menggabungkan <strong>filologi tradisional</strong> dengan <strong>kecerdasan buatan</strong> untuk melestarikan, menganalisis, dan membuka akses ke ribuan naskah kuno Indonesia.",
+    "ctaPrimary": "Mulai Jelajahi",
+    "ctaSecondary": "Lihat Katalog"
+  },
+  "academic": {
+    "title": "Pendekatan Akademis & Teknologi",
+    "subtitle": "Kami menggabungkan standar akademis yang ketat dengan teknologi mutakhir untuk memberikan pengalaman penelitian yang mendalam.",
+    "learnMore": "Pelajari Lebih Lanjut Tentang Kami",
+    "features": {
+      "rag": {
+        "title": "RAG Chatbot",
+        "description": "Tanya jawab dengan naskah menggunakan <strong>Retrieval-Augmented Generation</strong> yang memberikan jawaban akurat berdasarkan konteks naskah asli."
+      },
+      "graph": {
+        "title": "Knowledge Graph",
+        "description": "Visualisasi hubungan antar tokoh, tempat, dan peristiwa dalam naskah untuk memahami struktur narasi secara menyeluruh."
+      },
+      "catalog": {
+        "title": "Katalog Terindeks",
+        "description": "Pencarian semantik yang memungkinkan Anda menemukan naskah berdasarkan makna dan konteks, bukan hanya kata kunci."
+      }
+    }
+  },
+  "insights": {
+    "title": "Wawasan Nala",
+    "subtitle": "Menelusuri kedalaman teknologi dan budaya melalui pemikiran terbaru kami.",
+    "articles": {
+      "digitalSilence": {
+        "title": "Mengatasi 'Kebisuan Digital'",
+        "description": "Bagaimana AI memecahkan masalah 'Kuburan Data' pada ribuan naskah kuno yang terdigitalisasi.",
+        "readMore": "Baca Artikel"
+      },
+      "philology": {
+        "title": "Revolusi Riset Filologi",
+        "description": "Akselerasi riset dari hitungan bulan menjadi menit dengan bantuan teknologi Multi-Chat.",
+        "readMore": "Baca Artikel"
+      },
+      "genz": {
+        "title": "Kearifan Jawa untuk Gen Z",
+        "description": "Menghidupkan kembali relevansi naskah kuno bagi generasi muda melalui pendekatan interaktif.",
+        "readMore": "Baca Artikel"
+      }
+    }
+  },
+  "quote": {
+    "text": "Teknologi tidak diciptakan untuk menggantikan kearifan masa lalu, melainkan untuk menjadi jembatan yang menghubungkannya dengan masa depan.",
+    "author": "Filosofi Nala Pustaka"
+  }
+}

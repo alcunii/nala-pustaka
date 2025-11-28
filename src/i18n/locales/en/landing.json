@@ -1,0 +1,58 @@
+{
+  "meta": {
+    "title": "Nala Pustaka: Javanese Ancient Manuscript Digitization & AI Analysis Platform",
+    "description": "Leading digital platform to preserve, analyze, and access ancient Javanese manuscripts using AI, RAG, and Knowledge Graph technology."
+  },
+  "hero": {
+    "badge": "ANCIENT MANUSCRIPT DIGITIZATION",
+    "title": "Explore the Archipelago's",
+    "titleHighlight": "Cultural Treasures",
+    "description": "Advanced digital platform combining <strong>traditional philology</strong> with <strong>artificial intelligence</strong> to preserve, analyze, and open access to thousands of ancient Indonesian manuscripts.",
+    "ctaPrimary": "Start Exploring",
+    "ctaSecondary": "View Catalog"
+  },
+  "academic": {
+    "title": "Academic & Technological Approach",
+    "subtitle": "We combine rigorous academic standards with cutting-edge technology to provide an immersive research experience.",
+    "learnMore": "Learn More About Us",
+    "features": {
+      "rag": {
+        "title": "RAG Chatbot",
+        "description": "Chat with manuscripts using <strong>Retrieval-Augmented Generation</strong> providing accurate answers based on original manuscript context."
+      },
+      "graph": {
+        "title": "Knowledge Graph",
+        "description": "Visualize relationships between characters, places, and events in manuscripts to understand narrative structure comprehensively."
+      },
+      "catalog": {
+        "title": "Indexed Catalog",
+        "description": "Semantic search allowing you to find manuscripts based on meaning and context, not just keywords."
+      }
+    }
+  },
+  "insights": {
+    "title": "Nala Insights",
+    "subtitle": "Exploring the depths of technology and culture through our latest thoughts.",
+    "articles": {
+      "digitalSilence": {
+        "title": "Overcoming 'Digital Silence'",
+        "description": "How AI solves the 'Data Graveyard' problem in thousands of digitized ancient manuscripts.",
+        "readMore": "Read Article"
+      },
+      "philology": {
+        "title": "Philology Research Revolution",
+        "description": "Accelerating research from months to minutes with the help of Multi-Chat technology.",
+        "readMore": "Read Article"
+      },
+      "genz": {
+        "title": "Javanese Wisdom for Gen Z",
+        "description": "Reviving the relevance of ancient manuscripts for the younger generation through an interactive approach.",
+        "readMore": "Read Article"
+      }
+    }
+  },
+  "quote": {
+    "text": "Technology was not created to replace the wisdom of the past, but to be a bridge connecting it to the future.",
+    "author": "Nala Pustaka Philosophy"
+  }
+}

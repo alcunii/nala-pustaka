@@ -1,0 +1,43 @@
+{
+  "name": "nala-pustaka-backend",
+  "version": "1.0.0",
+  "description": "RAG Backend API for Nala Pustaka - Semantic search and chat for Javanese manuscripts",
+  "main": "src/server.js",
+  "scripts": {
+    "start": "node src/server.js",
+    "dev": "node --watch src/server.js",
+    "test-services": "node src/scripts/test-services.js",
+    "ingest": "node src/scripts/ingest.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "rag",
+    "semantic-search",
+    "javanese",
+    "manuscripts",
+    "ai"
+  ],
+  "author": "Nala Pustaka Team",
+  "license": "ISC",
+  "type": "commonjs",
+  "dependencies": {
+    "@google/generative-ai": "^0.24.1",
+    "@huggingface/inference": "^4.13.3",
+    "@pinecone-database/pinecone": "^6.1.3",
+    "@supabase/supabase-js": "^2.81.1",
+    "bcryptjs": "^3.0.3",
+    "compression": "^1.8.1",
+    "cors": "^2.8.5",
+    "dotenv": "^17.2.3",
+    "express": "^5.1.0",
+    "express-rate-limit": "^8.2.1",
+    "jsonwebtoken": "^9.0.2",
+    "ml-kmeans": "^7.0.0",
+    "node-cache": "^5.1.2",
+    "openai": "^6.9.1",
+    "pg": "^8.16.3",
+    "uuid": "^8.3.2",
+    "winston": "^3.18.3",
+    "zod": "^4.1.12"
+  }
+}

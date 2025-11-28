@@ -1,0 +1,32 @@
+﻿{
+  "name": "Nala Pustaka - Digitalisasi Naskah Kuno",
+  "short_name": "Nala Pustaka",
+  "description": "Platform digitalisasi dan analisis naskah kuno Jawa menggunakan teknologi AI dan RAG",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#F5F5DC",
+  "theme_color": "#8B4513",
+  "orientation": "portrait-primary",
+  "icons": [
+    {
+      "src": "/favicon.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/apple-touch-icon.png",
+      "sizes": "180x180",
+      "type": "image/png"
+    },
+    {
+      "src": "/assets/logo/logo-light.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ],
+  "categories": ["education", "books", "productivity"],
+  "lang": "id",
+  "dir": "ltr"
+}

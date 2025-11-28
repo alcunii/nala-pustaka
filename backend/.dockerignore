@@ -1,0 +1,23 @@
+﻿node_modules
+npm-debug.log
+.env
+.env.local
+.env.*.local
+*.log
+.DS_Store
+.git
+.gitignore
+
+# Exclude ALL scripts folder (contains emojis, not needed in production)
+src/scripts/
+
+# Exclude all .cjs files (contains emojis, only for development)
+*.cjs
+
+# Exclude test and debug files
+test-*.js
+check-*.js
+debug-*.js
+
+# Exclude data files
+*.csv

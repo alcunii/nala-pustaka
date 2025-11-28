@@ -1,0 +1,22 @@
+{
+  "title": "Manuscript Catalog",
+  "subtitle": "Explore the collection of ancient manuscripts of the Archipelago",
+  "searchPlaceholder": "Search title, author, or keywords...",
+  "filters": {
+    "all": "All",
+    "category": "Category",
+    "language": "Language",
+    "century": "Century"
+  },
+  "sort": {
+    "newest": "Newest",
+    "oldest": "Oldest",
+    "az": "A-Z",
+    "za": "Z-A"
+  },
+  "card": {
+    "read": "Read Manuscript",
+    "details": "View Details"
+  },
+  "noResults": "No manuscripts found."
+}

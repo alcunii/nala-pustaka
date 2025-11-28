@@ -1,0 +1,107 @@
+{
+  "manuscript": {
+    "list": "Daftar Naskah",
+    "search": "Cari naskah...",
+    "found": "naskah ditemukan",
+    "filterQuality": "Filter Kualitas",
+    "filterAll": "Semua",
+    "filterRich": "Lengkap",
+    "filterMedium": "Sedang",
+    "filterShort": "Pendek",
+    "quality": {
+      "rich": "Lengkap",
+      "medium": "Sedang",
+      "short": "Pendek",
+      "very_short": "Sangat Pendek",
+      "empty": "Kosong"
+    },
+    "pagination": {
+      "page": "Hal",
+      "perPage": "per hal",
+      "info": "Menampilkan {{count}} naskah"
+    }
+  },
+  "welcome": {
+    "title": "Selamat Datang di Nala Pustaka",
+    "subtitle": "Platform digital untuk pelestarian dan analisis naskah kuno Nusantara dengan teknologi AI.",
+    "selectPrompt": "Pilih naskah di sebelah kiri untuk memulai",
+    "howToUse": "Cara Menggunakan",
+    "features": "Fitur Utama",
+    "steps": {
+      "step1": {
+        "title": "Pilih Naskah",
+        "description": "Jelajahi daftar naskah di panel kiri. Gunakan fitur pencarian atau filter untuk menemukan naskah yang Anda minati."
+      },
+      "step2": {
+        "title": "Pilih Mode Analisis",
+        "description": "Gunakan Chat AI untuk bertanya, Knowledge Graph untuk visualisasi, atau Mode Edukatif untuk pembelajaran terstruktur."
+      },
+      "step3": {
+        "title": "Dapatkan Wawasan",
+        "description": "Temukan informasi mendalam, konteks sejarah, dan hubungan antar elemen dalam naskah kuno."
+      }
+    }
+  },
+  "ragChat": {
+    "title": "Chat Semua Naskah",
+    "description": "Tanya jawab lintas naskah",
+    "greeting": "Halo! Saya Nala, asisten AI Anda. Silakan tanya apa saja tentang koleksi naskah kami.",
+    "welcomeTitle": "Chat dengan Semua Naskah",
+    "welcomeDesc": "Ajukan pertanyaan yang mencakup seluruh koleksi naskah. Saya akan mencari jawaban dari berbagai sumber sekaligus.",
+    "exampleQuestions": "Contoh Pertanyaan:",
+    "examples": {
+      "ex1": "Apa tema umum dalam naskah-naskah ini?",
+      "ex2": "Bagaimana konsep kepemimpinan digambarkan?",
+      "ex3": "Sebutkan tokoh-tokoh utama yang sering muncul.",
+      "ex4": "Apa perbedaan gaya bahasa antar naskah?",
+      "ex5": "Jelaskan konteks sejarah dari koleksi ini."
+    },
+    "viewSources": "Lihat Sumber",
+    "manuscripts": "naskah",
+    "placeholder": "Ketik pertanyaan Anda di sini...",
+    "send": "Kirim",
+    "tips": "Tip: Pertanyaan spesifik akan memberikan hasil yang lebih akurat."
+  },
+  "multiChat": {
+    "selectMode": "Pilih Naskah",
+    "cancelSelect": "Batal Pilih",
+    "analyzing": "Menganalisis {{count}} naskah..."
+  },
+  "chat": {
+    "title": "Chat AI",
+    "greeting": "Halo! Saya siap membantu Anda menjelajahi naskah \"{{title}}\".",
+    "askAnything": "Tanyakan apa saja tentang naskah ini",
+    "history": "Riwayat",
+    "clearHistory": "Hapus Riwayat",
+    "exampleQuestions": "Contoh Pertanyaan:",
+    "examples": {
+      "theme": "Apa tema utama naskah ini?",
+      "characters": "Siapa saja tokoh utamanya?",
+      "context": "Bagaimana konteks sejarahnya?",
+      "values": "Apa nilai moral yang terkandung?"
+    },
+    "analyzing": "Sedang menganalisis...",
+    "placeholder": "Tanyakan sesuatu tentang naskah ini...",
+    "send": "Kirim",
+    "tips": "AI menjawab berdasarkan isi naskah asli."
+  },
+  "knowledgeGraph": {
+    "title": "Knowledge Graph",
+    "visualizing": "Visualisasi hubungan dalam \"{{title}}\"",
+    "loading": "Memuat visualisasi...",
+    "noData": "Data tidak tersedia",
+    "noDataDesc": "Belum ada data graph untuk naskah ini.",
+    "tips": "Geser node untuk mengatur posisi, scroll untuk zoom.",
+    "legend": {
+      "work": "Karya",
+      "character": "Tokoh",
+      "concept": "Konsep",
+      "structure": "Struktur"
+    }
+  },
+  "tabs": {
+    "chatAI": "Chat AI",
+    "knowledgeGraph": "Knowledge Graph",
+    "educational": "Mode Edukatif"
+  }
+}

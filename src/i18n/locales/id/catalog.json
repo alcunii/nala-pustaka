@@ -1,0 +1,22 @@
+{
+  "title": "Katalog Naskah",
+  "subtitle": "Jelajahi koleksi naskah kuno Nusantara",
+  "searchPlaceholder": "Cari judul, penulis, atau kata kunci...",
+  "filters": {
+    "all": "Semua",
+    "category": "Kategori",
+    "language": "Bahasa",
+    "century": "Abad"
+  },
+  "sort": {
+    "newest": "Terbaru",
+    "oldest": "Terlama",
+    "az": "A-Z",
+    "za": "Z-A"
+  },
+  "card": {
+    "read": "Baca Naskah",
+    "details": "Lihat Detail"
+  },
+  "noResults": "Tidak ada naskah yang ditemukan."
+}

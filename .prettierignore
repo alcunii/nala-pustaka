@@ -1,0 +1,14 @@
+# Directories
+node_modules/
+dist/
+build/
+.git/
+.vscode/
+.idea/
+
+# Files
+*.lock
+*.log
+package.json
+pnpm-lock.yaml
+yarn.lock

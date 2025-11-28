@@ -1,0 +1,166 @@
+<!doctype html>
+<html lang="id">
+  <head>
+    <meta charset="UTF-8" />
+    
+    <!-- Favicon - Logo Nala Pustaka (Coklat) -->
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon.png" />
+    <link rel="icon" type="image/png" sizes="16x16" href="/favicon.png" />
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
+    <link rel="shortcut icon" href="/favicon.png" />
+    
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    
+    <!-- PWA Manifest -->
+    <link rel="manifest" href="/manifest.json" />
+    
+    <!-- Theme Color -->
+    <meta name="theme-color" content="#8B4513" />
+    <meta name="msapplication-TileColor" content="#8B4513" />
+    
+    <!-- SEO Meta Tags -->
+    <meta name="description" content="Platform digitalisasi dan analisis naskah kuno Jawa menggunakan teknologi AI dan RAG" />
+    <meta name="keywords" content="naskah kuno, digitalisasi, AI, RAG, filologi, Jawa" />
+    <meta name="author" content="Nala Pustaka" />
+
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://nalapustaka.com/" />
+    <meta property="og:title" content="Nala Pustaka - Digitalisasi Naskah Kuno" />
+    <meta property="og:description" content="Platform digitalisasi dan analisis naskah kuno Jawa menggunakan teknologi AI dan RAG" />
+    <meta property="og:image" content="https://nalapustaka.com/assets/logo/logo-full-light.png" />
+
+    <!-- Twitter -->
+    <meta property="twitter:card" content="summary_large_image" />
+    <meta property="twitter:url" content="https://nalapustaka.com/" />
+    <meta property="twitter:title" content="Nala Pustaka - Digitalisasi Naskah Kuno" />
+    <meta property="twitter:description" content="Platform digitalisasi dan analisis naskah kuno Jawa menggunakan teknologi AI dan RAG" />
+    <meta property="twitter:image" content="https://nalapustaka.com/assets/logo/logo-full-light.png" />
+    
+    <title>Nala Pustaka - Digitalisasi Naskah Kuno</title>
+    
+    <!-- Custom CSS for Google Translate -->
+    <style>
+      /* FORCE HIDE ALL GOOGLE TRANSLATE BANNERS AND TOOLBARS */
+      .goog-te-banner-frame,
+      .goog-te-banner-frame.skiptranslate,
+      #goog-gt-tt,
+      .goog-te-balloon-frame,
+      div#goog-gt-,
+      .skiptranslate.goog-te-gadget,
+      iframe.goog-te-banner-frame,
+      iframe.skiptranslate,
+      body > .skiptranslate,
+      body > .goog-te-banner-frame {
+        display: none !important;
+        visibility: hidden !important;
+        opacity: 0 !important;
+        height: 0 !important;
+        width: 0 !important;
+        position: absolute !important;
+        top: -9999px !important;
+        left: -9999px !important;
+        z-index: -9999 !important;
+        pointer-events: none !important;
+      }
+      
+      /* Hide the hidden widget container */
+      #google_translate_hidden,
+      #google_translate_hidden *,
+      #google_translate_hidden iframe,
+      #google_translate_hidden .skiptranslate {
+        display: none !important;
+        visibility: hidden !important;
+        position: absolute !important;
+        left: -9999px !important;
+        top: -9999px !important;
+        width: 0 !important;
+        height: 0 !important;
+        opacity: 0 !important;
+      }
+      
+      /* CRITICAL: Remove body margin/padding added by Google Translate */
+      body {
+        top: 0 !important;
+        position: relative !important;
+        margin-top: 0 !important;
+        padding-top: 0 !important;
+      }
+      
+      body.translated-ltr,
+      body.translated-rtl,
+      body.translated {
+        top: 0 !important;
+        margin-top: 0 !important;
+        padding-top: 0 !important;
+      }
+      
+      /* Ensure translated content looks good */
+      .translated-ltr,
+      .translated-rtl {
+        font-family: inherit !important;
+      }
+      
+      /* Hide "Show original" link */
+      .goog-te-menu-value span[style] {
+        display: none !important;
+      }
+      
+      /* Additional safety: hide all skiptranslate elements at top */
+      body > .skiptranslate:first-child {
+        display: none !important;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="root">
+      <h1 style="display: none;">Nala Pustaka - Digitalisasi Naskah Kuno Jawa & Analisis AI</h1>
+    </div>
+    
+    <!-- Hidden Google Translate Widget (for engine only) -->
+    <div id="google_translate_hidden" style="display: none;"></div>
+    
+    <script type="module" src="/src/main.jsx"></script>
+    
+    <!-- Google Translate Script -->
+    <script type="text/javascript">
+      function googleTranslateElementInit() {
+        // Initialize hidden widget to enable translation engine
+        new google.translate.TranslateElement({
+          pageLanguage: 'id',
+          includedLanguages: 'id,en,jw',
+          layout: google.translate.TranslateElement.InlineLayout.SIMPLE,
+          autoDisplay: false
+        }, 'google_translate_hidden');
+      }
+    </script>
+    <script type="text/javascript" src="//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"></script>
+    
+    <!-- Force Hide Banner Script -->
+    <script type="text/javascript">
+      // Continuously check and hide Google Translate banner
+      setInterval(function() {
+        // Hide all potential banner elements
+        var banners = document.querySelectorAll('.goog-te-banner-frame, .skiptranslate, iframe.goog-te-banner-frame, body > .skiptranslate');
+        banners.forEach(function(banner) {
+          if (banner && banner.style) {
+            banner.style.display = 'none';
+            banner.style.visibility = 'hidden';
+            banner.style.opacity = '0';
+            banner.style.height = '0';
+            banner.style.position = 'absolute';
+            banner.style.top = '-9999px';
+          }
+        });
+        
+        // Force body position
+        if (document.body) {
+          document.body.style.top = '0';
+          document.body.style.position = 'relative';
+          document.body.style.marginTop = '0';
+          document.body.style.paddingTop = '0';
+        }
+      }, 100);
+    </script>
+  </body>
+</html>

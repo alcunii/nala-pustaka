@@ -1,0 +1,107 @@
+{
+  "manuscript": {
+    "list": "Manuscript List",
+    "search": "Search manuscripts...",
+    "found": "manuscripts found",
+    "filterQuality": "Quality Filter",
+    "filterAll": "All",
+    "filterRich": "Rich",
+    "filterMedium": "Medium",
+    "filterShort": "Short",
+    "quality": {
+      "rich": "Rich",
+      "medium": "Medium",
+      "short": "Short",
+      "very_short": "Very Short",
+      "empty": "Empty"
+    },
+    "pagination": {
+      "page": "Page",
+      "perPage": "per page",
+      "info": "Showing {{count}} manuscripts"
+    }
+  },
+  "welcome": {
+    "title": "Welcome to Nala Pustaka",
+    "subtitle": "Digital platform for preservation and analysis of ancient Archipelago manuscripts using AI technology.",
+    "selectPrompt": "Select a manuscript on the left to start",
+    "howToUse": "How to Use",
+    "features": "Key Features",
+    "steps": {
+      "step1": {
+        "title": "Select Manuscript",
+        "description": "Browse the manuscript list on the left panel. Use search or filters to find manuscripts of interest."
+      },
+      "step2": {
+        "title": "Choose Analysis Mode",
+        "description": "Use AI Chat to ask questions, Knowledge Graph for visualization, or Educational Mode for structured learning."
+      },
+      "step3": {
+        "title": "Gain Insights",
+        "description": "Discover deep insights, historical context, and relationships between elements in ancient manuscripts."
+      }
+    }
+  },
+  "ragChat": {
+    "title": "Chat All Manuscripts",
+    "description": "Cross-manuscript Q&A",
+    "greeting": "Hello! I'm Nala, your AI assistant. Feel free to ask anything about our manuscript collection.",
+    "welcomeTitle": "Chat with All Manuscripts",
+    "welcomeDesc": "Ask questions covering the entire manuscript collection. I will seek answers from multiple sources simultaneously.",
+    "exampleQuestions": "Example Questions:",
+    "examples": {
+      "ex1": "What are common themes in these manuscripts?",
+      "ex2": "How is the concept of leadership depicted?",
+      "ex3": "Mention main characters that appear frequently.",
+      "ex4": "What are the differences in language style between manuscripts?",
+      "ex5": "Explain the historical context of this collection."
+    },
+    "viewSources": "View Sources",
+    "manuscripts": "manuscripts",
+    "placeholder": "Type your question here...",
+    "send": "Send",
+    "tips": "Tip: Specific questions yield more accurate results."
+  },
+  "multiChat": {
+    "selectMode": "Select Manuscripts",
+    "cancelSelect": "Cancel Selection",
+    "analyzing": "Analyzing {{count}} manuscripts..."
+  },
+  "chat": {
+    "title": "AI Chat",
+    "greeting": "Hello! I'm ready to help you explore the manuscript \"{{title}}\".",
+    "askAnything": "Ask anything about this manuscript",
+    "history": "History",
+    "clearHistory": "Clear History",
+    "exampleQuestions": "Example Questions:",
+    "examples": {
+      "theme": "What is the main theme of this manuscript?",
+      "characters": "Who are the main characters?",
+      "context": "What is the historical context?",
+      "values": "What moral values are contained?"
+    },
+    "analyzing": "Analyzing...",
+    "placeholder": "Ask something about this manuscript...",
+    "send": "Send",
+    "tips": "AI answers based on original manuscript content."
+  },
+  "knowledgeGraph": {
+    "title": "Knowledge Graph",
+    "visualizing": "Visualizing relationships in \"{{title}}\"",
+    "loading": "Loading visualization...",
+    "noData": "Data not available",
+    "noDataDesc": "No graph data yet for this manuscript.",
+    "tips": "Drag nodes to arrange, scroll to zoom.",
+    "legend": {
+      "work": "Work",
+      "character": "Character",
+      "concept": "Concept",
+      "structure": "Structure"
+    }
+  },
+  "tabs": {
+    "chatAI": "AI Chat",
+    "knowledgeGraph": "Knowledge Graph",
+    "educational": "Educational Mode"
+  }
+}

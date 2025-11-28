@@ -1,0 +1,118 @@
+# Frontend files (only backend is deployed to Railway)
+/package.json
+/package-lock.json
+
+# Dependencies
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+bun.lock
+
+# Build outputs
+dist/
+build/
+.vercel/
+.factory/
+
+# Environment files
+.env
+.env.local
+.env.*.local
+
+# Git
+.git/
+.gitignore
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Documentation & Guides (TIDAK PERLU DI PRODUCTION!)
+*.md
+!README.md
+PANDUAN_*.md
+QUICK_*.md
+GUIDE_*.md
+CARA_*.md
+PETUNJUK_*.md
+DOKUMENTASI_*.md
+BIAYA_*.md
+COST_*.md
+MIGRATION_*.md
+DEPLOYMENT_*.md
+INSTALLATION_*.md
+NETWORK_*.md
+TOKEN_*.md
+I18N_*.md
+LOGO_*.md
+DONATION_*.md
+DONASI_*.md
+KNOWLEDGE_*.md
+LANGUAGE_*.md
+MASSIVE_*.md
+MULTI_*.md
+SINGLE_*.md
+SUCCESSFUL_*.md
+SUMMARY_*.md
+URGENT_*.md
+RESEARCH_*.md
+FIX_*.md
+CLUSTERING_*.md
+CHATPANEL_*.md
+BILINGUAL_*.md
+FAVICON_*.md
+guide/
+backups/
+
+# Data files (scraping, checkpoints - TIDAK PERLU!)
+data_naskah/
+data_naskah_sastra_org/
+scraping/
+checkpoints/
+*.py
+*.cjs
+scraper*.py
+scraping_*.json
+scraping_*.csv
+debug_*.html
+debug_*.py
+analyze*.py
+analyze*.cjs
+check-*.cjs
+AUTO_CREATE_FORM*.js
+nala-pustaka.code-workspace
+
+# Batch files
+*.bat
+
+# Logs
+*.log
+
+# Test files
+*.test.js
+*.spec.js
+__tests__/
+
+# Config files tidak perlu di production (frontend build tools)
+.editorconfig
+.prettierignore
+.prettierrc
+eslint.config.js
+jsconfig.json
+postcss.config.js
+tailwind.config.js
+tsconfig.node.json
+vite.config.js
+docker-compose.yml
+vercel.json
+
+# Keep railway.json and nixpacks.toml (needed for Railway deployment)
