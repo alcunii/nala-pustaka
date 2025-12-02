@@ -54,7 +54,7 @@ async function chatWithMultipleManuscripts(manuscripts, query, conversationHisto
         
         const historyText = conversationHistory
           .slice(-4) // Take last 4 messages
-          .map(h => `${h.role === 'user' ? 'User' : 'Assistant'}: ${h.content.substring(0, 500)}...`) // Truncate long assistant responses
+          .map(h => `${h.role === 'user' ? 'User' : 'Assistant'}: ${(h.content || '').substring(0, 500)}...`) // Truncate long assistant responses
           .join('\n');
         
         const languageInstruction = language === 'id' ? 'in Indonesian' : 'in English';

@@ -58,7 +58,10 @@ You can refer to previous questions if relevant to provide coherent answers.`
 
     // Build conversation context (last 5 messages, excluding welcome)
     const contextMessages = conversationHistory
-      .filter(msg => !msg.text.includes('Pustakawan AI') && !msg.text.includes('AI librarian'))
+      .filter(msg => {
+        if (!msg || typeof msg.text !== 'string') return false;
+        return !msg.text.includes('Pustakawan AI') && !msg.text.includes('AI librarian');
+      })
       .slice(-5); // Last 5 messages only
 
     const labels = {
